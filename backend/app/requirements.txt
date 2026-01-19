@@ -1,0 +1,7 @@
+groq
+supabase
+python-dotenv
+transformers
+torch
+requests
+pandas
