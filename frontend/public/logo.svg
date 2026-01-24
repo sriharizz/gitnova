@@ -1,28 +1,26 @@
 <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Solid Background for visibility on all themes -->
-  <rect width="100" height="100" rx="20" fill="#0f172a" />
-  
-  <defs>
-    <linearGradient id="cosmic-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stopColor="#818cf8" /> <!-- Brighter Indigo -->
-      <stop offset="50%" stopColor="#c084fc" /> <!-- Brighter Purple -->
-      <stop offset="100%" stopColor="#22d3ee" /> <!-- Cyan -->
-    </linearGradient>
-  </defs>
+  <!-- Group with Drop Shadow for visibility on light backgrounds -->
+  <g filter="url(#shadow)">
+    <defs>
+      <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="black"/>
+      </filter>
+    </defs>
 
-  <!-- Central Star / Core -->
-  <g transform="translate(50 50)">
-    <path d="M 0 -20 L 4 -4 L 20 0 L 4 4 L 0 20 L -4 4 L -20 0 L -4 -4 Z" fill="#22d3ee" />
-    <circle cx="0" cy="0" r="4" fill="#ffffff" />
-  </g>
+    <!-- Central Star / Core -->
+    <g transform="translate(50 50)">
+      <path d="M 0 -22 L 5 -5 L 22 0 L 5 5 L 0 22 L -5 5 L -22 0 L -5 -5 Z" fill="white" stroke="black" stroke-width="2" />
+    </g>
 
-  <!-- Orbital Rings - Thicker and Brighter -->
-  <g>
-    <ellipse cx="50" cy="50" rx="35" ry="18" transform="rotate(45 50 50)" stroke="url(#cosmic-gradient)" stroke-width="4" stroke-linecap="round" />
-    <ellipse cx="50" cy="50" rx="35" ry="18" transform="rotate(-45 50 50)" stroke="url(#cosmic-gradient)" stroke-width="4" stroke-linecap="round" />
-    
-    <!-- Orbiting Particles -->
-    <circle cx="50" cy="15" r="3" fill="#ffffff" transform="rotate(45 50 50)" />
-    <circle cx="50" cy="85" r="3" fill="#c084fc" transform="rotate(-45 50 50)" />
+    <!-- Orbital Rings - Simple High Contrast -->
+    <g>
+      <!-- Ring 1 -->
+      <ellipse cx="50" cy="50" rx="36" ry="18" transform="rotate(45 50 50)" stroke="white" stroke-width="5" />
+      <ellipse cx="50" cy="50" rx="36" ry="18" transform="rotate(45 50 50)" stroke="black" stroke-width="1.5" stroke-opacity="0.5" /> <!-- Inner detail line -->
+
+      <!-- Ring 2 -->
+      <ellipse cx="50" cy="50" rx="36" ry="18" transform="rotate(-45 50 50)" stroke="white" stroke-width="5" />
+      <ellipse cx="50" cy="50" rx="36" ry="18" transform="rotate(-45 50 50)" stroke="black" stroke-width="1.5" stroke-opacity="0.5" />
+    </g>
   </g>
 </svg>
