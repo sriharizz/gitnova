@@ -24,6 +24,12 @@ export const useIssues = (selectedCategory) => {
             setLoading(true);
             setError(null);
 
+            if (!supabase) {
+                console.warn("[GitNova] Supabase client is not initialized. Check environment variables.");
+                setLoading(false);
+                return;
+            }
+
             let query = supabase
                 .from('issues')
                 .select('*')
@@ -53,8 +59,10 @@ export const useIssues = (selectedCategory) => {
 
             if (!data || data.length === 0) {
                 // FALLBACK: If specific category is empty, check if DB has ANY data (Debug)
-                const { count } = await supabase.from('issues').select('*', { count: 'exact', head: true });
-                console.log('[GitNova] Total DB Issues:', count);
+                if (supabase) {
+                    const { count } = await supabase.from('issues').select('*', { count: 'exact', head: true });
+                    console.log('[GitNova] Total DB Issues:', count);
+                }
 
                 // Optional: You could fetch random issues here if you wanted to show *something*
                 // setIssues(fallbackData); 
@@ -64,16 +72,18 @@ export const useIssues = (selectedCategory) => {
                 console.warn(`[GitNova] Category ${mappedCategory} is empty. Activating Fallback Protocol.`);
 
                 // FALLBACK: Fetch any 10 'PUBLISHED' issues to populate the UI
-                const { data: fallbackData, error: fallbackError } = await supabase
-                    .from('issues')
-                    .select('*')
-                    .eq('status', 'PUBLISHED')
-                    .limit(10);
+                if (supabase) {
+                    const { data: fallbackData, error: fallbackError } = await supabase
+                        .from('issues')
+                        .select('*')
+                        .eq('status', 'PUBLISHED')
+                        .limit(10);
 
-                if (fallbackData && fallbackData.length > 0) {
-                    console.log('[GitNova] Fallback successful:', fallbackData.length);
-                    setIssues(fallbackData);
-                    return;
+                    if (fallbackData && fallbackData.length > 0) {
+                        console.log('[GitNova] Fallback successful:', fallbackData.length);
+                        setIssues(fallbackData);
+                        return;
+                    }
                 }
             }
 
