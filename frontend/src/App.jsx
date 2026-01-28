@@ -154,7 +154,7 @@ const InspectorPanel = ({ issue, onClose }) => {
 // --- PAGES ---
 
 const LandingPage = ({ onNavigate }) => (
-  <div className="relative w-full h-screen bg-[#0f172a] text-slate-300 font-sans flex flex-col overflow-hidden">
+  <div className="relative w-full min-h-screen md:h-screen bg-[#0f172a] text-slate-300 font-sans flex flex-col overflow-y-auto md:overflow-hidden">
     <BackgroundCosmos />
     <div className="relative z-20 w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center shrink-0">
       <div className="flex items-center gap-4 font-mono font-bold text-white tracking-tight cursor-pointer hover:opacity-80 transition-opacity">
@@ -167,14 +167,14 @@ const LandingPage = ({ onNavigate }) => (
       </div>
     </div>
 
-    <div className="relative z-10 w-full max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center h-full pb-10">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-12">
+    <div className="relative z-10 w-full max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-start md:justify-center h-full pt-8 md:pt-0 pb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-12">
         <div className="text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-[10px] font-bold tracking-wider uppercase mb-6">
             <Zap className="w-3 h-3" />
             <span>AI-Powered Contribution Engine</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight">
             Push code. <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-400">
               Not confusion.
@@ -237,9 +237,9 @@ const LandingPage = ({ onNavigate }) => (
 );
 
 const InterestsPage = ({ interests, selectedInterests, toggleInterest, handleFetchRecommendations, hookLoading, isScanning, onNavigateHome, hookError }) => (
-  <div className="relative w-full h-screen bg-[#0f172a] text-white flex flex-col overflow-hidden">
+  <div className="relative w-full min-h-screen md:h-screen bg-[#0f172a] text-white flex flex-col overflow-y-auto md:overflow-hidden">
     <BackgroundCosmos />
-    <div className="relative z-10 max-w-7xl mx-auto px-8 w-full h-full flex flex-col justify-center">
+    <div className="relative z-10 max-w-7xl mx-auto px-8 w-full h-full flex flex-col justify-start md:justify-center pt-20 md:pt-0 pb-10">
       <div onClick={onNavigateHome} className="absolute top-8 left-8 flex items-center gap-4 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
         <GitNovaLogo className="w-12 h-12" />
         <span className="font-mono font-bold text-3xl">GitNova_</span>
