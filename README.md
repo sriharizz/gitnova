@@ -2,7 +2,7 @@
 
 > **Stop searching. Start contributing.** > An AI-powered engine that hunts for beginner-friendly Open Source issues so you don't have to.
 
-##⚡Enough Thinking.
+## ⚡Enough Thinking.
 Most developers fail at Open Source because they get stuck in "Analysis Paralysis."  
 **GitNova** solves this by automating the hunt. It scans thousands of GitHub issues, filters out the noise using **DeBERTa**, and uses **Llama 3** to generate step-by-step solution guides.
 
