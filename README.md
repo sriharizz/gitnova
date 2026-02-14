@@ -46,5 +46,5 @@ GitNova isn't just a scraper. It's an intelligent filtering system.
 
 ### 1. Clone the Repo
 ```bash
-git clone [https://github.com/yourusername/gitnova.git](https://github.com/yourusername/gitnova.git)
+git clone [https://github.com/sriharizz/gitnova.git](https://github.com/sriharizz/gitnova.git)
 cd gitnova
