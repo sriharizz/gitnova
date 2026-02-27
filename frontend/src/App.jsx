@@ -407,6 +407,16 @@ const GitNavApp = () => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(false);
+
+  // Navigate to recommendations ONLY after data has loaded
+  useEffect(() => {
+    if (pendingNavigation && !hookLoading) {
+      setPendingNavigation(false);
+      setIsScanning(false);
+      setCurrentPage('recommendations');
+    }
+  }, [pendingNavigation, hookLoading]);
 
   useEffect(() => {
     if (rawIssues) {
@@ -462,10 +472,7 @@ const GitNavApp = () => {
 
     setIsScanning(true);
     setQueryCategory(selectedInterests[0]);
-    setTimeout(() => {
-      setIsScanning(false);
-      setCurrentPage('recommendations');
-    }, 1500);
+    setPendingNavigation(true);
   };
 
   return (
