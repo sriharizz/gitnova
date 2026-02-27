@@ -96,9 +96,61 @@ export const useIssues = (selectedCategory) => {
         }
     }, [selectedCategory]);
 
+    // Direct fetch that resolves with data — caller can await this
+    const fetchForCategory = useCallback(async (category) => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            if (!supabase) {
+                setLoading(false);
+                return [];
+            }
+
+            let query = supabase
+                .from('issues')
+                .select('*')
+                .eq('status', 'PUBLISHED');
+
+            if (category) {
+                const raw = Array.isArray(category) ? category[0] : category;
+                if (raw) {
+                    const mapped = getDatabaseCategory(raw);
+                    query = query.eq('category', mapped);
+                }
+            }
+
+            const { data, error: supabaseError } = await query;
+            if (supabaseError) throw supabaseError;
+
+            if (!data || data.length === 0) {
+                // Fallback: fetch any 10 published issues
+                const { data: fallbackData } = await supabase
+                    .from('issues')
+                    .select('*')
+                    .eq('status', 'PUBLISHED')
+                    .limit(10);
+
+                if (fallbackData && fallbackData.length > 0) {
+                    setIssues(fallbackData);
+                    return fallbackData;
+                }
+            }
+
+            setIssues(data || []);
+            return data || [];
+        } catch (err) {
+            console.error('Error fetching issues:', err);
+            setError(err.message || 'Could not load recommendations');
+            return [];
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetchIssues();
     }, [fetchIssues]);
 
-    return { issues, loading, error, refreshIssues: fetchIssues };
+    return { issues, loading, error, refreshIssues: fetchIssues, fetchForCategory };
 };

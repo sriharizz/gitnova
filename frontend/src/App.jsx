@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useIssues } from './hooks/useIssues';
 import {
-  ArrowRight, Check, Database, Brain, Monitor, Wrench, Smartphone,
+  ArrowRight, ArrowLeft, Check, Database, Brain, Monitor, Wrench, Smartphone,
   GitCommit, GitPullRequest, GitMerge, AlertCircle, Command,
   Code2, TerminalSquare, Search, Zap, Filter, X, ExternalLink
 } from 'lucide-react';
@@ -300,7 +300,7 @@ const InterestsPage = ({ interests, selectedInterests, toggleInterest, handleFet
 
 const RecommendationsPage = ({
   activeInterest, allIssues, visibleIssues, handleLoadMore,
-  selectedIssue, setSelectedIssue, onNavigateHome, isExpanded, interests
+  selectedIssue, setSelectedIssue, onNavigateHome, onNavigateBack, isExpanded, interests
 }) => {
   const currentInterest = interests.find(i => i.id === activeInterest);
   const title = currentInterest ? currentInterest.title : activeInterest;
@@ -319,9 +319,15 @@ const RecommendationsPage = ({
       <div className={`relative z-10 h-full flex flex-col transition-all duration-300 ${selectedIssue ? 'w-full md:w-[55%] pr-4 pl-6' : 'max-w-6xl mx-auto px-6 w-full'}`}>
 
         <div className="pt-8 pb-6">
-          <div onClick={onNavigateHome} className="flex items-center gap-4 mb-8 cursor-pointer w-fit opacity-80 hover:opacity-100 transition-opacity">
-            <GitNovaLogo className="w-12 h-12" />
-            <span className="font-mono font-bold text-3xl text-slate-100">GitNova_</span>
+          <div className="flex items-center justify-between mb-8">
+            <div onClick={onNavigateHome} className="flex items-center gap-4 cursor-pointer w-fit opacity-80 hover:opacity-100 transition-opacity">
+              <GitNovaLogo className="w-12 h-12" />
+              <span className="font-mono font-bold text-3xl text-slate-100">GitNova_</span>
+            </div>
+            <button onClick={onNavigateBack} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/80 border border-slate-700 hover:border-violet-500/50 text-slate-400 hover:text-white transition-all text-sm font-mono">
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </button>
           </div>
 
           <div className="bg-[#1e293b]/60 backdrop-blur-md border border-slate-700/50 p-6 rounded-2xl mb-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -400,23 +406,13 @@ const GitNavApp = () => {
   });
 
   const [queryCategory, setQueryCategory] = useState(null);
-  const { issues: rawIssues, loading: hookLoading, error: hookError } = useIssues(queryCategory);
+  const { issues: rawIssues, loading: hookLoading, error: hookError, fetchForCategory } = useIssues(queryCategory);
 
   const [allIssues, setAllIssues] = useState([]);
   const [visibleIssues, setVisibleIssues] = useState([]);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState(false);
-
-  // Navigate to recommendations ONLY after data has loaded
-  useEffect(() => {
-    if (pendingNavigation && !hookLoading) {
-      setPendingNavigation(false);
-      setIsScanning(false);
-      setCurrentPage('recommendations');
-    }
-  }, [pendingNavigation, hookLoading]);
 
   useEffect(() => {
     if (rawIssues) {
@@ -458,7 +454,7 @@ const GitNavApp = () => {
     setVisibleIssues(allIssues.slice(0, visibleIssues.length + 9));
   };
 
-  const handleFetchRecommendations = (e) => {
+  const handleFetchRecommendations = async (e) => {
     e?.preventDefault();
     if (selectedInterests.length < 1) {
       alert("Please select at least one interest.");
@@ -466,13 +462,28 @@ const GitNavApp = () => {
     }
     localStorage.setItem('gitnav_interests', JSON.stringify(selectedInterests));
 
-    // FIX 1: Force State Reset immediately
     setAllIssues([]);
     setVisibleIssues([]);
-
     setIsScanning(true);
+
+    // Await the data directly — no race condition possible
+    const data = await fetchForCategory(selectedInterests[0]);
+
+    // Process data inline before navigating
+    const mappedIssues = (data || []).map(issue => ({
+      ...issue,
+      html_url: issue.url,
+      summary: issue.ai_hint,
+      avatar_url: `https://github.com/${issue.repo_name.split('/')[0]}.png`
+    }));
+    const goodIssues = mappedIssues.filter(i => i.difficulty !== 'Master');
+    const shuffled = goodIssues.sort(() => 0.5 - Math.random());
+    setAllIssues(shuffled);
+    setVisibleIssues(shuffled.slice(0, 9));
+
     setQueryCategory(selectedInterests[0]);
-    setPendingNavigation(true);
+    setIsScanning(false);
+    setCurrentPage('recommendations');
   };
 
   return (
@@ -507,6 +518,7 @@ const GitNavApp = () => {
           selectedIssue={selectedIssue}
           setSelectedIssue={setSelectedIssue}
           onNavigateHome={() => setCurrentPage('landing')}
+          onNavigateBack={() => setCurrentPage('interests')}
           isExpanded={isExpanded}
           interests={interests}
         />
