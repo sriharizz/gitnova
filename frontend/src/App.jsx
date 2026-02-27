@@ -246,7 +246,7 @@ const InterestsPage = ({ interests, selectedInterests, toggleInterest, handleFet
       </div>
       <div className="text-center mb-16">
         <h2 className="text-4xl md:text-6xl font-bold mb-4 text-white tracking-tight">Choose Your Stack.</h2>
-        <p className="text-slate-400 font-medium text-lg">We'll filter 10,000+ repos to find your perfect match.</p>
+        <p className="text-slate-400 font-medium text-lg">Scanning 10,000+ active Open Source issues.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-6xl mx-auto w-full">
         {interests.map(interest => {
