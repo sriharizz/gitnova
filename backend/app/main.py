@@ -6,13 +6,16 @@ from supabase import create_client
 from dotenv import load_dotenv
 
 # --- IMPORTS ---
-# We use absolute imports assuming the app is run as a module
 from app.ml.transformer_brain import predict_difficulty_with_transformer
 from app.pipeline.bot import evaluate_and_enrich
+from app.pipeline.pre_filter import pre_filter_issue
+from app.pipeline.repo_grounding import get_repo_context, clear_cache
+from app.pipeline.post_validator import validate_output
+from app.pipeline.quality_scorer import compute_quality_score
 
 load_dotenv()
 
-# --- ⚙️ CONFIGURATION: THE FULL MEGA LIST (PRESERVED) ---
+# --- ⚙️ CONFIGURATION ---
 INTERESTS = {
     "Frontend": [
         "facebook/react", "shadcn-ui/ui", "vercel/next.js", 
@@ -54,7 +57,8 @@ INTERESTS = {
 DRY_RUN = False              # Set True to test without DB writes
 FETCH_PER_REPO = 30          # GitHub fetching depth
 LOCAL_MIN_CONFIDENCE = 0.30  # DeBERTa Pass/Fail Threshold
-CLOUD_SELECTION_LIMIT = 15   # Max issues to send to Groq per batch (Cost Control)
+CLOUD_SELECTION_LIMIT = 15   # Max issues to send to Groq per batch
+MAX_RETRIES = 1              # Post-validation retry attempts
 
 # Init Supabase
 supabase_url = os.getenv("SUPABASE_URL")
@@ -64,6 +68,48 @@ if not supabase_url or not supabase_key:
     raise ValueError("❌ CRITICAL: Supabase credentials missing from .env")
 
 supabase = create_client(supabase_url, supabase_key)
+
+
+# --- PIPELINE STATS ---
+class PipelineStats:
+    """Track statistics across the entire pipeline run."""
+    def __init__(self):
+        self.fetched = 0
+        self.pre_filtered = 0
+        self.deberta_passed = 0
+        self.judged = 0
+        self.validated = 0
+        self.retried = 0
+        self.retry_saved = 0
+        self.published = 0
+        self.rejected = 0
+        self.quality_high = 0
+        self.quality_medium = 0
+        self.quality_low = 0
+    
+    def print_summary(self):
+        print("\n" + "=" * 60)
+        print("📊 PIPELINE SUMMARY")
+        print("=" * 60)
+        print(f"   📥 Fetched:           {self.fetched}")
+        print(f"   🚫 Pre-filtered out:  {self.pre_filtered}")
+        print(f"   🧠 DeBERTa passed:    {self.deberta_passed}")
+        print(f"   ⚡ Judged by LLM:     {self.judged}")
+        print(f"   ✅ Validated:          {self.validated}")
+        print(f"   🔄 Retried:           {self.retried} (saved {self.retry_saved})")
+        print(f"   📤 Published:         {self.published}")
+        print(f"   🚫 Rejected by LLM:   {self.rejected}")
+        print(f"   ---")
+        print(f"   🟢 High Quality:      {self.quality_high}")
+        print(f"   🟡 Medium Quality:    {self.quality_medium}")
+        print(f"   🔴 Low Quality:       {self.quality_low}")
+        
+        total_graded = self.quality_high + self.quality_medium + self.quality_low
+        if total_graded > 0:
+            pct_high = (self.quality_high / total_graded) * 100
+            print(f"\n   📈 High-Quality Rate: {pct_high:.1f}%")
+        print("=" * 60 + "\n")
+
 
 # --- JANITOR ---
 def clean_closed_issues():
@@ -79,7 +125,6 @@ def clean_closed_issues():
         
         closed_count = 0
         for issue in db_issues:
-            # Construct API URL from HTML URL
             api_url = issue['url'].replace("github.com", "api.github.com/repos")
             try:
                 r = requests.get(api_url, headers=headers, timeout=5)
@@ -96,19 +141,25 @@ def clean_closed_issues():
     except Exception as e:
         print(f"   ⚠️ Janitor Error: {e}")
 
+
 # --- PIPELINE ---
 def run_pipeline():
-    print(f"🚀 STARTING GITNOVA ENGINE")
+    print(f"🚀 STARTING GITNOVA ENGINE v2.0")
     print(f"📝 MODE: {'DRY RUN' if DRY_RUN else 'PRODUCTION'}")
     print(f"🔒 SAFE MODE ACTIVE: Limiting Judge to top {CLOUD_SELECTION_LIMIT} candidates.")
+    print(f"🛡️ NEW: Pre-filter + Post-validation + Quality Scoring ACTIVE\n")
 
+    stats = PipelineStats()
     clean_closed_issues()
+    clear_cache()  # Fresh repo context cache each run
     
     for category, repos in INTERESTS.items():
         print(f"\n🌍 CATEGORY: {category}")
         candidates = []
         
-        # A. HUNT (GitHub API)
+        # ═══════════════════════════════════════════
+        # STAGE A: HUNT (GitHub API)
+        # ═══════════════════════════════════════════
         for repo in repos:
             try:
                 url = f"https://api.github.com/repos/{repo}/issues?state=open&sort=created&per_page={FETCH_PER_REPO}"
@@ -123,7 +174,6 @@ def run_pipeline():
                 
                 if resp.status_code == 200:
                     issues = resp.json()
-                    # Sanity check: Ensure we got a list
                     if not isinstance(issues, list): continue
                     print(f"   ✅ {repo}: Scanned {len(issues)} issues")
                 elif resp.status_code == 403:
@@ -134,22 +184,41 @@ def run_pipeline():
                     continue
                 
                 for issue in issues:
-                    if 'pull_request' in issue: continue 
+                    if 'pull_request' in issue: continue
+                    stats.fetched += 1
                     
-                    # B. FILTER (Local DeBERTa)
-                    text = f"{issue['title']} {issue['body']}"
+                    # ═══════════════════════════════════════════
+                    # STAGE 1: PRE-FILTER (NEW)
+                    # ═══════════════════════════════════════════
+                    issue_labels = issue.get('labels', [])
+                    safe_body = issue.get('body') or ""
+                    
+                    filter_result = pre_filter_issue(
+                        issue['title'], safe_body, issue_labels
+                    )
+                    
+                    if not filter_result['pass']:
+                        stats.pre_filtered += 1
+                        continue
+                    
+                    # ═══════════════════════════════════════════
+                    # STAGE 2: DeBERTa FILTER (existing)
+                    # ═══════════════════════════════════════════
+                    text = f"{issue['title']} {safe_body}"
                     analysis = predict_difficulty_with_transformer(text)
                     
-                    # Filter out obvious non-starters immediately
                     if analysis['score'] < LOCAL_MIN_CONFIDENCE: 
                         continue
                     
+                    stats.deberta_passed += 1
                     candidates.append({"data": issue, "analysis": analysis, "repo": repo})
 
             except Exception as e:
                 print(f"   ❌ Error scanning {repo}: {e}")
 
-        # C. SORT & PRIORITIZE
+        # ═══════════════════════════════════════════
+        # STAGE C: SORT & PRIORITIZE
+        # ═══════════════════════════════════════════
         if not candidates:
             print("   💤 No suitable candidates found.")
             continue
@@ -159,47 +228,122 @@ def run_pipeline():
         
         print(f"   💎 Sending {len(top_picks)} Best Candidates to The Judge...")
 
-        # D. JUDGE (Cloud Llama)
+        # ═══════════════════════════════════════════
+        # STAGE 3: REPO GROUNDING (NEW)
+        # ═══════════════════════════════════════════
+        # Pre-fetch repo contexts (cached, so each repo fetched only once)
+        repo_contexts = {}
+        for item in top_picks:
+            if item['repo'] not in repo_contexts:
+                repo_contexts[item['repo']] = get_repo_context(item['repo'])
+                lang = repo_contexts[item['repo']].get('language', '?')
+                print(f"   🌐 Grounded {item['repo']}: {lang}")
+
+        # ═══════════════════════════════════════════
+        # STAGE 4+5+6: JUDGE → VALIDATE → SCORE
+        # ═══════════════════════════════════════════
         for item in top_picks:
             issue = item['data']
-            safe_body = issue.get('body') or "" 
+            safe_body = issue.get('body') or ""
+            repo_ctx = repo_contexts.get(item['repo'], {})
             
+            stats.judged += 1
+            
+            # --- STAGE 4: LLM Tactical Plan ---
             ai_response = evaluate_and_enrich(
                 issue['title'], 
                 safe_body, 
                 item['repo'], 
-                item['analysis']['difficulty']
+                item['analysis']['difficulty'],
+                repo_ctx
             )
             
-            if ai_response:
-                try:
-                    judgement = json.loads(ai_response)
-                    if judgement.get('verified_difficulty') == "Reject": 
-                        print(f"      🚫 Rejected: {issue['title'][:20]}...")
-                        continue
-                        
-                    final_record = {
-                        "id": issue['id'],
-                        "title": issue['title'],
-                        "repo_name": item['repo'],
-                        "difficulty": judgement.get('verified_difficulty', item['analysis']['difficulty']),
-                        "ai_score": item['analysis']['score'],
-                        "ai_hint": judgement.get('hint', "No hint available."),
-                        "category": category,
-                        "url": issue['html_url'],
-                        "status": "PUBLISHED",
-                        "created_at": issue['created_at']
-                    }
+            if not ai_response:
+                continue
+            
+            try:
+                judgement = json.loads(ai_response)
+                
+                if judgement.get('verified_difficulty') == "Reject": 
+                    print(f"      🚫 Rejected: {issue['title'][:40]}...")
+                    stats.rejected += 1
+                    continue
+                
+                hint_text = judgement.get('hint', '')
+                
+                # --- STAGE 5: POST-VALIDATION (NEW) ---
+                valid, failures = validate_output(hint_text, repo_ctx)
+                
+                if not valid:
+                    # Retry once with stricter prompt
+                    stats.retried += 1
+                    print(f"      🔄 Retrying (failures: {', '.join(failures[:2])})")
                     
-                    if DRY_RUN:
-                        print(f"      📝 [Dry Run] Would save: {issue['title'][:30]}...")
+                    ai_response_retry = evaluate_and_enrich(
+                        issue['title'], safe_body, item['repo'],
+                        item['analysis']['difficulty'], repo_ctx,
+                        retry_feedback=failures
+                    )
+                    
+                    if ai_response_retry:
+                        try:
+                            judgement_retry = json.loads(ai_response_retry)
+                            hint_retry = judgement_retry.get('hint', '')
+                            valid_retry, failures_retry = validate_output(hint_retry, repo_ctx)
+                            
+                            if valid_retry:
+                                judgement = judgement_retry
+                                hint_text = hint_retry
+                                valid = True
+                                stats.retry_saved += 1
+                                print(f"      ✅ Retry succeeded!")
+                            else:
+                                print(f"      ❌ Retry also failed. Discarding.")
+                                continue
+                        except Exception:
+                            print(f"      ❌ Retry parse error. Discarding.")
+                            continue
                     else:
-                        # Upsert checks "id" to avoid duplicates
-                        supabase.table("issues").upsert(final_record).execute()
-                        print(f"      ✅ Published: {issue['title'][:30]}...")
-                        
-                except Exception as e:
-                    print(f"      ⚠️ Integration Error: {e}")
+                        print(f"      ❌ Retry returned None. Discarding.")
+                        continue
+                
+                stats.validated += 1
+                
+                # --- STAGE 6: QUALITY SCORING (NEW) ---
+                quality = compute_quality_score(hint_text, repo_ctx)
+                
+                if quality['grade'] == "High":
+                    stats.quality_high += 1
+                elif quality['grade'] == "Medium":
+                    stats.quality_medium += 1
+                else:
+                    stats.quality_low += 1
+                
+                final_record = {
+                    "id": issue['id'],
+                    "title": issue['title'],
+                    "repo_name": item['repo'],
+                    "difficulty": judgement.get('verified_difficulty', item['analysis']['difficulty']),
+                    "ai_score": item['analysis']['score'],
+                    "ai_hint": hint_text,
+                    "category": category,
+                    "url": issue['html_url'],
+                    "status": "PUBLISHED",
+                    "created_at": issue['created_at']
+                }
+                
+                if DRY_RUN:
+                    print(f"      📝 [Dry Run] {quality['grade']}({quality['overall']}) | {issue['title'][:35]}...")
+                else:
+                    supabase.table("issues").upsert(final_record).execute()
+                    print(f"      ✅ Published: {quality['grade']}({quality['overall']}) | {issue['title'][:35]}...")
+                    stats.published += 1
+                    
+            except Exception as e:
+                print(f"      ⚠️ Integration Error: {e}")
+
+    stats.print_summary()
+
 
 if __name__ == "__main__":
     run_pipeline()
