@@ -15,7 +15,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from app.pipeline.pre_filter import pre_filter_issue, pre_filter_issue_from_csv
-from app.pipeline.post_validator import validate_output, validate_hint_from_csv
+from app.pipeline.post_validator import validate_llama_output, validate_hint_from_csv
 from app.pipeline.quality_scorer import compute_quality_score
 
 
@@ -125,8 +125,7 @@ class TestPostValidator:
 **🔧 Change:**
 1. In `ButtonRenderer.handleClick()`, add debounce logic
 2. Insert a 300ms delay using `setTimeout()`"""
-        
-        passed, failures = validate_output(hint, self.java_context)
+        passed, failures = validate_llama_output(hint, "Java")
         assert passed is False
         assert any("extension" in f.lower() for f in failures)
 
@@ -140,8 +139,7 @@ class TestPostValidator:
 1. Review the existing implementation to understand the logic.
 2. Investigate the root cause of the bug.
 3. Update the code to fix the issue. Test the changes thoroughly."""
-        
-        passed, failures = validate_output(hint, self.java_context)
+        passed, failures = validate_llama_output(hint, "Java")
         assert passed is False
         assert any("boilerplate" in f.lower() for f in failures)
 
@@ -153,23 +151,22 @@ class TestPostValidator:
 - `src/main/java/com/app/UserRepository.java`
 
 **🔧 Change:**
-1. In `UserService.findById()`, add a null check before calling `UserRepository.get(id)`
+1. In `UserService.findById()`, add explicit validation before calling `UserRepository.get(id)`
 2. Replace the raw return with `Optional.ofNullable()` wrapper
 3. In `UserController.getUser()`, handle the empty Optional by returning a 404 response"""
-        
-        passed, failures = validate_output(hint, self.java_context)
+        passed, failures = validate_llama_output(hint, "Java")
         assert passed is True
         assert len(failures) == 0
 
     def test_catches_python_in_java_repo(self):
         hint = """**📂 Files:**
-- `src/utils/helper.py`
+- `src/utils/helper.ts`
 
 **🔧 Change:**
 1. In `HelperClass.process()`, add validation for the input parameter"""
-        
-        passed, failures = validate_output(hint, self.java_context)
+        passed, failures = validate_llama_output(hint, "Java")
         assert passed is False
+        assert any("hallucination" in f.lower() for f in failures)
 
 
 # ═══════════════════════════════════════════

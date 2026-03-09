@@ -16,27 +16,53 @@ Most developers fail at Open Source because they get stuck trying to find an iss
 
 ## 🏗️ The 6-Stage AI Pipeline
 GitNova operates a resilient, self-correcting 6-stage data pipeline orchestrated via GitHub Actions. It processes thousands of raw issues and distills them into high-quality, actionable "Golden Nuggets".
-
 ```mermaid
-flowchart LR
-    A[GitHub API] --> B[Pre-Filter]
-    B --> C[DeBERTa v3]
-    C --> D[Repo Grounding]
-    D --> E[Llama 3 Judge]
-    E --> F[Post-Validator]
-    F --> |Retry Loop| E
-    F --> |Pass| G[Quality Scorer]
-    G --> H[(Supabase)]
+flowchart TD
+    subgraph "Data Acquisition"
+        A("📥 GitHub API (Scraper)")
+    end
+
+    subgraph "Stage 1: Noise Reduction"
+        B{"🛡️ Hybrid Pre-Filter\n(Title & Label Rules)"}
+        C{"🧠 DeBERTa v3\n(Zero-shot Semantic Filter)"}
+    end
+
+    subgraph "Stage 2: Context & Grounding"
+        D[("🌐 Repo Grounding (RAG)\n(Language & Extension Metatdata)")]
+    end
+
+    subgraph "Stage 3: LLM Judge & Validation"
+        E("🤖 Llama 3 70B\n(Tactical Planner)")
+        F{"🕵️ Post-Validator\n(AST & Heuristics Check)"}
+        R(("🔄 Self-Correction\nMax 2-Retry Loop"))
+    end
+
+    subgraph "Stage 4: Quality & Storage"
+        G>"⭐ Quality Scorer\n(0-100 Grading)"]
+        H[("🗄️ Supabase\n(PostgreSQL DB)")]
+    end
+
+    A --> B
+    B -- "Pass" --> C
+    B -. "Spam/Rant" .-> Drop1((Drop))
+    C -- "Confidence > 30%" --> D
+    C -. "Too Complex" .-> Drop2((Drop))
+    D --> E
+    E --> F
+    F -- "Hallucination Detected" --> R
+    R --> E
+    F -- "Validated" --> G
+    G --> H
 ```
 
-### Pipeline Architecture:
+### Pipeline Architecture (v2.1 Guardrails):
 1. **GitHub API (The Hunt):** Fetches the latest open issues across 60+ top repositories (React, PyTorch, Kubernetes, etc.).
-2. **Hybrid Pre-Filter:** A zero-cost rule engine that immediately drops noisy issues (RFCs, Roadmaps, all-caps rants, and markdown epic checklists).
+2. **Hybrid Pre-Filter:** An ultra-strict rule engine that immediately drops noisy issues (RFCs, Roadmaps, all-caps rants, questions, and titles ≤ 3 words).
 3. **DeBERTa v3 Brain:** A zero-shot Transformer model evaluates the semantic difficulty of the issue, filtering out advanced/complex tickets.
-4. **Repo Grounding (RAG):** Dynamically fetches repository metadata (language, topics, top directories) to ground the LLM prompt and prevent path hallucination.
-5. **Llama 3 Agent (The Judge):** Evaluates the issue against strict heuristic prompts (banning 13+ generic SDLC verbs) to generate concrete, file-specific tactical plans.
-6. **Post-Validator & Quality Scorer:** Uses regex and AST-style heuristic checks to ensure the LLM output matches the repository's file extensions and contains concrete identifiers. 
-   - *Self-Correction:* If an output fails validation, the pipeline automatically feeds the failure reasons back into Llama 3 for a regeneration retry.
+4. **Repo Grounding (RAG):** Dynamically fetches repository metadata (language, topics, top directories) to forcefully constrain the LLM (e.g., banning `.ts` suggestions in a Python codebase).
+5. **Llama 3 Agent (The Judge):** Evaluates the issue against strict heuristic prompts that explicitly ban "Template Collapse" verbs like *add a null check* or *insert a case branch*. If context is missing, it yields `INSUFFICIENT_CONTEXT`.
+6. **Post-Validator & Quality Scorer:** Uses strict heuristic checks to catch file extension hallucinations and generic boilerplate. 
+   - *Self-Correction (Max 2 Retries):* If an output fails validation, the pipeline automatically feeds the exact failure reason back into Llama 3 for a targeted regeneration.
    - *Scoring:* Issues are ultimately graded (0-100) on Specificity, Repo Alignment, Actionability, and Hallucination Risk before being saved to Supabase.
 
 ---

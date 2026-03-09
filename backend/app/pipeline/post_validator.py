@@ -40,32 +40,44 @@ for exts in LANGUAGE_EXTENSIONS.values():
     ALL_KNOWN_EXTENSIONS.update(exts)
 
 
-def validate_output(hint_text: str, repo_context: dict) -> tuple:
+def validate_llama_output(ai_hint: str, repo_language: str) -> tuple:
     """
-    Validate an LLM-generated hint against repo context.
+    Validate an LLM-generated hint against strict hallucination/template collapse rules.
     
     Args:
-        hint_text: The ai_hint string from the LLM
-        repo_context: Dict with 'language_lower', 'valid_extensions', etc.
-    
+        ai_hint: The raw text string from Llama 3
+        repo_language: The string name of the repository language
+        
     Returns:
         (passed: bool, failures: list[str])
     """
     failures = []
     
-    if not hint_text or hint_text.strip() == "":
+    if not ai_hint or ai_hint.strip() == "":
         return False, ["Empty hint text"]
+        
+    hint_lower = ai_hint.lower()
     
-    # --- Check 1: File extension consistency ---
-    ext_failures = _check_file_extensions(hint_text, repo_context)
-    failures.extend(ext_failures)
+    # 1. Check for template collapse / generic guesses
+    banned_guesses = ["null check", "case branch", "insufficient_context"]
+    for guess in banned_guesses:
+        if guess in hint_lower:
+            failures.append(f"Template collapse detected: Contains banned phrase '{guess}'")
+            
+    # 2. Check for Hallucinated Extensions
+    language_lower = repo_language.lower()
+    backend_langs = ["python", "java", "c++", "c", "go", "rust", "ruby"]
     
-    # --- Check 2: Boilerplate detection ---
-    boilerplate_failures = _check_boilerplate(hint_text)
+    if language_lower in backend_langs:
+        # Check if the hint mentions .ts or .tsx
+        if ".ts`" in hint_lower or ".tsx`" in hint_lower or re.search(r'\b\w+\.tsx?\b', hint_lower):
+            failures.append(f"Extension Hallucination: Suggested .ts/.tsx files for a {repo_language} repository")
+            
+    # 3. Keep existing boilerplate and specificity checks
+    boilerplate_failures = _check_boilerplate(ai_hint)
     failures.extend(boilerplate_failures)
     
-    # --- Check 3: Tactical specificity ---
-    specificity_failures = _check_specificity(hint_text)
+    specificity_failures = _check_specificity(ai_hint)
     failures.extend(specificity_failures)
     
     passed = len(failures) == 0

@@ -10,7 +10,7 @@ from app.ml.transformer_brain import predict_difficulty_with_transformer
 from app.pipeline.bot import evaluate_and_enrich
 from app.pipeline.pre_filter import pre_filter_issue
 from app.pipeline.repo_grounding import get_repo_context, clear_cache
-from app.pipeline.post_validator import validate_output
+from app.pipeline.post_validator import validate_llama_output
 from app.pipeline.quality_scorer import compute_quality_score
 
 load_dotenv()
@@ -58,7 +58,7 @@ DRY_RUN = False              # Set True to test without DB writes
 FETCH_PER_REPO = 30          # GitHub fetching depth
 LOCAL_MIN_CONFIDENCE = 0.30  # DeBERTa Pass/Fail Threshold
 CLOUD_SELECTION_LIMIT = 15   # Max issues to send to Groq per batch
-MAX_RETRIES = 1              # Post-validation retry attempts
+MAX_RETRIES = 2              # Post-validation retry attempts
 
 # Init Supabase
 supabase_url = os.getenv("SUPABASE_URL")
@@ -271,13 +271,15 @@ def run_pipeline():
                 
                 hint_text = judgement.get('hint', '')
                 
-                # --- STAGE 5: POST-VALIDATION (NEW) ---
-                valid, failures = validate_output(hint_text, repo_ctx)
+                # --- STAGE 6: POST-VALIDATION & RETRY LOOP ---
+                repo_language = repo_ctx.get('language', 'Unknown')
+                valid, failures = validate_llama_output(hint_text, repo_language)
                 
-                if not valid:
-                    # Retry once with stricter prompt
+                retries = 0
+                while not valid and retries < MAX_RETRIES:
+                    retries += 1
                     stats.retried += 1
-                    print(f"      🔄 Retrying (failures: {', '.join(failures[:2])})")
+                    print(f"      🔄 Retrying {retries}/{MAX_RETRIES} (failures: {', '.join(failures[:2])})")
                     
                     ai_response_retry = evaluate_and_enrich(
                         issue['title'], safe_body, item['repo'],
@@ -289,23 +291,29 @@ def run_pipeline():
                         try:
                             judgement_retry = json.loads(ai_response_retry)
                             hint_retry = judgement_retry.get('hint', '')
-                            valid_retry, failures_retry = validate_output(hint_retry, repo_ctx)
+                            # Re-validate the retry output
+                            valid_retry, failures_retry = validate_llama_output(hint_retry, repo_language)
                             
                             if valid_retry:
                                 judgement = judgement_retry
                                 hint_text = hint_retry
                                 valid = True
                                 stats.retry_saved += 1
-                                print(f"      ✅ Retry succeeded!")
+                                print(f"      ✅ Retry {retries} succeeded!")
+                                break
                             else:
-                                print(f"      ❌ Retry also failed. Discarding.")
-                                continue
+                                failures = failures_retry
+                                print(f"      ❌ Retry {retries} failed validation.")
                         except Exception:
-                            print(f"      ❌ Retry parse error. Discarding.")
-                            continue
+                            print(f"      ❌ Retry parse error.")
+                            break
                     else:
-                        print(f"      ❌ Retry returned None. Discarding.")
-                        continue
+                        break
+                        
+                if not valid:
+                    print(f"      🛑 All {MAX_RETRIES} retries exhausted. Rejecting issue.")
+                    stats.rejected += 1
+                    continue
                 
                 stats.validated += 1
                 

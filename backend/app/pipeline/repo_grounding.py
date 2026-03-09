@@ -150,4 +150,10 @@ def _build_grounding_block(repo_name: str, ctx: dict) -> str:
     if ctx["top_dirs"]:
         lines.append(f"Top Directories: {', '.join(ctx['top_dirs'])}")
     
+    # Add strict language grounding instruction
+    if ctx["language"] and ctx["language"].lower() != "unknown":
+        lines.append(f"\nCRITICAL: This repository is primarily written in {ctx['language']}.")
+        lines.append(f"You MUST ONLY suggest files and logic that match this language ecosystem.")
+        lines.append(f"Do not suggest web-dev files (.ts, .tsx) for a Python/C++ codebase.")
+    
     return "\n".join(lines)
