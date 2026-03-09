@@ -23,23 +23,23 @@ flowchart TD
     end
 
     subgraph "Stage 1: Noise Reduction"
-        B{"🛡️ Hybrid Pre-Filter\n(Title & Label Rules)"}
-        C{"🧠 DeBERTa v3\n(Zero-shot Semantic Filter)"}
+        B{"🛡️ Hybrid Pre-Filter<br/>(Title & Label Rules)"}
+        C{"🧠 DeBERTa v3<br/>(Zero-shot Semantic Filter)"}
     end
 
     subgraph "Stage 2: Context & Grounding"
-        D[("🌐 Repo Grounding (RAG)\n(Language & Extension Metadata)")]
+        D[("🌐 Repo Grounding (RAG)<br/>(Language & Extension Metadata)")]
     end
 
     subgraph "Stage 3: LLM Judge & Validation"
-        E("🤖 Llama 3 70B\n(Tactical Planner)")
-        F{"🕵️ Post-Validator\n(AST & Heuristics Check)"}
-        R(("🔄 Self-Correction\nMax 2-Retry Loop"))
+        E("🤖 Llama 3 70B<br/>(Tactical Planner)")
+        F{"🕵️ Post-Validator<br/>(AST & Heuristics Check)"}
+        R(("🔄 Self-Correction<br/>Max 2-Retry Loop"))
     end
 
     subgraph "Stage 4: Quality & Storage"
-        G(["⭐ Quality Scorer\n(0-100 Grading)"])
-        H[("🗄️ Supabase\n(PostgreSQL DB)")]
+        G(["⭐ Quality Scorer<br/>(0-100 Grading)"])
+        H[("🗄️ Supabase<br/>(PostgreSQL DB)")]
     end
 
     A --> B
