@@ -445,7 +445,7 @@ const GitNavApp = () => {
 
   const toggleInterest = (id) => {
     setSelectedInterests(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      prev.includes(id) ? [] : [id]
     );
   };
 
