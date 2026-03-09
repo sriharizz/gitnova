@@ -28,7 +28,7 @@ flowchart TD
     end
 
     subgraph "Stage 2: Context & Grounding"
-        D[("🌐 Repo Grounding (RAG)\n(Language & Extension Metatdata)")]
+        D[("🌐 Repo Grounding (RAG)\n(Language & Extension Metadata)")]
     end
 
     subgraph "Stage 3: LLM Judge & Validation"
@@ -38,7 +38,7 @@ flowchart TD
     end
 
     subgraph "Stage 4: Quality & Storage"
-        G>"⭐ Quality Scorer\n(0-100 Grading)"]
+        G(["⭐ Quality Scorer\n(0-100 Grading)"])
         H[("🗄️ Supabase\n(PostgreSQL DB)")]
     end
 
