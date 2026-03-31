@@ -113,10 +113,15 @@ class PipelineStats:
 
 # --- JANITOR ---
 def clean_closed_issues():
-    """Removes issues from Supabase if they are now closed on GitHub."""
+    """Removes issues from Supabase if they are now closed on GitHub or malformed."""
     if DRY_RUN: return
-    print("\n🧹 JANITOR: Checking for closed issues...")
+    print("\n🧹 JANITOR: Checking for closed issues and malformed data...")
     try:
+        # Sweep malformed data first
+        del_resp = supabase.table("issues").delete().in_("difficulty", ["REJECT", "Reject", "Master"]).execute()
+        if hasattr(del_resp, 'data') and len(del_resp.data) > 0:
+            print(f"   🗑️ Swept {len(del_resp.data)} 'REJECT'/'Master' ghost issues from DB.")
+
         response = supabase.table("issues").select("id, repo_name, url").eq("status", "PUBLISHED").execute()
         db_issues = response.data
         
