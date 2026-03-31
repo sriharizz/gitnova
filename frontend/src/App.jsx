@@ -355,19 +355,29 @@ const RecommendationsPage = ({
           </div>
 
           {/* Difficulty Filter */}
-          <div className="flex gap-3 mb-1 overflow-x-auto pb-2 custom-scrollbar">
-            {['All', 'Novice', 'Apprentice', 'Contributor'].map(level => (
-              <button
-                key={level}
-                onClick={() => { setDifficultyFilter(level); setVisibleCount(9); }}
-                className={`px-4 py-2 rounded-full text-xs font-bold font-mono transition-all shrink-0 ${difficultyFilter === level
-                    ? 'bg-violet-600 text-white border border-violet-400 shadow-[0_0_15px_-3px_rgba(139,92,246,0.7)] scale-105'
-                    : 'bg-[#1e293b] text-slate-300 border border-slate-500 shadow-md hover:border-violet-400 hover:bg-slate-800 hover:text-white'
+          <div className="flex gap-3 mb-1 overflow-x-auto pb-3 pt-1 pl-1 pr-1 custom-scrollbar w-full">
+            {['All', 'Novice', 'Apprentice', 'Contributor'].map(level => {
+              const isActive = difficultyFilter === level;
+              let activeColor = '';
+              if (level === 'All') activeColor = 'bg-violet-600 text-white border-violet-400 shadow-[0_0_15px_-3px_rgba(139,92,246,0.6)]';
+              else if (level === 'Novice') activeColor = 'bg-emerald-600 text-white border-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.5)]';
+              else if (level === 'Apprentice') activeColor = 'bg-indigo-600 text-white border-indigo-400 shadow-[0_0_15px_-3px_rgba(99,102,241,0.6)]';
+              else if (level === 'Contributor') activeColor = 'bg-rose-600 text-white border-rose-400 shadow-[0_0_15px_-3px_rgba(244,63,94,0.6)]';
+
+              return (
+                <button
+                  key={level}
+                  onClick={() => { setDifficultyFilter(level); setVisibleCount(9); }}
+                  className={`px-5 py-2 rounded-full text-xs font-bold font-mono transition-all shrink-0 border ${
+                    isActive
+                      ? activeColor
+                      : 'bg-[#1e293b] text-slate-400 border-slate-700 shadow-sm hover:border-slate-500 hover:bg-slate-800 hover:text-slate-200'
                   }`}
-              >
-                {level === 'All' ? 'ALL LEVELS' : level === 'Novice' ? 'EASY (NOVICE)' : level === 'Apprentice' ? 'MEDIUM (APPRENTICE)' : 'HARD (CONTRIBUTOR)'}
-              </button>
-            ))}
+                >
+                  {level === 'All' ? 'ALL LEVELS' : level === 'Novice' ? 'EASY (NOVICE)' : level === 'Apprentice' ? 'MEDIUM (APPRENTICE)' : 'HARD (CONTRIBUTOR)'}
+                </button>
+              );
+            })}
           </div>
         </div>
 
