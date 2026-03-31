@@ -300,8 +300,7 @@ const InterestsPage = ({ interests, selectedInterests, toggleInterest, handleFet
 
 const RecommendationsPage = ({
   activeInterest, allIssues, visibleIssues, handleLoadMore,
-  selectedIssue, setSelectedIssue, onNavigateHome, onNavigateBack, isExpanded, interests,
-  difficultyFilter, setDifficultyFilter, setVisibleCount
+  selectedIssue, setSelectedIssue, onNavigateHome, onNavigateBack, isExpanded, interests
 }) => {
   const currentInterest = interests.find(i => i.id === activeInterest);
   const title = currentInterest ? currentInterest.title : activeInterest;
@@ -353,23 +352,6 @@ const RecommendationsPage = ({
               </span>
             </div>
           </div>
-
-          {/* Difficulty Filter */}
-          <div className="flex gap-3 mb-6 overflow-x-auto pb-2 custom-scrollbar">
-            {['All', 'Novice', 'Apprentice', 'Contributor'].map(level => (
-              <button
-                key={level}
-                onClick={() => { setDifficultyFilter(level); setVisibleCount(9); }}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold font-mono transition-all shrink-0 ${
-                  difficultyFilter === level 
-                  ? 'bg-violet-600 text-white border border-violet-500 shadow-[0_0_15px_-3px_rgba(139,92,246,0.5)]' 
-                  : 'bg-[#1e293b]/60 text-slate-400 border border-slate-700/50 hover:border-slate-500 hover:text-slate-200'
-                }`}
-              >
-                {level === 'All' ? 'ALL LEVELS' : level === 'Novice' ? 'EASY (NOVICE)' : level === 'Apprentice' ? 'MEDIUM (APPRENTICE)' : 'HARD (CONTRIBUTOR)'}
-              </button>
-            ))}
-          </div>
         </div>
 
         <div className="flex-grow overflow-y-auto pb-20 pt-4 pr-2 custom-scrollbar">
@@ -378,7 +360,7 @@ const RecommendationsPage = ({
               <div className="col-span-full text-center py-24 border border-dashed border-slate-800 rounded-xl bg-slate-900/30">
                 <TerminalSquare className="w-12 h-12 text-slate-700 mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-slate-400 mb-2">No Golden Tickets Found</h3>
-                <p className="text-slate-500 font-mono text-sm">We couldn't find any issues matching this difficulty right now.<br />Try another filter or check back later.</p>
+                <p className="text-slate-500 font-mono text-sm">We couldn't find any 'Medium' issues in this category right now.<br />Try another category or check back later.</p>
               </div>
             ) : (
               visibleIssues.map((issue, idx) => (
@@ -427,14 +409,10 @@ const GitNavApp = () => {
   const { issues: rawIssues, loading: hookLoading, error: hookError, fetchForCategory } = useIssues(queryCategory);
 
   const [allIssues, setAllIssues] = useState([]);
-  const [difficultyFilter, setDifficultyFilter] = useState('All');
-  const [visibleCount, setVisibleCount] = useState(9);
+  const [visibleIssues, setVisibleIssues] = useState([]);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
-
-  const filteredIssues = allIssues.filter(i => difficultyFilter === 'All' || i.difficulty === difficultyFilter);
-  const visibleIssues = filteredIssues.slice(0, visibleCount);
-  const isExpanded = visibleCount >= filteredIssues.length;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     if (rawIssues) {
@@ -447,7 +425,12 @@ const GitNavApp = () => {
       const goodIssues = mappedIssues.filter(i => i.difficulty !== 'Master');
       const shuffled = goodIssues.sort(() => 0.5 - Math.random());
       setAllIssues(shuffled);
-      setVisibleCount(9);
+      if (shuffled.length > 0) {
+        setVisibleIssues(shuffled.slice(0, 9));
+      } else {
+        // FIX 2: Handle empty state
+        setVisibleIssues([]);
+      }
     }
   }, [rawIssues]);
 
@@ -467,7 +450,8 @@ const GitNavApp = () => {
   };
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 9);
+    setIsExpanded(true);
+    setVisibleIssues(allIssues.slice(0, visibleIssues.length + 9));
   };
 
   const handleFetchRecommendations = async (e) => {
@@ -495,8 +479,7 @@ const GitNavApp = () => {
     const goodIssues = mappedIssues.filter(i => i.difficulty !== 'Master');
     const shuffled = goodIssues.sort(() => 0.5 - Math.random());
     setAllIssues(shuffled);
-    setVisibleCount(9);
-    setDifficultyFilter('All');
+    setVisibleIssues(shuffled.slice(0, 9));
 
     setQueryCategory(selectedInterests[0]);
     setIsScanning(false);
@@ -529,7 +512,7 @@ const GitNavApp = () => {
       {currentPage === 'recommendations' && (
         <RecommendationsPage
           activeInterest={selectedInterests[0] || "General"}
-          allIssues={filteredIssues}
+          allIssues={allIssues}
           visibleIssues={visibleIssues}
           handleLoadMore={handleLoadMore}
           selectedIssue={selectedIssue}
@@ -538,9 +521,6 @@ const GitNavApp = () => {
           onNavigateBack={() => setCurrentPage('interests')}
           isExpanded={isExpanded}
           interests={interests}
-          difficultyFilter={difficultyFilter}
-          setDifficultyFilter={setDifficultyFilter}
-          setVisibleCount={setVisibleCount}
         />
       )}
     </div>
