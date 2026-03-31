@@ -479,6 +479,7 @@ const GitNavApp = () => {
     localStorage.setItem('gitnav_interests', JSON.stringify(selectedInterests));
 
     setAllIssues([]);
+    setVisibleIssues([]);
     setIsScanning(true);
 
     // Await the data directly — no race condition possible
