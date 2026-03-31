@@ -125,4 +125,4 @@ Create a `.env` file in the `frontend/` directory matching your Supabase credent
 
 ---
 
-*GitNova — Built to cure Tutorial Hell.*
+*GitNova — Your gateway to meaningful Open Source contributions.*
