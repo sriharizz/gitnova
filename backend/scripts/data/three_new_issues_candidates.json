@@ -1,0 +1,47 @@
+[
+  {
+    "language": "Python",
+    "repo": "psf/requests",
+    "issue_number": 7564,
+    "title": "raise FileNotFoundError for missing TLS material",
+    "url": "https://github.com/psf/requests/issues/7564",
+    "labels": [],
+    "state": "open",
+    "assignee": null,
+    "comments": 4,
+    "body_length": 1443,
+    "body_preview": "Would you accept a PR which changes the existing OSError for missing TLS material to FileNotFoundError?\n\ne.g.:\n\n```\n            if conn.cert_file and not os.path.exists(conn.cert_file):\n                raise OSError(\n                    f\"Could not find the TLS certificate file, \"\n                  "
+  },
+  {
+    "language": "TypeScript",
+    "repo": "facebook/docusaurus",
+    "issue_number": 11482,
+    "title": "docusaurus start - Failed to open browser",
+    "url": "https://github.com/facebook/docusaurus/issues/11482",
+    "labels": [
+      "bug",
+      "status: needs more information"
+    ],
+    "state": "open",
+    "assignee": null,
+    "comments": 12,
+    "body_length": 4078,
+    "body_preview": "### Have you read the Contributing Guidelines on issues?\n\n- [x] I have read the [Contributing Guidelines on issues](https://github.com/facebook/docusaurus/blob/main/CONTRIBUTING.md#issues).\n\n### Prerequisites\n\n- [x] I'm using the latest version of Docusaurus.\n- [x] I have tried the `npm run clear` o"
+  },
+  {
+    "language": "Rust",
+    "repo": "sharkdp/bat",
+    "issue_number": 1948,
+    "title": "Clarify supported custom theme formats",
+    "url": "https://github.com/sharkdp/bat/issues/1948",
+    "labels": [
+      "help wanted",
+      "documentation"
+    ],
+    "state": "open",
+    "assignee": null,
+    "comments": 4,
+    "body_length": 1520,
+    "body_preview": "The documentation for [custom themes](https://github.com/sharkdp/bat#adding-new-themes) says:\r\n> This works very similar to how we add new syntax definitions.\r\n\r\nThe documentation for [new syntax definitions](https://github.com/sharkdp/bat#adding-new-syntaxes--language-definitions) says:\r\n> `bat` us"
+  }
+]

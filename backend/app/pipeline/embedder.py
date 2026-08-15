@@ -23,9 +23,9 @@ def _get_model() -> SentenceTransformer:
     """Load the model once and cache it for the process lifetime."""
     global _model
     if _model is None:
-        print(f"   📦 Loading embedding model: {MODEL_NAME}...")
+        print(f"   Loading embedding model: {MODEL_NAME}...")
         _model = SentenceTransformer(MODEL_NAME, trust_remote_code=True)
-        print(f"   ✅ Embedding model loaded (768-dim)")
+        print(f"   Embedding model loaded (768-dim)")
     return _model
 
 

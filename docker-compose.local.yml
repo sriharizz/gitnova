@@ -1,0 +1,33 @@
+version: "3.8"
+
+# Optional local dev override. Use ONLY when developing without Supabase.
+# Run with: docker compose -f docker-compose.yml -f docker-compose.local.yml up
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: gitnova
+      POSTGRES_PASSWORD: gitnova
+      POSTGRES_DB: gitnova
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gitnova"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://gitnova:gitnova@db:5432/gitnova
+    volumes:
+      - ./backend/app:/app/app   # hot reload for local dev only
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

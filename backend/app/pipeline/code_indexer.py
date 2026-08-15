@@ -262,22 +262,51 @@ def ensure_repo_indexed(supabase_client: Any, github_client: GitHubClient, repo_
     """
     Checks commit SHA freshness. If stale, crawls, chunks, embeds, and atomically swap indexes.
     Uses multi-signal file selection (structural, stack trace path extraction, and issue term-matching)
-    to select the top 25 files.
+    to select the top 50 files.
     Returns the ACTIVE commit SHA on success, or empty string on failure.
     """
     staging_snapshot_id = None
     try:
-        default_branch = repo_context.get("default_branch") or "main"
-        valid_extensions = repo_context.get("valid_extensions", [".py"])
+        lang = (repo_context.get("language") or "").lower()
+        if "python" in lang:
+            valid_extensions = [".py"]
+        elif "type" in lang or "ts" in lang:
+            valid_extensions = [".ts", ".tsx", ".js", ".jsx"]
+        elif "javascript" in lang or "js" in lang:
+            valid_extensions = [".js", ".jsx", ".ts", ".mjs", ".cjs"]
+        elif "rust" in lang or "rs" in lang:
+            valid_extensions = [".rs"]
+        elif "go" in lang:
+            valid_extensions = [".go"]
+        else:
+            valid_extensions = repo_context.get("valid_extensions", [".py", ".ts", ".js", ".rs", ".go"])
 
         # 1. Fetch current repository head commit SHA from GitHub API
-        branch_url = f"https://api.github.com/repos/{repo_name}/branches/{default_branch}"
-        branch_data = github_client.get(branch_url)
-        commit_sha = branch_data["commit"]["sha"]
-        
-        if not commit_sha:
+        default_branch = repo_context.get("default_branch")
+        branch_data = None
+        if default_branch:
+            try:
+                branch_url = f"https://api.github.com/repos/{repo_name}/branches/{default_branch}"
+                branch_data = github_client.get(branch_url)
+            except Exception:
+                branch_data = None
+
+        if not branch_data:
+            for b in ["main", "master"]:
+                try:
+                    branch_url = f"https://api.github.com/repos/{repo_name}/branches/{b}"
+                    branch_data = github_client.get(branch_url)
+                    if isinstance(branch_data, dict) and "commit" in branch_data:
+                        default_branch = b
+                        break
+                except Exception:
+                    continue
+
+        if not branch_data or "commit" not in branch_data:
             print(f"⚠️ Indexer: Could not resolve commit SHA for {repo_name}. Skipping index.")
             return ""
+
+        commit_sha = branch_data["commit"]["sha"]
 
         # 2. Check if an ACTIVE snapshot already exists for this exact commit SHA in Supabase
         active_resp = supabase_client.table("repository_snapshots") \
@@ -293,11 +322,22 @@ def ensure_repo_indexed(supabase_client: Any, github_client: GitHubClient, repo_
 
         print(f"🔄 Indexer: Snapshot missing/stale for {repo_name}. Re-indexing at {commit_sha[:7]}...")
 
+        # Clean up any stale staging or failed snapshots for this exact key
+        try:
+            supabase_client.table("repository_snapshots") \
+                .delete() \
+                .eq("repo_name", repo_name) \
+                .eq("commit_sha", commit_sha) \
+                .neq("status", "ACTIVE") \
+                .execute()
+        except Exception:
+            pass
+
         # 3. Create a STAGING snapshot record
         snapshot_record = {
             "repo_name": repo_name,
             "commit_sha": commit_sha,
-            "default_branch": default_branch,
+            "default_branch": default_branch or "main",
             "status": "STAGING",
             "embedding_model": "jinaai/jina-embeddings-v2-base-code",
             "embedding_dimensions": 768,
@@ -492,7 +532,7 @@ def ensure_repo_indexed(supabase_client: Any, github_client: GitHubClient, repo_
         batch_size = 50
         for i in range(0, len(db_chunks), batch_size):
             batch = db_chunks[i : i + batch_size]
-            supabase_client.table("code_chunks").insert(batch).execute()
+            supabase_client.table("code_chunks").upsert(batch, on_conflict="chunk_id").execute()
 
         # Update staging snapshot metadata values
         supabase_client.table("repository_snapshots").update({

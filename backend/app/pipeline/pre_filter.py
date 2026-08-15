@@ -70,10 +70,11 @@ def pre_filter_issue(title: str, body: str, labels: list = None) -> dict:
         if not re.search(code_file_pattern, body_clean):
             return _reject("Documentation-only issue (no code files referenced)")
     
-    # Rule 6: Epic detection (≥5 checklist items)
-    checklist_count = len(re.findall(r'- \[[ x]\]', body_clean))
-    if checklist_count >= 5:
-        return _reject(f"Epic/umbrella issue ({checklist_count} checklist items)")
+    # Rule 6: Epic / tracking issue detection (≥5 pending tasks or tracking keywords with checklist)
+    unchecked_count = len(re.findall(r'- \[ \]', body_clean))
+    total_checklist = len(re.findall(r'- \[[ xX]\]', body_clean))
+    if unchecked_count >= 5 or (total_checklist >= 5 and any(w in title_lower for w in ["tracking", "epic", "roadmap", "todo", "umbrella", "meta", "v2", "v3"])):
+        return _reject(f"Epic/umbrella tracking issue ({total_checklist} checklist items, {unchecked_count} pending)")
     
     # Rule 7: Non-code task labels
     if label_names and label_names.issubset(NON_CODE_LABELS):

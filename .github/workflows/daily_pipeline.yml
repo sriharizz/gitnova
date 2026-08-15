@@ -35,13 +35,18 @@ jobs:
       - name: Run Pipeline Engine
         run: |
           cd backend
-          python -m app.main
+          python -m app.pipeline.run_issue_sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.5-flash
+          LLM_PROVIDER: gemini
+          LLM_MODEL: gemini-3.5-flash
+          GEMINI_RPM_LIMIT: 15
+          GEMINI_RPD_LIMIT: 1500
           JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
       - name: Send Slack/Discord Alert on Failure

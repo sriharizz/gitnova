@@ -1,8 +1,16 @@
 import os
+import sys
 import time
 import random
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 class GitHubAPIError(Exception):
     """Base exception for GitHub API errors."""
@@ -17,7 +25,8 @@ class GitHubRateLimitError(GitHubAPIError):
 
 class GitHubClient:
     def __init__(self, token: Optional[str] = None, supabase_client: Any = None):
-        self.token = token or os.getenv("GITHUB_TOKEN")
+        from app.core.config import settings
+        self.token = token or os.getenv("GITHUB_TOKEN") or getattr(settings, "github_token", None)
         if not self.token:
             print("⚠️ WARNING: GITHUB_TOKEN is missing. Requests will be unauthenticated and rate limits will be highly restricted.")
         
@@ -73,8 +82,8 @@ class GitHubClient:
         We only store list responses (issues), not giant tree payloads, to keep the table small.
         """
         try:
-            # Only persist list responses (issue lists). Skip large tree/blob payloads.
-            storable_data = data if isinstance(data, list) else None
+            # Persist issue lists and single issue dicts (skip large git tree/blob payloads)
+            storable_data = data if (isinstance(data, (list, dict)) and not (isinstance(data, dict) and "tree" in data)) else None
             self._supabase.table("etag_cache").upsert({
                 "resource_key": url,
                 "etag": etag,
@@ -123,7 +132,7 @@ class GitHubClient:
                 is_get = method.upper() == "GET"
                 cached_item = self._etag_cache.get(url) if is_get else None
                 
-                if cached_item and "etag" in cached_item:
+                if cached_item and "etag" in cached_item and cached_item.get("data") is not None:
                     headers = kwargs.get("headers", {})
                     headers["If-None-Match"] = cached_item["etag"]
                     kwargs["headers"] = headers
@@ -134,10 +143,8 @@ class GitHubClient:
                 # Handle Conditional request cache hit (304 Not Modified)
                 if response.status_code == 304 and cached_item:
                     cached_data = cached_item.get("data")
-                    # If we have cached data (from DB), return it.
-                    # If data is None (ETag was stored but response_data column was added later),
-                    # return an empty list so the pipeline skips this repo gracefully.
-                    return cached_data if cached_data is not None else []
+                    if cached_data is not None:
+                        return cached_data
 
                 # Handle Success
                 if 200 <= response.status_code < 300:
@@ -186,5 +193,42 @@ class GitHubClient:
 
         raise GitHubAPIError(f"Failed to get successful response from GitHub after {max_attempts} attempts", status_code=500)
 
-    def get(self, url: str, params: Optional[Dict[str, Any]] = None) -> Any:
-        return self.request("GET", url, params=params)
+    def get(self, url: str, params: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None) -> Any:
+        kwargs = {"params": params}
+        if headers:
+            kwargs["headers"] = headers
+        return self.request("GET", url, **kwargs)
+
+    def fetch_issue_timeline_events(self, repo_name: str, issue_number: int) -> List[Dict[str, Any]]:
+        """
+        Fetch issue timeline events (cross-references, linked PRs, commit references).
+        Used by ContributionOpportunityEvaluator to detect active work.
+        """
+        url = f"https://api.github.com/repos/{repo_name}/issues/{issue_number}/timeline"
+        try:
+            custom_headers = {
+                "Accept": "application/vnd.github.mockingbird-preview+json, application/vnd.github.v3+json"
+            }
+            res = self.get(url, params={"per_page": 30}, headers=custom_headers)
+            return res if isinstance(res, list) else []
+        except Exception as err:
+            print(f"⚠️ Timeline fetch warning for {repo_name} #{issue_number}: {err}")
+            return []
+
+    def fetch_repo_contributing_guide(self, repo_name: str) -> Optional[str]:
+        """
+        Fetch CONTRIBUTING.md text content for repository contribution guide integration.
+        """
+        possible_paths = ["CONTRIBUTING.md", ".github/CONTRIBUTING.md", "docs/CONTRIBUTING.md"]
+        for path in possible_paths:
+            url = f"https://api.github.com/repos/{repo_name}/contents/{path}"
+            try:
+                res = self.get(url)
+                if isinstance(res, dict) and "content" in res:
+                    import base64
+                    content_b64 = res.get("content") or ""
+                    decoded = base64.b64decode(content_b64).decode("utf-8", errors="ignore")
+                    return decoded
+            except Exception:
+                continue
+        return None

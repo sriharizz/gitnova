@@ -1,128 +1,143 @@
-# GitNova 🚀
+# GitNova v4.2 🚀
 
-> **Stop searching. Start contributing.**  
-> An autonomous AI-powered engine that hunts for beginner-friendly Open Source issues so you don't have to.
+> **Find your first successful open-source contribution with confidence.**
 
-![GitNova Banner](https://img.shields.io/badge/Status-Active-brightgreen) ![License](https://img.shields.io/badge/License-MIT-blue)
+GitNova is an AI Open Source Mentor. It doesn't just show you a list of issues and say "good luck." It first scores every repository on contributor-friendliness, then retrieves actual source code, grounds an LLM in that code, and generates a step-by-step fix blueprint.
 
-## ⚡ The Problem: Analysis Paralysis
-Most developers fail at Open Source because they get stuck trying to find an issue among thousands, only to realize the issue is either too hard, lacks context, or is actually a sprawling architecture proposal. 
-
-**GitNova** solves this by automating the hunt. It continuously scans GitHub, filters out the noise using **Hybrid Heuristics + DeBERTa v3**, and utilizes **Llama 3** to generate highly accurate, repo-grounded tactical solutions.
-
-**🔴 Live Demo:** [gitnova-dev.vercel.app](https://gitnova-dev.vercel.app)
+[![CI](https://github.com/sriharizz/gitnova/actions/workflows/ci.yml/badge.svg)](https://github.com/sriharizz/gitnova/actions/workflows/ci.yml)
+![Version](https://img.shields.io/badge/version-4.2.0-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Stack](https://img.shields.io/badge/stack-FastAPI%20%2B%20Supabase%20%2B%20Groq-purple)
 
 ---
 
-## 🏗️ The 6-Stage AI Pipeline
-GitNova operates a resilient, self-correcting 6-stage data pipeline orchestrated via GitHub Actions. It processes thousands of raw issues and distills them into high-quality, actionable "Golden Nuggets".
-```mermaid
-flowchart TD
-    subgraph "Data Acquisition"
-        A("📥 GitHub API (Scraper)")
-    end
+## What GitNova Does
 
-    subgraph "Stage 1: Noise Reduction"
-        B{"🛡️ Hybrid Pre-Filter<br/>(Title & Label Rules)"}
-        C{"🧠 DeBERTa v3<br/>(Zero-shot Semantic Filter)"}
-    end
+| Question | How GitNova Answers |
+|---|---|
+| Which repos are worth contributing to? | Repository Qualification Engine → **Contribution Success Score** |
+| Which issue should I choose? | Issue Intelligence + DeBERTa classification |
+| Why is it suitable for me? | Competition scoring + difficulty estimation |
+| What code should I read? | Hybrid RAG (vector + full-text search) |
+| How should I approach it? | LLM Mentor with file-level guidance |
 
-    subgraph "Stage 2: Context & Grounding"
-        D[("🌐 Dynamic Repo Grounding<br/>(Language & Extension Metadata)")]
-    end
+---
 
-    subgraph "Stage 3: LLM Judge & Validation"
-        E("🤖 Llama 3 70B<br/>(Tactical Planner)")
-        F{"🕵️ Post-Validator<br/>(AST & Heuristics Check)"}
-        R(("🔄 Self-Correction<br/>Max 2-Retry Loop"))
-    end
+## Architecture
 
-    subgraph "Stage 4: Quality & Storage"
-        G(["⭐ Quality Scorer<br/>(0-100 Grading)"])
-        H[("🗄️ Supabase<br/>(PostgreSQL DB)")]
-    end
-
-    A --> B
-    B -- "Pass" --> C
-    B -. "Spam/Rant" .-> Drop1((Drop))
-    C -- "Confidence > 30%" --> D
-    C -. "Too Complex" .-> Drop2((Drop))
-    D --> E
-    E --> F
-    F -- "Hallucination Detected" --> R
-    R --> E
-    F -- "Validated" --> G
-    G --> H
+```
+GitHub Actions (Workers)          FastAPI (Render)
+──────────────────────            ────────────────
+Weekly:                           Always on:
+  GitHub Search API               GET /repos?tier=starter
+  → Score repos (0-100)           GET /repos/{id}
+  → Store in Supabase             GET /issues?quality=high
+                                  GET /issues/{id}
+Every 12h:                        GET /health
+  Scan issues
+  → Classify (DeBERTa)                 ↓
+  → RAG retrieve code             Supabase (PostgreSQL + pgvector)
+  → LLM hint (Groq)
+  → Validate + publish
 ```
 
-### Pipeline Architecture (v2.1 Guardrails):
-1. **GitHub API (The Hunt):** Fetches the latest open issues across 60+ top repositories (React, PyTorch, Kubernetes, etc.).
-2. **Hybrid Pre-Filter:** An ultra-strict rule engine that immediately drops noisy issues (RFCs, Roadmaps, all-caps rants, questions, and titles ≤ 3 words).
-3. **DeBERTa v3 Brain:** A zero-shot Transformer model evaluates the semantic difficulty of the issue, filtering out advanced/complex tickets.
-4. **Dynamic Repo Grounding:** Dynamically fetches repository metadata (language, topics, top directories) to forcefully constrain the LLM (e.g., banning `.ts` suggestions in a Python codebase).
-5. **Llama 3 Agent (The Judge):** Evaluates the issue against strict heuristic prompts that explicitly ban "Template Collapse" verbs like *add a null check* or *insert a case branch*. If context is missing, it yields `INSUFFICIENT_CONTEXT`.
-6. **Post-Validator & Quality Scorer:** Uses strict heuristic checks to catch file extension hallucinations and generic boilerplate. 
-   - *Self-Correction (Max 2 Retries):* If an output fails validation, the pipeline automatically feeds the exact failure reason back into Llama 3 for a targeted regeneration.
-   - *Scoring:* Issues are ultimately graded (0-100) on Specificity, Repo Alignment, Actionability, and Hallucination Risk before being saved to Supabase.
+**Key insight:** The API never calls an LLM. It reads pre-computed data. This is why it's fast, cheap, and stays alive on free tiers.
 
 ---
 
-## 🛠️ Tech Stack
+## Quick Start
 
-| Component | Technology | Role |
-| :--- | :--- | :--- |
-| **Frontend** | React + Vite + Tailwind | Fast, responsive, mobile-first UI |
-| **Database** | Supabase (PostgreSQL) | Stores curated issues & AI metrics |
-| **NLP Engine** | HuggingFace (DeBERTa v3) | Zero-shot classification (Noise Filter) |
-| **LLM Agent** | Llama 3 70B (via Groq) | Tactical plan generation & evaluation |
-| **Orchestration** | Python + GitHub Actions | Automated 6-stage cron jobs |
+### Prerequisites
+- Docker + Docker Compose
+- A [Supabase](https://supabase.com) project (free)
+- A [Groq](https://console.groq.com) API key (free)
+- A GitHub personal access token
 
----
-
-## ✨ Key Features
-* **🎯 AI Difficulty Scoring:** Know exactly if an issue is for Novices or Apprentices.
-* **🤖 Smart Tactical Hints:** The AI tells you exactly which files to edit, which functions to look at, and what logic to change.
-* **🛡️ Hallucination Defense:** Built-in validation ensures the AI doesn't suggest `.tsx` files in a Python repository.
-* **📱 Mobile Ready:** Fully responsive "Card Layout" for hunting on the go.
-* **🏷️ Auto-Categorization:** Issues are sorted into ML, Web Dev, DevOps, and Mobile.
-
----
-
-## 🚀 Local Setup
-
-### 1. Clone the Repo
+### 1. Clone
 ```bash
 git clone https://github.com/sriharizz/gitnova.git
 cd gitnova
 ```
 
-### 2. Backend Pipeline
+### 2. Configure
 ```bash
-cd backend
-python -m venv env
-source env/bin/activate  # Or `.\env\Scripts\activate` on Windows
-pip install -r requirements.txt
-```
-Create a `.env` file in the `backend/` directory:
-```env
-GITHUB_TOKEN=your_github_token
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
-GROQ_API_KEY=your_groq_api_key
-```
-Run the engine natively:
-```bash
-python -m app.main
+cp .env.example .env
+# Edit .env with your Supabase URL, Groq key, and GitHub token
 ```
 
-### 3. Frontend UI
+### 3. Run
 ```bash
-cd frontend
-npm install
-npm run dev
+docker compose up --build
 ```
-Create a `.env` file in the `frontend/` directory matching your Supabase credentials.
+
+API is live at: `http://localhost:8000`
+Docs at: `http://localhost:8000/docs`
+
+### Optional: Local DB (no Supabase)
+```bash
+docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+```
 
 ---
 
-*GitNova — Your gateway to meaningful Open Source contributions.*
+## Tech Stack
+
+| Component | Technology | Why |
+|---|---|---|
+| **API** | FastAPI + Uvicorn | Async, auto-docs, industry standard |
+| **Database** | Supabase (PostgreSQL + pgvector) | Free hosted, vector search built-in |
+| **LLM** | Groq (primary) → OpenRouter (fallback) via LiteLLM | Free tier, reliable cascade |
+| **Embeddings** | Jina v2 (local CPU) | No API cost, no rate limits |
+| **Classifier** | DeBERTa v3 (zero-shot) | Strong NLI, no fine-tuning needed |
+| **Orchestration** | GitHub Actions | Free for public repos, unlimited minutes |
+| **Deployment** | Render (API) + GitHub Pages (frontend) | Free tier |
+
+---
+
+## Contribution Success Score
+
+GitNova scores every repository across 5 pillars:
+
+| Pillar | Weight | What It Measures |
+|---|---|---|
+| **Beginner-Friendliness** | 25% | CONTRIBUTING.md, good-first-issue labels |
+| **Responsiveness** | 20% | PR merge rate, merge time, issue response |
+| **Activity** | 20% | Recent commits, issue velocity |
+| **Health** | 20% | License, community size, manageable backlog |
+| **Documentation** | 15% | README quality, Code of Conduct |
+
+Repos with score ≥ 60 enter the `starter` tier. Score ≥ 50 → `growing`. Score ≥ 40 → `established`.
+
+---
+
+## Project Structure
+
+```
+gitnova/
+├── backend/app/
+│   ├── main.py              ← FastAPI entry point
+│   ├── intelligence/        ← Repository Qualification Engine (Sprint 3)
+│   ├── pipeline/            ← Issue scanning + RAG + LLM (Sprints 5-9)
+│   ├── indexer/             ← Code chunking + embeddings (Sprint 5)
+│   └── db/                  ← Database client (Sprint 1)
+├── .github/workflows/       ← CI + weekly scoring + nightly pipeline
+├── docker-compose.yml       ← Default: API → Supabase
+├── docker-compose.local.yml ← Optional: API → local PostgreSQL
+└── docs/adr/DECISIONS.md    ← Architecture decisions
+```
+
+---
+
+## API Endpoints
+
+| Endpoint | Description |
+|---|---|
+| `GET /health` | System health check |
+| `GET /repos?tier=starter&min_score=60` | Ranked repositories with score breakdown |
+| `GET /repos/{id}` | Single repo with full explanation |
+| `GET /issues?quality=high` | AI mentor hints for issues |
+| `GET /issues/{id}` | Full step-by-step guide for one issue |
+
+---
+
+*GitNova — Your AI mentor for meaningful open-source contributions.*

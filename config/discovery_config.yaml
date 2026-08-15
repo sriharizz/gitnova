@@ -1,0 +1,64 @@
+# GitNova v4.2 — Repository Discovery Configuration
+#
+# PHILOSOPHY:
+#   Repository Discovery has ONE responsibility: build a broad, diverse,
+#   high-quality candidate pool.
+#
+#   Discovery asks: "Is this repo active, public, and real?"
+#   Qualification asks: "Is this repo good for a contributor?"
+#   Personalization asks: "Is this repo right for THIS user?"
+#
+# DESIGN CONSTRAINTS:
+#   - Deterministic search (GitHub Search API is structured retrieval; no AI/ML here).
+#   - Stars are strictly a sampling / noise-reduction floor (min_stars: 50 avoids toy repos).
+#   - Stars do NOT represent recommendation quality, tier, complexity, or user fit.
+#   - No product-level filters (no topic:beginner-friendly, no good-first-issues).
+
+# ── Languages (Language Coverage) ────────────────────────────────────────────
+# Add or remove languages freely — no Python code changes needed.
+languages:
+  - python
+  - javascript
+  - typescript
+  - go
+  - rust
+  - java
+  - ruby
+  - kotlin
+  - cpp
+  - dart
+
+# ── Activity window ───────────────────────────────────────────────────────────
+# Repositories updated within the last 90 days (3 months) are generally active,
+# with engaged maintainers more likely to review and merge contributions.
+# This is a discovery recall boundary, NOT a quality score.
+activity_window_days: 90
+
+# ── Star floor (Noise Reduction Only) ─────────────────────────────────────────
+# Minimum stars to filter out empty, toy, or personal sandbox projects.
+# Keep this low — real scoring and tiering belong in Qualification.
+min_stars: 50
+
+# ── Rate limit & batch control ────────────────────────────────────────────────
+per_query_limit: 30          # Results requested per Search API call (Page 1)
+max_candidates_per_run: 150  # Total candidates to collect via round-robin allocation
+search_pause_ms: 300         # Pause between search queries (ms) to respect rate limits
+
+# ── Strategy Coverage Queries ─────────────────────────────────────────────────
+# Broad queries covering archetypes, ecosystem activity, and cross-language projects.
+# Variables {min_stars} and {cutoff_date} are substituted at runtime.
+cross_language_queries:
+  # Popularity / Ecosystem Activity Sampling
+  - "stars:>{min_stars} forks:>20 pushed:>{cutoff_date} archived:false"
+
+  # Archetype Coverage: Libraries
+  - "stars:>{min_stars} pushed:>{cutoff_date} topic:library archived:false"
+
+  # Archetype Coverage: Frameworks
+  - "stars:>{min_stars} pushed:>{cutoff_date} topic:framework archived:false"
+
+  # Archetype Coverage: Tools / Utilities
+  - "stars:>{min_stars} pushed:>{cutoff_date} topic:tool archived:false"
+
+  # Cross-ecosystem Catch-all
+  - "forks:>50 pushed:>{cutoff_date} archived:false"
