@@ -26,10 +26,10 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f backend/requirements.txt ]; then
-            pip install -r backend/requirements.txt
+          if [ -f backend/requirements-pipeline.txt ]; then
+            pip install -r backend/requirements-pipeline.txt
           else
-            pip install -r requirements.txt
+            pip install -r backend/requirements.txt
           fi
 
       - name: Run Pipeline Engine

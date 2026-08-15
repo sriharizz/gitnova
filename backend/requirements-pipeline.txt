@@ -1,0 +1,17 @@
+# ==============================================================================
+# GitNova — GitHub Actions Pipeline Requirements
+# Used ONLY for the 12-hour ingestion worker (not Render API server).
+# Includes tree-sitter, embeddings, and all heavy pipeline dependencies.
+# ==============================================================================
+
+# Inherit all API server requirements
+-r requirements.txt
+
+# Code Intelligence, Parsing & AST (ingestion only)
+tree-sitter==0.21.3
+tree-sitter-languages>=1.8.0,<2.0.0
+
+# Embedding & Information Retrieval (ingestion only)
+torch>=2.0.0
+transformers<5.0.0
+sentence-transformers>=3.0.0

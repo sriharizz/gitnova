@@ -1,5 +1,7 @@
 # ==============================================================================
-# GitNova — Production Backend Requirements
+# GitNova — Render API Server Requirements
+# FastAPI reads pre-computed data from Supabase only.
+# tree-sitter / embeddings are NOT needed at API runtime — only in ingestion.
 # ==============================================================================
 
 # Web Framework & API Server
@@ -18,17 +20,10 @@ python-dotenv>=1.0.0
 python-json-logger>=2.0.7
 requests>=2.31.0
 
-# Code Intelligence, Parsing & AST
-tree-sitter==0.21.3
-tree-sitter-languages>=1.8.0,<2.0.0
+# Misc helpers used at API runtime
 pathspec>=0.12.0
-
-# Embedding & Information Retrieval
-torch>=2.0.0
-transformers<5.0.0
-sentence-transformers>=3.0.0
 pandas>=2.0.0
 
-# LLM Providers & API Clients
+# LLM Providers (used for fallback / on-demand journey generation)
 groq>=0.5.0
 openai>=1.0.0
