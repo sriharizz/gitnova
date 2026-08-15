@@ -4,29 +4,101 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   CSS DESIGN TOKENS — Light & Dark
+   ============================================================ */
+:root {
+  /* Backgrounds */
+  --bg-primary:    #F8FAFC;
+  --bg-secondary:  #F1F5F9;
+  --bg-card:       #FFFFFF;
+  --bg-subtle:     #E2E8F0;
+
+  /* Foregrounds */
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
+
+  /* Brand */
+  --brand-teal:    #14B8A6;
+  --brand-emerald: #10B981;
+
+  /* Borders */
+  --border:        #E2E8F0;
+  --border-subtle: #F1F5F9;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #CBD5E1;
+  --scrollbar-hover: #94A3B8;
+}
+
+/* Dark mode overrides — applied when <html class="dark"> */
+html.dark {
+  --bg-primary:    #06090F;
+  --bg-secondary:  #0B0F19;
+  --bg-card:       #0F1523;
+  --bg-subtle:     #1E293B;
+
+  --text-primary:   #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted:     #475569;
+
+  --border:        #1E293B;
+  --border-subtle: #141C2E;
+
+  --scrollbar-thumb: #334155;
+  --scrollbar-hover: #475569;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
 @layer base {
+  html {
+    /* Smooth theme transitions — only for color-related properties */
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
   body {
     margin: 0;
     padding: 0;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #F8FAFC;
-    color: #0F172A;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   code, pre, kbd {
     font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
   }
+
+  /* Smooth transitions for all common interactive elements */
+  *, *::before, *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* But NOT for transforms/shadows — those should be instant or have their own timing */
+  .card-interactive, button, a {
+    transition-property: background-color, border-color, color, fill, stroke,
+                         transform, box-shadow, opacity;
+  }
 }
 
-/* Custom Text Selection */
+/* ============================================================
+   CUSTOM TEXT SELECTION
+   ============================================================ */
 ::selection {
-  background-color: rgba(13, 148, 136, 0.2);
-  color: #0F766E;
+  background-color: rgba(20, 184, 166, 0.2);
+  color: var(--brand-teal);
 }
 
-/* Developer Custom Smooth Scrollbar */
+/* ============================================================
+   SCROLLBARS
+   ============================================================ */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -35,29 +107,35 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--scrollbar-hover);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #E2E8F0;
+  background: var(--border);
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #CBD5E1;
+  background: var(--scrollbar-thumb);
 }
 
-/* Glassmorphism & UI Utilities */
+/* ============================================================
+   GLASSMORPHISM PANELS
+   ============================================================ */
 .glass-panel {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+html.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.85);
 }
 
 .glass-panel-dark {
@@ -66,35 +144,54 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* Interactive Card Transitions */
+/* ============================================================
+   CARD HOVER EFFECT
+   ============================================================ */
 .card-interactive {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .card-interactive:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
-  border-color: #0D9488;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 4px 6px -2px rgba(20, 184, 166, 0.06);
+  border-color: var(--brand-teal);
 }
 
-/* Keyframe animations */
+html.dark .card-interactive:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(20, 184, 166, 0.12);
+}
+
+/* ============================================================
+   SEMANTIC UTILITY CLASSES (use these in components)
+   ============================================================ */
+.bg-theme-primary   { background-color: var(--bg-primary); }
+.bg-theme-secondary { background-color: var(--bg-secondary); }
+.bg-theme-card      { background-color: var(--bg-card); }
+.bg-theme-subtle    { background-color: var(--bg-subtle); }
+
+.text-theme-primary   { color: var(--text-primary); }
+.text-theme-secondary { color: var(--text-secondary); }
+.text-theme-muted     { color: var(--text-muted); }
+
+.border-theme   { border-color: var(--border); }
+
+/* ============================================================
+   KEYFRAME ANIMATIONS
+   ============================================================ */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+  50%       { transform: translateY(-6px); }
 }
 
 @keyframes pulse-subtle {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.65; }
+  50%       { opacity: 0.65; }
 }
 
-.animate-float {
-  animation: float 5s ease-in-out infinite;
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 2.5s ease-in-out infinite;
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+.animate-float        { animation: float 5s ease-in-out infinite; }
+.animate-pulse-subtle { animation: pulse-subtle 2.5s ease-in-out infinite; }
+.animate-shimmer      { animation: shimmer 2s infinite; }

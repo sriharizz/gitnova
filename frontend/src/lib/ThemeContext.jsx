@@ -6,24 +6,32 @@ const ThemeContext = createContext({
   setTheme: () => {}
 });
 
+// Apply theme to <html> synchronously to avoid flash
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+}
+
 export const ThemeProvider = ({ children }) => {
-  // Default to 'dark' as requested by the user's reference design
   const [theme, setThemeState] = useState(() => {
     try {
       const saved = localStorage.getItem('gitnova_theme');
-      return saved ? saved : 'dark';
+      const resolved = saved ? saved : 'dark';
+      // Apply immediately — before first paint — to avoid flash
+      applyTheme(resolved);
+      return resolved;
     } catch {
+      applyTheme('dark');
       return 'dark';
     }
   });
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    applyTheme(theme);
     try {
       localStorage.setItem('gitnova_theme', theme);
     } catch (e) {
