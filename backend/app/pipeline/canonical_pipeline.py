@@ -238,17 +238,19 @@ class CanonicalIngestionPipeline:
         verification_status, verification_reasons = verifier.compute_verification_status(explanation_obj)
 
         # Step 13b: Override difficulty_tier with LLM assessment (zero extra calls)
-        # The Phase 1 investigation prompt asks Gemini to return difficulty_tier + difficulty_reasoning.
-        # This is far more accurate than the deterministic heuristic since Gemini reads the actual
-        # issue content and code context to assess what expertise is truly required.
         llm_diff_tier = getattr(explanation_obj, "difficulty_tier", None)
         valid_tiers = {"BEGINNER", "INTERMEDIATE", "ADVANCED"}
-        if llm_diff_tier and llm_diff_tier.upper() in valid_tiers:
+        llm_difficulty_valid = llm_diff_tier and llm_diff_tier.upper() in valid_tiers
+
+        if llm_difficulty_valid:
             diff_tier = llm_diff_tier.upper()
             llm_diff_reasoning = getattr(explanation_obj, "difficulty_reasoning", "")
             print(f"   🎯 [LLM Difficulty] {diff_tier} — {llm_diff_reasoning[:80]}...")
         else:
-            print(f"   ⚠️ [LLM Difficulty] LLM returned invalid tier '{llm_diff_tier}', keeping deterministic: {diff_tier}")
+            # Do NOT fall back to deterministic — it's semantically unreliable.
+            # Block publication instead so a mislabeled issue never reaches users.
+            diff_tier = "INSUFFICIENT_EVIDENCE"
+            print(f"   ⛔ [LLM Difficulty] Invalid tier '{llm_diff_tier}' — blocking publication (not falling back to heuristic).")
 
         # Step 14: 10-Stage Contribution Journey Generation
         journey_input = {
@@ -280,7 +282,8 @@ class CanonicalIngestionPipeline:
             (verification_status == "VERIFIED") and
             opp_eval["is_eligible"] and
             (firewall_res["canonical_state"] == "open") and
-            not firewall_res["is_pull_request"]
+            not firewall_res["is_pull_request"] and
+            llm_difficulty_valid   # Block if LLM couldn't classify difficulty
         )
 
         chunk_ids = [c["chunk_id"] for c in retrieved_chunks if "chunk_id" in c]
