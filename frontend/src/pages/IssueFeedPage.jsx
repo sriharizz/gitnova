@@ -16,6 +16,7 @@ export const IssueFeedPage = () => {
   const [error, setError] = useState(null);
 
   // Filters state
+  // Note: Pipeline only publishes BEGINNER issues by design — Intermediate/Advanced filtered out at ingestion
   const [difficulty, setDifficulty] = useState('All');
   const [language, setLanguage] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +32,8 @@ export const IssueFeedPage = () => {
     setError(null);
     try {
       let activeLanguages = language !== 'All' ? [language] : userPrefs.languages;
-      let activeDifficulty = difficulty !== 'All' ? difficulty.toUpperCase() : (userPrefs.difficulty || 'BEGINNER');
+      // Always fetch BEGINNER from API — that's all the pipeline publishes
+      let activeDifficulty = 'BEGINNER';
 
       const recs = await fetchRecommendations({
         languages: activeLanguages,
@@ -57,7 +59,10 @@ export const IssueFeedPage = () => {
       issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       issue.repo_full_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    return matchesSearch;
+    // Client-side difficulty filter (safety net — API already returns BEGINNER only)
+    const matchesDifficulty = difficulty === 'All' || 
+      (issue.difficulty_tier || '').toUpperCase() === difficulty.toUpperCase();
+    return matchesSearch && matchesDifficulty;
   });
 
   const activePrefString = [
@@ -172,7 +177,8 @@ export const IssueFeedPage = () => {
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1.5">Difficulty:</span>
 
-            {['All', 'Beginner', 'Intermediate', 'Advanced'].map(diff => (
+            {/* Only BEGINNER issues exist — pipeline filters out Intermediate/Advanced at ingestion */}
+            {['All', 'Beginner'].map(diff => (
               <button
                 key={diff}
                 onClick={() => setDifficulty(diff)}
@@ -186,8 +192,22 @@ export const IssueFeedPage = () => {
                         : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50')
                 }`}
               >
-                {diff === 'All' ? 'Preferred Tier' : diff}
+                {diff === 'All' ? 'All Verified' : diff}
               </button>
+            ))}
+            {/* Intermediate & Advanced coming soon */}
+            {['Intermediate', 'Advanced'].map(diff => (
+              <span
+                key={diff}
+                title="These tiers will unlock as your profile grows"
+                className={`px-3 py-1 rounded-lg text-xs font-semibold border cursor-not-allowed opacity-40 ${
+                  isDark 
+                    ? 'bg-[#08131A] text-slate-500 border-slate-800' 
+                    : 'bg-white text-slate-400 border-slate-200'
+                }`}
+              >
+                {diff} <span className="text-[9px] font-mono">soon</span>
+              </span>
             ))}
           </div>
 
