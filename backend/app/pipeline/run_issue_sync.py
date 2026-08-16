@@ -41,7 +41,7 @@ from app.pipeline.opportunity_evaluator import ContributionOpportunityEvaluator
 from app.clients.llm.gemini import GeminiQuotaTracker
 
 
-def run_12h_incremental_sync(dry_run: bool = False) -> dict:
+def run_12h_incremental_sync(dry_run: bool = False, target_repo: str = None, max_repos: int = 40) -> dict:
     """
     Main 12-hour pipeline execution function.
     Can be run as a standalone script or called by GitHub Actions worker.
@@ -78,10 +78,34 @@ def run_12h_incremental_sync(dry_run: bool = False) -> dict:
     errors = []
 
     try:
-        # 2. Fetch active qualified repositories
-        repos_resp = supabase.table("repos").select("*").eq("is_active", True).order("score", desc=True).limit(20).execute()
-        active_repos = repos_resp.data or []
-        print(f"🚀 Starting 12-hour sync across {len(active_repos)} active repositories...")
+        # 2. Fetch active qualified repositories with Language-Balanced Round-Robin Distribution
+        if target_repo:
+            repos_resp = supabase.table("repos").select("*").eq("full_name", target_repo).execute()
+            active_repos = repos_resp.data or []
+        else:
+            repos_resp = supabase.table("repos").select("*").eq("is_active", True).order("score", desc=True).limit(100).execute()
+            all_active = repos_resp.data or []
+
+            # Group by language to balance across TypeScript, Python, JS, Go, Rust, Java, Dart, etc.
+            from collections import defaultdict
+            lang_buckets = defaultdict(list)
+            for r in all_active:
+                lang = r.get("language") or "Other"
+                lang_buckets[lang].append(r)
+
+            # Round-robin interleave across languages
+            active_repos = []
+            max_depth = max((len(v) for v in lang_buckets.values()), default=0)
+            for depth in range(max_depth):
+                for lang, bucket in lang_buckets.items():
+                    if depth < len(bucket):
+                        active_repos.append(bucket[depth])
+                        if len(active_repos) >= max_repos:
+                            break
+                if len(active_repos) >= max_repos:
+                    break
+
+        print(f"🚀 Starting 12-hour sync across {len(active_repos)} language-balanced active repositories...")
 
         since_time = (datetime.utcnow() - timedelta(hours=12)).isoformat() + "Z"
 
@@ -222,5 +246,11 @@ def run_12h_incremental_sync(dry_run: bool = False) -> dict:
 
 if __name__ == "__main__":
     load_dotenv()
-    dry_run_flag = "--dry-run" in sys.argv
-    run_12h_incremental_sync(dry_run=dry_run_flag)
+    import argparse
+    parser = argparse.ArgumentParser(description="GitNova 12-Hour Issue Sync & Janitor Worker")
+    parser.add_argument("--dry-run", action="store_true", help="Run without persisting to Supabase")
+    parser.add_argument("--repo", type=str, default=None, help="Target specific repository (e.g. facebook/docusaurus)")
+    parser.add_argument("--max-repos", type=int, default=40, help="Maximum repositories to process in this run")
+    args = parser.parse_args()
+
+    run_12h_incremental_sync(dry_run=args.dry_run, target_repo=args.repo, max_repos=args.max_repos)

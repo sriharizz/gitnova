@@ -618,7 +618,7 @@ async def get_user_preferences(user_id: str = Query("default_user", description=
 async def get_recommendations(
     languages: Optional[str] = Query(None, description="Comma-separated preferred languages (e.g. Python,TypeScript)"),
     domains: Optional[str] = Query(None, description="Comma-separated preferred domains (e.g. backend,web)"),
-    difficulty: Optional[Literal["BEGINNER", "INTERMEDIATE", "ADVANCED"]] = Query("BEGINNER", description="Preferred difficulty tier"),
+    difficulty: Optional[Literal["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"]] = Query("BEGINNER", description="Preferred difficulty tier"),
     contribution_types: Optional[str] = Query(None, description="Comma-separated contribution types (e.g. BUG_FIX,DOCUMENTATION,TEST)"),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -691,8 +691,8 @@ async def get_recommendations(
             # Intermediates can review CHECK_DISCUSSION or LIKELY_AVAILABLE
             if iss.availability_status not in ["LIKELY_AVAILABLE", "CHECK_DISCUSSION"]:
                 continue
-        elif target_diff == "ADVANCED":
-            # Advanced users can see all publishable issues
+        elif target_diff in ["ADVANCED", "ALL"]:
+            # Advanced or All tiers can see all publishable verified issues
             if iss.availability_status not in ["LIKELY_AVAILABLE", "CHECK_DISCUSSION"]:
                 continue
 

@@ -32,14 +32,15 @@ export const IssueFeedPage = () => {
     setError(null);
     try {
       let activeLanguages = language !== 'All' ? [language] : userPrefs.languages;
-      // Always fetch BEGINNER from API — that's all the pipeline publishes
-      let activeDifficulty = 'BEGINNER';
+      let activeDifficulty = difficulty !== 'All' 
+        ? difficulty.toUpperCase() 
+        : (userPrefs.difficulty ? userPrefs.difficulty.toUpperCase() : 'ALL');
 
       const recs = await fetchRecommendations({
         languages: activeLanguages,
         domains: userPrefs.domains,
         difficulty: activeDifficulty,
-        limit: 20
+        limit: 50
       });
       setIssues(recs.issues || []);
     } catch (err) {
@@ -177,8 +178,7 @@ export const IssueFeedPage = () => {
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1.5">Difficulty:</span>
 
-            {/* Only BEGINNER issues exist — pipeline filters out Intermediate/Advanced at ingestion */}
-            {['All', 'Beginner'].map(diff => (
+            {['All', 'Beginner', 'Intermediate', 'Advanced'].map(diff => (
               <button
                 key={diff}
                 onClick={() => setDifficulty(diff)}
@@ -192,22 +192,8 @@ export const IssueFeedPage = () => {
                         : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50')
                 }`}
               >
-                {diff === 'All' ? 'All Verified' : diff}
+                {diff === 'All' ? 'All Tiers' : diff}
               </button>
-            ))}
-            {/* Intermediate & Advanced coming soon */}
-            {['Intermediate', 'Advanced'].map(diff => (
-              <span
-                key={diff}
-                title="These tiers will unlock as your profile grows"
-                className={`px-3 py-1 rounded-lg text-xs font-semibold border cursor-not-allowed opacity-40 ${
-                  isDark 
-                    ? 'bg-[#08131A] text-slate-500 border-slate-800' 
-                    : 'bg-white text-slate-400 border-slate-200'
-                }`}
-              >
-                {diff} <span className="text-[9px] font-mono">soon</span>
-              </span>
             ))}
           </div>
 
