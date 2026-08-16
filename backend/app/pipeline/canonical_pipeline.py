@@ -181,7 +181,7 @@ class CanonicalIngestionPipeline:
             language=repo_data.get("language")
         )
 
-        # Step 10: Deterministic Difficulty Calculation
+        # Step 10: Deterministic Difficulty Calculation (fallback only — LLM will override below)
         diff_score, diff_tier = compute_issue_difficulty(
             retrieved_chunks=retrieved_chunks,
             repo_complexity=repo_complexity,
@@ -236,6 +236,19 @@ class CanonicalIngestionPipeline:
         verifier = GroundingVerifier(retrieved_chunks)
         explanation_obj = verifier.verify_and_sanitize(explanation_obj)
         verification_status, verification_reasons = verifier.compute_verification_status(explanation_obj)
+
+        # Step 13b: Override difficulty_tier with LLM assessment (zero extra calls)
+        # The Phase 1 investigation prompt asks Gemini to return difficulty_tier + difficulty_reasoning.
+        # This is far more accurate than the deterministic heuristic since Gemini reads the actual
+        # issue content and code context to assess what expertise is truly required.
+        llm_diff_tier = getattr(explanation_obj, "difficulty_tier", None)
+        valid_tiers = {"BEGINNER", "INTERMEDIATE", "ADVANCED"}
+        if llm_diff_tier and llm_diff_tier.upper() in valid_tiers:
+            diff_tier = llm_diff_tier.upper()
+            llm_diff_reasoning = getattr(explanation_obj, "difficulty_reasoning", "")
+            print(f"   🎯 [LLM Difficulty] {diff_tier} — {llm_diff_reasoning[:80]}...")
+        else:
+            print(f"   ⚠️ [LLM Difficulty] LLM returned invalid tier '{llm_diff_tier}', keeping deterministic: {diff_tier}")
 
         # Step 14: 10-Stage Contribution Journey Generation
         journey_input = {

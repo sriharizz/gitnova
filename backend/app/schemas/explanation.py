@@ -210,6 +210,20 @@ class LLMInvestigationPayload(BaseModel):
     relevant_test_files: List[str] = Field(default_factory=list, description="Relevant existing test files identified from evidence or repository structure")
     structured_concepts: List[ConceptDetail] = Field(default_factory=list, description="2 rich beginner educational concept cards tailored to this specific issue")
     common_pitfalls: List[str] = Field(default_factory=list, description="Common mistakes or things a contributor should avoid touching")
+    difficulty_tier: str = Field(
+        default="BEGINNER",
+        description=(
+            "LLM-assessed contribution difficulty tier. "
+            "Must be exactly one of: BEGINNER | INTERMEDIATE | ADVANCED. "
+            "BEGINNER: fix touches 1-2 files, no domain expertise needed, well-scoped (docs, typos, simple bug). "
+            "INTERMEDIATE: requires understanding of module internals, multi-file changes, or framework knowledge. "
+            "ADVANCED: requires deep system knowledge, security implications, architectural decisions, or cryptography."
+        )
+    )
+    difficulty_reasoning: str = Field(
+        default="",
+        description="1-2 sentence explanation of why this issue was classified at this difficulty tier, citing specific evidence."
+    )
 
 
 class LLMPlanPayload(BaseModel):

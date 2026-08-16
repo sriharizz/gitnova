@@ -98,7 +98,12 @@ def format_investigation_prompt(evidence: EvidencePackage) -> str:
         "5. Identify existing relevant test files from the evidence or repository structure in 'relevant_test_files'.\n"
         "6. Create exactly 2 rich, issue-specific pedagogical concepts in 'structured_concepts'. Explain what it is, why it matters, and how it directly connects to fixing THIS specific issue.\n"
         "7. Highlight common pitfalls a beginner contributor must avoid.\n"
-        "8. PROVENANCE RULE: Clearly distinguish VERIFIED_FACT (present in source code) from AI_INFERENCE (deduced mechanism) and MAINTAINER_INTENT (from maintainer comments). If evidence is insufficient for any claim, output INSUFFICIENT_EVIDENCE."
+        "8. PROVENANCE RULE: Clearly distinguish VERIFIED_FACT (present in source code) from AI_INFERENCE (deduced mechanism) and MAINTAINER_INTENT (from maintainer comments). If evidence is insufficient for any claim, output INSUFFICIENT_EVIDENCE.\n"
+        "9. DIFFICULTY CLASSIFICATION: Assess 'difficulty_tier' as exactly one of BEGINNER | INTERMEDIATE | ADVANCED based on:\n"
+        "   - BEGINNER: fix is in 1-2 files, no domain expertise required, well-scoped change (docs, typos, simple null-check, missing validation).\n"
+        "   - INTERMEDIATE: requires understanding module internals, multi-file coordination, framework-specific knowledge, or non-trivial refactoring.\n"
+        "   - ADVANCED: requires deep system knowledge, security/cryptography expertise, architectural decisions, or cross-cutting concerns.\n"
+        "   Provide a 1-2 sentence 'difficulty_reasoning' citing specific evidence from the code chunks."
     )
     return prompt
 
