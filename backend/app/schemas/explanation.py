@@ -6,7 +6,7 @@ multi-dimensional difficulty assessment, structured deterministic diagrams, and 
 """
 
 from enum import Enum
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Literal
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -210,7 +210,7 @@ class LLMInvestigationPayload(BaseModel):
     relevant_test_files: List[str] = Field(default_factory=list, description="Relevant existing test files identified from evidence or repository structure")
     structured_concepts: List[ConceptDetail] = Field(default_factory=list, description="2 rich beginner educational concept cards tailored to this specific issue")
     common_pitfalls: List[str] = Field(default_factory=list, description="Common mistakes or things a contributor should avoid touching")
-    difficulty_tier: str = Field(
+    difficulty_tier: Literal["BEGINNER", "INTERMEDIATE", "ADVANCED"] = Field(
         default="BEGINNER",
         description=(
             "LLM-assessed contribution difficulty tier. "
