@@ -36,6 +36,7 @@ from app.pipeline.grounding_verifier import GroundingVerifier
 from app.pipeline.quality_scorer import compute_quality_score
 from app.pipeline.repo_guide_extractor import RepoGuideExtractor
 from app.pipeline.journey_generator import ContributionJourneyGenerator
+from app.pipeline.pipeline_tracer import PipelineTracer, get_current_tracer
 
 
 class CanonicalIngestionPipeline:
@@ -48,12 +49,16 @@ class CanonicalIngestionPipeline:
         github_issue_number: int,
         supabase_client: Optional[Any] = None,
         github_client: Optional[GitHubClient] = None,
-        dry_run: bool = False
+        dry_run: bool = False,
+        tracer: Optional[PipelineTracer] = None,
+        trace_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Executes the complete canonical pipeline for a single issue.
         Guarantees that no unverified or synthetic issue can be published.
         """
+        active_tracer = tracer or get_current_tracer()
+
         if supabase_client is None:
             from supabase import create_client
             supabase_client = create_client(settings.supabase_url, settings.supabase_key)
@@ -80,6 +85,15 @@ class CanonicalIngestionPipeline:
                 "reason": f"GitHub API fetch error: {str(e)}"
             }
 
+        # If tracer is active and trace_id wasn't created yet, record Stage 1 discovery
+        if active_tracer and not trace_id:
+            trace_id = active_tracer.record_stage_1_discovery(
+                repo_full_name=repo_full_name,
+                raw_issue=raw_issue,
+                page_number=1,
+                discovery_source="canonical_pipeline_direct"
+            )
+
         # Step 2: Canonical Identity & Firewall Gate
         firewall_res = DataIntegrityFirewall.verify_canonical_identity(
             repo_full_name=repo_full_name,
@@ -87,6 +101,13 @@ class CanonicalIngestionPipeline:
             raw_gh_data=raw_issue
         )
         if firewall_res["data_integrity_status"] != "VERIFIED":
+            if active_tracer and trace_id:
+                active_tracer.record_stage_2_prefilter(
+                    trace_id,
+                    passed=False,
+                    rule_id="FIREWALL_IDENTITY",
+                    reason=firewall_res.get("rejection_reason")
+                )
             return {
                 "success": False,
                 "published": False,
@@ -130,6 +151,13 @@ class CanonicalIngestionPipeline:
         labels = raw_issue.get("labels") or []
         pf_res = pre_filter_issue(title, body, labels)
         if not pf_res["pass"]:
+            if active_tracer and trace_id:
+                active_tracer.record_stage_2_prefilter(
+                    trace_id,
+                    passed=False,
+                    rule_id=pf_res.get("rule_id", "PREFILTER_NOISE"),
+                    reason=pf_res.get("reason")
+                )
             return {
                 "success": False,
                 "published": False,
@@ -154,12 +182,78 @@ class CanonicalIngestionPipeline:
         beginner_suitability = opp_eval.get("beginner_suitability")
         discussion_summary = opp_eval.get("discussion_summary")
 
+        if not opp_eval.get("is_eligible"):
+            if active_tracer and trace_id:
+                active_tracer.record_stage_2_prefilter(
+                    trace_id,
+                    passed=False,
+                    rule_id="OPPORTUNITY_INELIGIBLE",
+                    reason="Issue is closed, assigned, or has blocking maintainer claim"
+                )
+        else:
+            if active_tracer and trace_id:
+                active_tracer.record_stage_2_prefilter(trace_id, passed=True)
+
+        # Step 6b: Fast-Path Unchanged Issue Cache Check
+        # If the issue is already in Supabase, and its github_issue_updated_at matches GitHub's live updated_at,
+        # and its existing evaluation is valid, we bypass RAG retrieval and LLM generation completely.
+        if not dry_run and supabase_client:
+            try:
+                chk_query = supabase_client.table("issues").select(
+                    "id, github_issue_updated_at, repo_commit_sha, difficulty, quality_score, is_published, ai_hint"
+                ).eq("github_issue_number", github_issue_number)
+                if repo_id:
+                    chk_query = chk_query.eq("repo_id", repo_id)
+                else:
+                    chk_query = chk_query.eq("repo_name", repo_full_name)
+                chk_res = chk_query.execute()
+                if chk_res.data and len(chk_res.data) > 0:
+                    cached_iss = chk_res.data[0]
+                    gh_updated_at = raw_issue.get("updated_at")
+                    if gh_updated_at and cached_iss.get("github_issue_updated_at") == gh_updated_at and cached_iss.get("ai_hint"):
+                        hint_val = cached_iss.get("ai_hint")
+                        hint_dict = json.loads(hint_val) if isinstance(hint_val, str) else hint_val
+                        if isinstance(hint_dict, dict) and hint_dict.get("summary"):
+                            print(f"⚡ [FastPathCache] Issue {repo_full_name} #{github_issue_number} is unchanged on GitHub ({gh_updated_at}). Reusing precomputed evaluation (Zero RAG/LLM cost).")
+                            if active_tracer and trace_id:
+                                active_tracer.record_stage_3_repository_context(trace_id, passed=True, commit_sha=cached_iss.get("repo_commit_sha"), is_reused=True)
+                                active_tracer.record_stage_4_rag(trace_id, passed=True, final_count=0, reason="FastPath Cache Hit")
+                                active_tracer.record_stage_5_evidence(trace_id, passed=True, evidence_categories={"cached": True})
+                                active_tracer.record_stage_6_gemini(trace_id, called=False, difficulty_tier=cached_iss.get("difficulty"), publication_decision="PUBLISH" if cached_iss.get("is_published") else "REJECT", publication_reason="FastPath Cache Hit")
+                                active_tracer.record_stage_7_grounding(trace_id, passed=True, status="VERIFIED")
+                                active_tracer.record_stage_8_publication_gate(trace_id, final_gate=cached_iss.get("is_published", False))
+                                active_tracer.record_stage_9_database(trace_id, passed=True, issue_id=cached_iss.get("id"), is_published=cached_iss.get("is_published", False), quality_score=cached_iss.get("quality_score"))
+                            return {
+                                "success": True,
+                                "published": cached_iss.get("is_published", False),
+                                "repo_full_name": repo_full_name,
+                                "github_issue_number": github_issue_number,
+                                "title": firewall_res["canonical_title"],
+                                "availability_status": hint_dict.get("availability_status", availability_status),
+                                "difficulty_tier": cached_iss.get("difficulty") or "UNKNOWN",
+                                "suitability_score": cached_iss.get("quality_score") or 75,
+                                "verification_status": hint_dict.get("verification_status", "VERIFIED"),
+                                "firewall_status": firewall_res["data_integrity_status"],
+                                "explanation": hint_dict
+                            }
+            except Exception as fp_err:
+                print(f"⚠️ FastPath cache check notice: {fp_err}")
+
+
         # Step 7: Commit-SHA Gated Codebase Indexing
         commit_sha = "main"
         try:
             commit_sha = ensure_repo_indexed(supabase_client, github, repo_full_name, repo_data)
         except Exception as idx_err:
             print(f"⚠️ Indexing notice for {repo_full_name}: {idx_err}")
+
+        if active_tracer and trace_id:
+            active_tracer.record_stage_3_repository_context(
+                trace_id,
+                passed=bool(commit_sha and commit_sha != ""),
+                commit_sha=commit_sha,
+                is_reused=True
+            )
 
         # Step 8: Hybrid RRF Code Retrieval
         retrieved_text, retrieved_chunks = retrieve_chunks_for_issue(
@@ -172,6 +266,19 @@ class CanonicalIngestionPipeline:
             k_candidates=20,
             target_repo_id=None
         )
+
+        if active_tracer and trace_id:
+            ret_files = list(set(c.get("file_path") for c in retrieved_chunks if c.get("file_path")))
+            ret_syms = list(set(c.get("symbol_name") for c in retrieved_chunks if c.get("symbol_name")))
+            active_tracer.record_stage_4_rag(
+                trace_id,
+                passed=True,
+                vector_count=20,
+                lexical_count=20,
+                final_count=len(retrieved_chunks),
+                retrieved_files=ret_files,
+                retrieved_symbols=ret_syms
+            )
 
         # Step 9: Repository Guide Extraction (Language-Aware & Verified)
         contributing_md = github.fetch_repo_contributing_guide(repo_full_name) or ""
@@ -200,8 +307,21 @@ class CanonicalIngestionPipeline:
             timeline_events=timeline_events
         )
 
+        if active_tracer and trace_id:
+            active_tracer.record_stage_5_evidence(
+                trace_id,
+                passed=True,
+                evidence_categories={
+                    "issue_body": bool(body),
+                    "repo_guide": bool(repo_guide),
+                    "code_chunks": len(retrieved_chunks) > 0,
+                    "timeline": len(timeline_events) > 0
+                }
+            )
+
         # Step 12: Grounded Multi-Phase LLM Explanation Generation (with Idempotent Caching)
         existing_cached_explanation = None
+        gemini_latency_ms = 0.0
         if not dry_run and supabase_client:
             try:
                 cached_query = supabase_client.table("issues").select("ai_hint, repo_commit_sha").eq("github_issue_number", github_issue_number)
@@ -224,6 +344,7 @@ class CanonicalIngestionPipeline:
         if existing_cached_explanation:
             explanation_obj = existing_cached_explanation
         else:
+            t_llm_start = time.time()
             explanation_obj = generate_issue_explanation(
                 repo_name=repo_full_name,
                 issue_title=title,
@@ -231,15 +352,16 @@ class CanonicalIngestionPipeline:
                 retrieved_chunks=retrieved_chunks,
                 evidence_package=evidence_pkg
             )
+            gemini_latency_ms = (time.time() - t_llm_start) * 1000
 
         # Step 13: Grounding Verification (Prune hallucinated locations)
         verifier = GroundingVerifier(retrieved_chunks)
         explanation_obj = verifier.verify_and_sanitize(explanation_obj)
         verification_status, verification_reasons = verifier.compute_verification_status(explanation_obj)
 
-        # Step 13b: Override difficulty_tier with LLM assessment (zero extra calls)
+        # Step 13b: Extract LLM Semantic Publication & Difficulty Decision (Zero extra calls)
         llm_diff_tier = getattr(explanation_obj, "difficulty_tier", None)
-        valid_tiers = {"BEGINNER", "INTERMEDIATE", "ADVANCED"}
+        valid_tiers = {"BEGINNER", "BEGINNER_PLUS", "INTERMEDIATE", "ADVANCED"}
         llm_difficulty_valid = llm_diff_tier and llm_diff_tier.upper() in valid_tiers
 
         if llm_difficulty_valid:
@@ -247,10 +369,44 @@ class CanonicalIngestionPipeline:
             llm_diff_reasoning = getattr(explanation_obj, "difficulty_reasoning", "")
             print(f"   🎯 [LLM Difficulty] {diff_tier} — {llm_diff_reasoning[:80]}...")
         else:
-            # Do NOT fall back to deterministic — it's semantically unreliable.
-            # Block publication instead so a mislabeled issue never reaches users.
-            diff_tier = "INSUFFICIENT_EVIDENCE"
-            print(f"   ⛔ [LLM Difficulty] Invalid tier '{llm_diff_tier}' — blocking publication (not falling back to heuristic).")
+            diff_tier = "UNKNOWN"
+            llm_diff_reasoning = "Invalid LLM difficulty tier"
+            print(f"   ⛔ [LLM Difficulty] Invalid tier '{llm_diff_tier}' — blocking publication.")
+
+        llm_pub_decision = (getattr(explanation_obj, "publication_decision", None) or "REVIEW_REQUIRED").upper()
+        llm_avail = (getattr(explanation_obj, "availability", None) or "UNCERTAIN").upper()
+        llm_suit = (getattr(explanation_obj, "beginner_suitability_decision", None) or "UNCERTAIN").upper()
+        llm_ev_suff = (getattr(explanation_obj, "evidence_sufficiency", None) or "INSUFFICIENT").upper()
+        llm_pub_reason = getattr(explanation_obj, "publication_reason", "")
+        print(f"   🛡️ [LLM Gate] Decision: {llm_pub_decision} | Avail: {llm_avail} | Suit: {llm_suit} | EvSuff: {llm_ev_suff}")
+        if llm_pub_reason:
+            print(f"      Reason: {llm_pub_reason[:100]}...")
+
+        # Record Stage 6 (Gemini) & Stage 7 (Grounding) in tracer
+        if active_tracer and trace_id:
+            active_tracer.record_stage_6_gemini(
+                trace_id,
+                called=(existing_cached_explanation is None),
+                model=getattr(settings, "gemini_model", "gemini-2.5-flash"),
+                latency_ms=gemini_latency_ms,
+                difficulty_tier=diff_tier,
+                difficulty_reasoning=llm_diff_reasoning,
+                availability_decision=llm_avail,
+                availability_reasoning=getattr(explanation_obj, "availability_reasoning", ""),
+                beginner_suitability_decision=llm_suit,
+                publication_decision=llm_pub_decision,
+                publication_reason=llm_pub_reason
+            )
+            v_count = len([loc for loc in explanation_obj.relevant_locations if getattr(loc, "is_verified", False)])
+            h_count = len([loc for loc in explanation_obj.relevant_locations if not getattr(loc, "is_verified", False)])
+            active_tracer.record_stage_7_grounding(
+                trace_id,
+                passed=(verification_status == "VERIFIED"),
+                status=verification_status,
+                verified_count=v_count,
+                hallucinated_count=h_count,
+                reasons=verification_reasons
+            )
 
         # Step 14: 10-Stage Contribution Journey Generation
         journey_input = {
@@ -277,14 +433,30 @@ class CanonicalIngestionPipeline:
         quality_grade = q_metrics["grade"]
 
         # Step 16: Publishing Firewall Gate (FAIL CLOSED)
-        is_safe = (
-            firewall_res["is_safe_to_publish"] and
-            (verification_status == "VERIFIED") and
-            opp_eval["is_eligible"] and
-            (firewall_res["canonical_state"] == "open") and
-            not firewall_res["is_pull_request"] and
-            llm_difficulty_valid   # Block if LLM couldn't classify difficulty
-        )
+        # An issue may ONLY receive is_published = TRUE when ALL 10 strict criteria are satisfied:
+        criteria_breakdown = {
+            "1_firewall_safe": bool(firewall_res["is_safe_to_publish"]),
+            "2_ast_grounding_verified": (verification_status == "VERIFIED"),
+            "3_opportunity_eligible": bool(opp_eval["is_eligible"]),
+            "4_state_open_non_pr": bool(firewall_res["canonical_state"] == "open" and not firewall_res["is_pull_request"]),
+            "5_availability_likely_available": bool(availability_status == "LIKELY_AVAILABLE"),
+            "6_difficulty_beginner_tier": bool(llm_difficulty_valid and diff_tier in ["BEGINNER", "BEGINNER_PLUS"]),
+            "7_llm_pub_decision_publish": bool(llm_pub_decision == "PUBLISH"),
+            "8_llm_avail_available": bool(llm_avail == "AVAILABLE"),
+            "9_llm_suit_suitable": bool(llm_suit == "SUITABLE"),
+            "10_llm_ev_suff_sufficient": bool(llm_ev_suff == "SUFFICIENT")
+        }
+        
+        is_safe = all(criteria_breakdown.values())
+        rejection_reasons = [c_name for c_name, c_passed in criteria_breakdown.items() if not c_passed]
+
+        if active_tracer and trace_id:
+            active_tracer.record_stage_8_publication_gate(
+                trace_id,
+                final_gate=is_safe,
+                criteria_breakdown=criteria_breakdown,
+                rejection_reasons=rejection_reasons
+            )
 
         chunk_ids = [c["chunk_id"] for c in retrieved_chunks if "chunk_id" in c]
         domain_topics = repo_data.get("topics") or []
@@ -342,6 +514,17 @@ class CanonicalIngestionPipeline:
             else:
                 supabase_client.table("issues").insert(issue_record).execute()
 
+        if active_tracer and trace_id:
+            active_tracer.record_stage_9_database(
+                trace_id,
+                passed=True,
+                issue_id=deterministic_id,
+                is_published=is_safe,
+                quality_score=quality_score,
+                reason="dry_run (persistence skipped)" if dry_run else None
+            )
+
+
         return {
             "success": True,
             "published": is_safe,
@@ -352,5 +535,6 @@ class CanonicalIngestionPipeline:
             "difficulty_tier": diff_tier,
             "suitability_score": beginner_suitability.score if hasattr(beginner_suitability, "score") else 75,
             "verification_status": verification_status,
-            "firewall_status": firewall_res["data_integrity_status"]
+            "firewall_status": firewall_res["data_integrity_status"],
+            "explanation": exp_dict
         }

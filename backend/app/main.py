@@ -673,10 +673,9 @@ async def get_recommendations(
         if type_list and iss_contrib_type not in type_list:
             continue
 
-        # 4. Strict Beginner Hard Gate
         if target_diff == "BEGINNER":
-            # Beginner feed MUST ONLY contain pure BEGINNER complexity
-            if iss_contrib_complexity != "BEGINNER":
+            # Beginner feed MUST ONLY contain pure BEGINNER or BEGINNER_PLUS complexity
+            if iss_contrib_complexity not in ["BEGINNER", "BEGINNER_PLUS"]:
                 continue
             # Hard setup complexity is forbidden for beginners
             if iss_setup_complexity == "HARD":

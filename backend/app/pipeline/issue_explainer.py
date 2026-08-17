@@ -90,7 +90,7 @@ def format_investigation_prompt(evidence: EvidencePackage) -> str:
         f"{code_context}\n\n"
         "=== RETRIEVED TEST CODE EVIDENCE ===\n"
         f"{test_context}\n\n"
-        "=== STRICT INVESTIGATION & PROVENANCE INSTRUCTIONS ===\n"
+        "=== STRICT INVESTIGATION & SEMANTIC PUBLICATION INSTRUCTIONS ===\n"
         "1. Analyze the EXACT runtime control-flow path: Trace how input moves through the code and where the failure mechanism occurs.\n"
         "2. State what CURRENTLY happens at runtime and contrast it with what is EXPECTED to happen.\n"
         "3. Base all claims ONLY on the provided code evidence blocks. Never invent unverified files or functions.\n"
@@ -98,12 +98,24 @@ def format_investigation_prompt(evidence: EvidencePackage) -> str:
         "5. Identify existing relevant test files from the evidence or repository structure in 'relevant_test_files'.\n"
         "6. Create exactly 2 rich, issue-specific pedagogical concepts in 'structured_concepts'. Explain what it is, why it matters, and how it directly connects to fixing THIS specific issue.\n"
         "7. Highlight common pitfalls a beginner contributor must avoid.\n"
-        "8. PROVENANCE RULE: Clearly distinguish VERIFIED_FACT (present in source code) from AI_INFERENCE (deduced mechanism) and MAINTAINER_INTENT (from maintainer comments). If evidence is insufficient for any claim, output INSUFFICIENT_EVIDENCE.\n"
-        "9. DIFFICULTY CLASSIFICATION: Assess 'difficulty_tier' as exactly one of BEGINNER | INTERMEDIATE | ADVANCED based on:\n"
-        "   - BEGINNER: fix is in 1-2 files, no domain expertise required, well-scoped change (docs, typos, simple null-check, missing validation).\n"
+        "8. PROVENANCE RULE: Clearly distinguish VERIFIED_FACT (present in source code) from AI_INFERENCE (deduced mechanism) and MAINTAINER_INTENT (from maintainer comments). If evidence is insufficient for any claim, set evidence_sufficiency to INSUFFICIENT.\n"
+        "9. DIFFICULTY CLASSIFICATION: Assess 'difficulty_tier' as exactly one of BEGINNER | BEGINNER_PLUS | INTERMEDIATE | ADVANCED:\n"
+        "   - BEGINNER: fix touches 1-2 files, isolated logic, well-scoped, no domain expertise required (docs, typos, simple null-check, missing validation, straightforward test).\n"
+        "   - BEGINNER_PLUS: well-scoped bug fix requiring straightforward unit test addition.\n"
         "   - INTERMEDIATE: requires understanding module internals, multi-file coordination, framework-specific knowledge, or non-trivial refactoring.\n"
-        "   - ADVANCED: requires deep system knowledge, security/cryptography expertise, architectural decisions, or cross-cutting concerns.\n"
-        "   Provide a 1-2 sentence 'difficulty_reasoning' citing specific evidence from the code chunks."
+        "   - ADVANCED: requires deep system knowledge, security implications, architectural decisions, cryptography, or broad refactoring.\n"
+        "   Provide 'difficulty_reasoning' citing specific evidence from the code chunks.\n"
+        "10. AVAILABILITY & MAINTAINER INTENT: Assess 'availability' as AVAILABLE | NOT_AVAILABLE | UNCERTAIN:\n"
+        "   - NOT_AVAILABLE if discussion shows: handled internally, internal only, not open for external contributions, do not work on this, reserved for maintainers, already being handled in linked PRs, or not intended for external contributors.\n"
+        "   - AVAILABLE only if open, unassigned, actionable, and welcoming external PRs.\n"
+        "   - UNCERTAIN if ongoing debate or unclear maintainer consensus. Provide 'availability_reasoning'.\n"
+        "11. BEGINNER SUITABILITY: Assess 'beginner_suitability' as SUITABLE | NOT_SUITABLE | UNCERTAIN:\n"
+        "   - NOT_SUITABLE for: CVEs/security vulnerabilities, auth/crypto architecture, secrets handling, broad refactoring across many call sites (e.g. converting entire dialects or symbolic vocabularies), architectural redesigns, or high-risk infrastructure.\n"
+        "   - SUITABLE only if approachable for a first-time contributor with zero architectural risk.\n"
+        "12. PUBLICATION DECISION: Set 'publication_decision' as PUBLISH | REJECT | REVIEW_REQUIRED:\n"
+        "   - Set PUBLISH ONLY IF: availability == AVAILABLE AND beginner_suitability == SUITABLE AND difficulty_tier in [BEGINNER, BEGINNER_PLUS] AND evidence_sufficiency == SUFFICIENT.\n"
+        "   - Set REJECT if NOT_AVAILABLE, NOT_SUITABLE, ADVANCED, INTERMEDIATE, security/CVE, broad refactor, or maintainer restriction.\n"
+        "   - Set REVIEW_REQUIRED if UNCERTAIN. Provide concise 'publication_reason'."
     )
     return prompt
 
@@ -380,6 +392,14 @@ def generate_issue_explanation(
         step_by_step_plan=plan_steps,
         relevant_locations=getattr(investigation_res, "relevant_locations", []),
         common_pitfalls=getattr(investigation_res, "common_pitfalls", []),
+        difficulty_tier=getattr(investigation_res, "difficulty_tier", "BEGINNER"),
+        difficulty_reasoning=getattr(investigation_res, "difficulty_reasoning", ""),
+        availability=getattr(investigation_res, "availability", "AVAILABLE"),
+        availability_reasoning=getattr(investigation_res, "availability_reasoning", ""),
+        beginner_suitability_decision=getattr(investigation_res, "beginner_suitability", "SUITABLE"),
+        evidence_sufficiency=getattr(investigation_res, "evidence_sufficiency", "SUFFICIENT"),
+        publication_decision=getattr(investigation_res, "publication_decision", "PUBLISH"),
+        publication_reason=getattr(investigation_res, "publication_reason", ""),
         llm_provider=getattr(active_provider, "provider_name", "google"),
         llm_model=getattr(active_provider, "model_name", "gemini-3.6-flash")
     )

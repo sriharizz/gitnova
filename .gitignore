@@ -69,3 +69,7 @@ tmp/
 # --- Local Scrap / Scratch Dumps ---
 scratch/
 .system_generated/
+traces/
+*.csv
+!backend/golden_set.csv
+

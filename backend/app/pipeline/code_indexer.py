@@ -232,8 +232,8 @@ def select_top_structural_files(
         path_lower = path.lower()
         segments = _path_segments(path_lower)
 
-        # +15: exact 'src', 'lib', 'core', 'app' directory segment
-        if any(_has_exact_segment(path_lower, seg) for seg in ["src", "lib", "core", "app"]):
+        # +15: exact 'src', 'lib', 'core', 'app', 'include', 'pkg' directory segment
+        if any(_has_exact_segment(path_lower, seg) for seg in ["src", "lib", "core", "app", "include", "pkg"]):
             score += 15
 
         # +12: top-level folder matches the repo package name
@@ -278,8 +278,30 @@ def ensure_repo_indexed(supabase_client: Any, github_client: GitHubClient, repo_
             valid_extensions = [".rs"]
         elif "go" in lang:
             valid_extensions = [".go"]
+        elif "dart" in lang:
+            valid_extensions = [".dart"]
+        elif "java" in lang:
+            valid_extensions = [".java"]
+        elif "kotlin" in lang:
+            valid_extensions = [".kt", ".kts", ".java", ".ts", ".tsx"]
+        elif "scala" in lang:
+            valid_extensions = [".scala", ".sc", ".java"]
+        elif "c++" in lang or "cpp" in lang:
+            valid_extensions = [".cpp", ".cc", ".cxx", ".hpp", ".hxx", ".h", ".c"]
+        elif "c#" in lang or "csharp" in lang:
+            valid_extensions = [".cs"]
+        elif "c" == lang or " c " in f" {lang} ":
+            valid_extensions = [".c", ".h"]
+        elif "haskell" in lang:
+            valid_extensions = [".hs", ".lhs"]
+        elif "php" in lang:
+            valid_extensions = [".php"]
+        elif "ruby" in lang:
+            valid_extensions = [".rb"]
+        elif "shell" in lang or "bash" in lang:
+            valid_extensions = [".sh", ".bash"]
         else:
-            valid_extensions = repo_context.get("valid_extensions", [".py", ".ts", ".js", ".rs", ".go"])
+            valid_extensions = repo_context.get("valid_extensions", [".py", ".ts", ".tsx", ".js", ".jsx", ".rs", ".go", ".dart", ".java", ".kt", ".c", ".cpp", ".h", ".hpp", ".cs", ".hs", ".scala"])
 
         # 1. Fetch current repository head commit SHA from GitHub API
         default_branch = repo_context.get("default_branch")

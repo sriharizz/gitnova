@@ -232,3 +232,55 @@ class GitHubClient:
             except Exception:
                 continue
         return None
+
+    def get_issues_paginated(
+        self,
+        repo_full_name: str,
+        state: str = "open",
+        since: Optional[str] = None,
+        max_candidates: int = 15,
+        max_pages: int = 3,
+        per_page: int = 15
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetches open issues across multiple pages safely up to max_candidates.
+        - Follows pagination (page=1, 2, ...).
+        - Skips pull requests.
+        - Preserves ETag caching and rate limit safety.
+        - Stops when max_candidates is reached, page returns fewer than per_page items,
+          or max_pages is exceeded.
+        """
+        candidates: List[Dict[str, Any]] = []
+        base_url = f"https://api.github.com/repos/{repo_full_name}/issues"
+        
+        for page in range(1, max_pages + 1):
+            if len(candidates) >= max_candidates:
+                break
+            
+            params: Dict[str, Any] = {
+                "state": state,
+                "per_page": min(per_page, 30),
+                "page": page
+            }
+            if since:
+                params["since"] = since
+                
+            try:
+                raw_page = self.get(base_url, params=params)
+                if not isinstance(raw_page, list) or not raw_page:
+                    break
+                
+                for item in raw_page:
+                    if len(candidates) >= max_candidates:
+                        break
+                    candidates.append(item)
+                    
+                # If GitHub returned fewer items than per_page requested, no more pages exist
+                if len(raw_page) < params["per_page"]:
+                    break
+            except Exception as e:
+                print(f"⚠️ Pagination fetch warning on page {page} for {repo_full_name}: {e}")
+                break
+                
+        return candidates
+

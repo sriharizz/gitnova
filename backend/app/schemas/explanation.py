@@ -201,7 +201,7 @@ class ContributionJourney(BaseModel):
 
 
 class LLMInvestigationPayload(BaseModel):
-    """Structured payload for Phase 1: Code Investigation & Control Flow Reasoning."""
+    """Structured payload for Phase 1: Code Investigation, Semantic Suitability & Publication Decision."""
     summary: str = Field(description="Plain English explanation of what this issue means for a beginner developer")
     current_behavior: str = Field(description="What currently happens at runtime based strictly on the code evidence")
     expected_behavior: str = Field(description="What behavior is expected when the issue is properly handled")
@@ -210,19 +210,59 @@ class LLMInvestigationPayload(BaseModel):
     relevant_test_files: List[str] = Field(default_factory=list, description="Relevant existing test files identified from evidence or repository structure")
     structured_concepts: List[ConceptDetail] = Field(default_factory=list, description="2 rich beginner educational concept cards tailored to this specific issue")
     common_pitfalls: List[str] = Field(default_factory=list, description="Common mistakes or things a contributor should avoid touching")
-    difficulty_tier: Literal["BEGINNER", "INTERMEDIATE", "ADVANCED"] = Field(
+    difficulty_tier: Literal["BEGINNER", "BEGINNER_PLUS", "INTERMEDIATE", "ADVANCED"] = Field(
         default="BEGINNER",
         description=(
             "LLM-assessed contribution difficulty tier. "
-            "Must be exactly one of: BEGINNER | INTERMEDIATE | ADVANCED. "
-            "BEGINNER: fix touches 1-2 files, no domain expertise needed, well-scoped (docs, typos, simple bug). "
+            "Must be exactly one of: BEGINNER | BEGINNER_PLUS | INTERMEDIATE | ADVANCED. "
+            "BEGINNER: fix touches 1-2 files, isolated logic, no domain expertise needed, well-scoped (docs, typos, simple bug). "
+            "BEGINNER_PLUS: well-scoped bug requiring straightforward unit test update. "
             "INTERMEDIATE: requires understanding of module internals, multi-file changes, or framework knowledge. "
-            "ADVANCED: requires deep system knowledge, security implications, architectural decisions, or cryptography."
+            "ADVANCED: requires deep system knowledge, security implications, architectural decisions, cryptography, or broad refactoring."
         )
     )
     difficulty_reasoning: str = Field(
         default="",
-        description="1-2 sentence explanation of why this issue was classified at this difficulty tier, citing specific evidence."
+        description="Evidence-grounded explanation of why this issue was classified at this difficulty tier, citing specific evidence."
+    )
+    availability: Literal["AVAILABLE", "NOT_AVAILABLE", "UNCERTAIN"] = Field(
+        default="AVAILABLE",
+        description=(
+            "Contribution availability to an external contributor based on issue discussion, maintainer comments, and PRs. "
+            "AVAILABLE: Issue is open, unassigned, and welcoming external PRs. "
+            "NOT_AVAILABLE: Discussion shows maintainers are handling it internally, issue is reserved, work is already done in a linked PR, or maintainers explicitly requested no external PRs. "
+            "UNCERTAIN: Unclear maintainer consensus, ongoing design debate, or ambiguous claim status."
+        )
+    )
+    availability_reasoning: str = Field(
+        default="",
+        description="Evidence-grounded explanation of availability, citing specific maintainer comments, PRs, or labels."
+    )
+    beginner_suitability: Literal["SUITABLE", "NOT_SUITABLE", "UNCERTAIN"] = Field(
+        default="SUITABLE",
+        description=(
+            "Beginner suitability assessment. "
+            "SUITABLE: Well-isolated, safe, approachable for a first-time contributor, zero architectural risk. "
+            "NOT_SUITABLE: Security/CVE vulnerabilities, auth/crypto architecture, broad refactoring across many call sites, major dialect/schema migrations, or high-risk infrastructure. "
+            "UNCERTAIN: Ambiguous technical requirements or complex setup prerequisites."
+        )
+    )
+    evidence_sufficiency: Literal["SUFFICIENT", "INSUFFICIENT"] = Field(
+        default="SUFFICIENT",
+        description="SUFFICIENT if retrieved codebase and issue evidence are concrete and verifiable; INSUFFICIENT if key context is missing."
+    )
+    publication_decision: Literal["PUBLISH", "REJECT", "REVIEW_REQUIRED"] = Field(
+        default="PUBLISH",
+        description=(
+            "Final publication recommendation for GitNova beginner feed. "
+            "PUBLISH: AVAILABLE + SUITABLE + BEGINNER/BEGINNER_PLUS + SUFFICIENT evidence. "
+            "REJECT: NOT_AVAILABLE, NOT_SUITABLE, ADVANCED/INTERMEDIATE, security/CVE, broad refactor, or maintainer restriction. "
+            "REVIEW_REQUIRED: UNCERTAIN availability/suitability or edge cases requiring human review."
+        )
+    )
+    publication_reason: str = Field(
+        default="",
+        description="Concise evidence-grounded explanation of the publication decision."
     )
 
 
@@ -255,6 +295,14 @@ class IssueExplanation(BaseModel):
     step_by_step_plan: List[GuidedSolutionStep] = Field(default_factory=list, description="Ordered, beginner-friendly guided solution steps")
     relevant_locations: List[GroundedCodeLocation] = Field(default_factory=list, description="Programmatically verified code locations")
     common_pitfalls: List[str] = Field(default_factory=list, description="Common mistakes or considerations when implementing the fix")
+    difficulty_tier: Optional[Literal["BEGINNER", "BEGINNER_PLUS", "INTERMEDIATE", "ADVANCED"]] = Field(default="BEGINNER")
+    difficulty_reasoning: Optional[str] = Field(default="")
+    availability: Optional[Literal["AVAILABLE", "NOT_AVAILABLE", "UNCERTAIN"]] = Field(default="AVAILABLE")
+    availability_reasoning: Optional[str] = Field(default="")
+    beginner_suitability_decision: Optional[Literal["SUITABLE", "NOT_SUITABLE", "UNCERTAIN"]] = Field(default="SUITABLE")
+    evidence_sufficiency: Optional[Literal["SUFFICIENT", "INSUFFICIENT"]] = Field(default="SUFFICIENT")
+    publication_decision: Optional[Literal["PUBLISH", "REJECT", "REVIEW_REQUIRED"]] = Field(default="PUBLISH")
+    publication_reason: Optional[str] = Field(default="")
     disclaimer: Optional[str] = Field(default=None, description="Set if evidence is partial or unverified citations were pruned")
     beginner_suitability: Optional[BeginnerSuitability] = Field(default=None)
     discussion_summary: Optional[DiscussionSummary] = Field(default=None)
