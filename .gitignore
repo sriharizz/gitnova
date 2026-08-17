@@ -19,6 +19,18 @@ dist/
 build/
 ingestion.lock
 
+# --- Machine Learning Heavy Model Weights & Large Vocab Files ---
+*.safetensors
+*.bin
+*.pt
+*.pth
+backend/data/**/models/**/tokenizer.json
+backend/data/**/models/**/merges.txt
+backend/data/**/models/**/vocab.json
+!backend/data/dataset_collection/final_v1/models/**/adapter_config.json
+!backend/data/dataset_collection/final_v1/models/**/training_meta.json
+!backend/data/dataset_collection/final_v1/models/**/README.md
+
 # --- JavaScript / Frontend ---
 node_modules/
 frontend/node_modules/

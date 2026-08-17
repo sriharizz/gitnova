@@ -1,0 +1,23 @@
+{
+  "validation_timestamp": "2026-08-17T18:45:50.383723+00:00",
+  "total_raw_records": 600,
+  "total_annotation_records": 600,
+  "matched_joined_records": 600,
+  "raw_ids_missing_annotations": 0,
+  "annotation_ids_missing_raw": 0,
+  "invalid_labels_count": 0,
+  "invalid_confidences_count": 0,
+  "unique_repositories": 73,
+  "unique_languages": 20,
+  "label_distribution": {
+    "MEDIUM_FIT": 249,
+    "LOW_FIT": 79,
+    "HIGH_FIT": 272
+  },
+  "label_percentages": {
+    "MEDIUM_FIT": 41.5,
+    "LOW_FIT": 13.17,
+    "HIGH_FIT": 45.33
+  },
+  "validation_status": "PASSED"
+}

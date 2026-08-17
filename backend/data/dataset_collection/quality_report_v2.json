@@ -1,0 +1,139 @@
+{
+  "manifest_version": "2.0.0",
+  "run_id": "run_v2_20260817T164334Z_515b77",
+  "generated_at": "2026-08-17T16:47:42.926906+00:00",
+  "target_real_issues": 600,
+  "collected_real_issues": 600,
+  "metrics": {
+    "total_real_issues": 600,
+    "unique_repositories": 73,
+    "unique_languages": 20,
+    "average_body_words": 206.6,
+    "median_body_words": 113,
+    "short_issues_count": 83,
+    "short_issues_pct": 13.83,
+    "long_issues_count": 54,
+    "missing_bodies_count": 25,
+    "missing_titles_count": 0,
+    "issues_with_comments_count": 287,
+    "issues_with_comments_pct": 47.83
+  },
+  "concentration": {
+    "max_repository": {
+      "name": "babalae/better-genshin-impact",
+      "count": 15,
+      "percentage": 2.5
+    },
+    "max_language": {
+      "name": "Rust",
+      "count": 65,
+      "percentage": 10.83
+    },
+    "warnings": []
+  },
+  "distributions": {
+    "issue_types": {
+      "bug": {
+        "count": 202,
+        "pct": 33.67
+      },
+      "enhancement": {
+        "count": 167,
+        "pct": 27.83
+      },
+      "other": {
+        "count": 65,
+        "pct": 10.83
+      },
+      "build/CI": {
+        "count": 39,
+        "pct": 6.5
+      },
+      "documentation": {
+        "count": 35,
+        "pct": 5.83
+      },
+      "UI": {
+        "count": 26,
+        "pct": 4.33
+      },
+      "testing": {
+        "count": 23,
+        "pct": 3.83
+      },
+      "question": {
+        "count": 22,
+        "pct": 3.67
+      },
+      "dependency": {
+        "count": 8,
+        "pct": 1.33
+      },
+      "performance": {
+        "count": 6,
+        "pct": 1.0
+      },
+      "security": {
+        "count": 2,
+        "pct": 0.33
+      },
+      "refactor": {
+        "count": 2,
+        "pct": 0.33
+      },
+      "RFC/proposal": {
+        "count": 2,
+        "pct": 0.33
+      },
+      "configuration": {
+        "count": 1,
+        "pct": 0.17
+      }
+    },
+    "languages": {
+      "Rust": 65,
+      "Kotlin": 64,
+      "Go": 56,
+      "Java": 56,
+      "Dart": 54,
+      "TypeScript": 36,
+      "Python": 35,
+      "JavaScript": 35,
+      "C++": 33,
+      "Ruby": 30,
+      "PHP": 29,
+      "Shell": 27,
+      "C#": 15,
+      "Haskell": 15,
+      "Scala": 15,
+      "Solidity": 13,
+      "templ": 9,
+      "JSON": 7,
+      "C": 4,
+      "Dockerfile": 2
+    },
+    "top_20_repositories": {
+      "babalae/better-genshin-impact": 15,
+      "Nike-Inc/hal": 15,
+      "spiral/framework": 15,
+      "pallets/click": 15,
+      "plokhotnyuk/jsoniter-scala": 15,
+      "yschimke/compose-ai-tools": 15,
+      "archlinuxcn/repo": 15,
+      "Elanis/web-to-desktop-framework-comparison": 15,
+      "andreknieriem/open-headunit": 15,
+      "atsign-foundation/noports": 15,
+      "voxell-tech/motiongfx": 15,
+      "zammad/zammad": 15,
+      "openglad/openglad": 15,
+      "Lingyan000/fluxdo": 15,
+      "Th0rgal/sandboxed.sh": 15,
+      "WPManageNinja/fluent-smtp": 14,
+      "appwrite/sdk-for-flutter": 14,
+      "eclipse-apoapsis/ort-server": 13,
+      "MIgHTy-alIeN/MEV-Ethereum-Trading-Bot": 13,
+      "deadlock-mod-manager/deadlock-mod-manager": 13
+    }
+  },
+  "dataset_status": "READY_FOR_LABELING"
+}

@@ -1,0 +1,50 @@
+{
+  "accuracy": 0.2778,
+  "macro_precision": 0.2246,
+  "macro_recall": 0.3425,
+  "macro_f1": 0.2096,
+  "per_class": {
+    "HIGH_FIT": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 50
+    },
+    "MEDIUM_FIT": {
+      "precision": 0.2738,
+      "recall": 0.8846,
+      "f1": 0.4182,
+      "support": 26
+    },
+    "LOW_FIT": {
+      "precision": 0.4,
+      "recall": 0.1429,
+      "f1": 0.2105,
+      "support": 14
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "HIGH_FIT",
+      "MEDIUM_FIT",
+      "LOW_FIT"
+    ],
+    "matrix": [
+      [
+        0,
+        49,
+        1
+      ],
+      [
+        1,
+        23,
+        2
+      ],
+      [
+        0,
+        12,
+        2
+      ]
+    ]
+  }
+}

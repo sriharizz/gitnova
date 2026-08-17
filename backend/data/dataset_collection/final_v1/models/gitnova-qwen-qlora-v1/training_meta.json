@@ -1,0 +1,26 @@
+{
+  "base_model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "epochs": 3,
+  "learning_rate": 0.0002,
+  "batch_size": 1,
+  "gradient_accumulation_steps": 4,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "train_loss_history": [
+    {
+      "epoch": 1,
+      "loss": 0.1849
+    },
+    {
+      "epoch": 2,
+      "loss": 0.1308
+    },
+    {
+      "epoch": 3,
+      "loss": 0.0783
+    }
+  ],
+  "training_duration_seconds": 845.54,
+  "saved_adapter_path": "C:\\gitNova\\backend\\data\\dataset_collection\\final_v1\\models\\gitnova-qwen-qlora-v1"
+}

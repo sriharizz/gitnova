@@ -1,0 +1,16 @@
+{
+  "manifest_version": "2.0.0",
+  "run_id": "run_v2_20260817T164334Z_515b77",
+  "created_at": "2026-08-17T16:47:42.929314+00:00",
+  "total_real_issues": 600,
+  "target_real_issues": 600,
+  "per_repo_cap": 15,
+  "duration_seconds": 248.77,
+  "dataset_files": {
+    "real_issues_jsonl": "gitnova_real_issues_v2.jsonl",
+    "real_issues_csv": "gitnova_real_issues_v2.csv",
+    "raw_v1_jsonl_unmodified": "gitnova_raw_issues_v1.jsonl",
+    "audit_report": "audit_v2/dataset_audit_v2.md",
+    "quality_report": "quality_report_v2.json"
+  }
+}
