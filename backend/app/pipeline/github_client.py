@@ -273,6 +273,9 @@ class GitHubClient:
                 for item in raw_page:
                     if len(candidates) >= max_candidates:
                         break
+                    # Skip pull requests (GitHub Issues endpoint returns both issues and PRs)
+                    if "pull_request" in item:
+                        continue
                     candidates.append(item)
                     
                 # If GitHub returned fewer items than per_page requested, no more pages exist
