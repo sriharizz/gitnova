@@ -42,10 +42,12 @@ class GeminiQuotaTracker:
             return cls._instance
 
     def _init_tracker(self):
-        self.rpm_limit = getattr(settings, "gemini_rpm_limit", 15) or 15
+        self.rpm_limit = getattr(settings, "gemini_rpm_limit", 13) or 13
         self.input_tpm_limit = getattr(settings, "gemini_input_tpm_limit", 1000000) or 1000000
         self.rpd_limit = getattr(settings, "gemini_rpd_limit", 1500) or 1500
+        self.min_interval = 4.6  # Minimum 4.6s spacing guarantees max ~13 requests/minute with zero bursts
 
+        self._last_request_time = 0.0
         self._minute_window_start = time.time()
         self._requests_this_minute = 0
         self._tokens_this_minute = 0
@@ -58,7 +60,7 @@ class GeminiQuotaTracker:
 
     def acquire(self, estimated_tokens: int = 1500) -> None:
         """
-        Paces incoming requests to stay within configured RPM and TPM limits.
+        Paces incoming requests with inter-request spacing to prevent HTTP 429 bursts.
         """
         with self._lock:
             now = time.time()
@@ -78,6 +80,13 @@ class GeminiQuotaTracker:
                     "Stopping batch gracefully."
                 )
 
+            # Enforce smooth inter-request spacing (at least 4.6s between consecutive calls)
+            time_since_last = now - self._last_request_time
+            if time_since_last < self.min_interval:
+                sleep_needed = self.min_interval - time_since_last
+                time.sleep(sleep_needed)
+                now = time.time()
+
             # Slide 1-minute window
             elapsed = now - self._minute_window_start
             if elapsed >= 60.0:
@@ -90,10 +99,12 @@ class GeminiQuotaTracker:
                     wait_sec = max(1.0, 60.0 - elapsed + random.uniform(0.1, 0.5))
                     print(f"⏳ [GeminiScheduler] Pacing rate limit ({self._requests_this_minute}/{self.rpm_limit} RPM). Sleeping {wait_sec:.1f}s...")
                     time.sleep(wait_sec)
-                    self._minute_window_start = time.time()
+                    now = time.time()
+                    self._minute_window_start = now
                     self._requests_this_minute = 0
                     self._tokens_this_minute = 0
 
+            self._last_request_time = now
             self._requests_this_minute += 1
             self._tokens_this_minute += estimated_tokens
             self._requests_today += 1

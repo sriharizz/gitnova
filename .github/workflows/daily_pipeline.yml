@@ -43,8 +43,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-3.5-flash
           LLM_PROVIDER: gemini
-          LLM_MODEL: gemini-3.5-flash
-          GEMINI_RPM_LIMIT: 15
+          GEMINI_RPM_LIMIT: 13
           GEMINI_RPD_LIMIT: 1500
           JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
