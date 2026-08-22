@@ -123,6 +123,10 @@ def retrieve_code_for_issue(
 
             vec_resp = supabase_client.rpc("match_chunks_vector", rpc_args).execute()
             vector_results = vec_resp.data or []
+            if not vector_results and commit_sha:
+                rpc_args["target_commit"] = None
+                vec_resp = supabase_client.rpc("match_chunks_vector", rpc_args).execute()
+                vector_results = vec_resp.data or []
 
         # 2. Lexical keyword search
         if mode in {"hybrid", "lexical_only"}:
@@ -136,6 +140,10 @@ def retrieve_code_for_issue(
 
             lex_resp = supabase_client.rpc("match_chunks_lexical", rpc_args).execute()
             lexical_results = lex_resp.data or []
+            if not lexical_results and commit_sha:
+                rpc_args["target_commit"] = None
+                lex_resp = supabase_client.rpc("match_chunks_lexical", rpc_args).execute()
+                lexical_results = lex_resp.data or []
 
         if not vector_results and not lexical_results:
             return "", []
@@ -225,6 +233,10 @@ def retrieve_chunks_for_issue(
             }
             vec_resp = supabase_client.rpc("match_chunks_vector", rpc_args).execute()
             vector_results = vec_resp.data or []
+            if not vector_results and commit_sha:
+                rpc_args["target_commit"] = None
+                vec_resp = supabase_client.rpc("match_chunks_vector", rpc_args).execute()
+                vector_results = vec_resp.data or []
 
         if mode in {"hybrid", "lexical_only"}:
             rpc_args = {
@@ -236,6 +248,10 @@ def retrieve_chunks_for_issue(
             }
             lex_resp = supabase_client.rpc("match_chunks_lexical", rpc_args).execute()
             lexical_results = lex_resp.data or []
+            if not lexical_results and commit_sha:
+                rpc_args["target_commit"] = None
+                lex_resp = supabase_client.rpc("match_chunks_lexical", rpc_args).execute()
+                lexical_results = lex_resp.data or []
 
         if not vector_results and not lexical_results:
             return "", []
