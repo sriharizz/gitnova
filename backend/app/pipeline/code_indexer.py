@@ -223,8 +223,9 @@ def select_top_structural_files(
         "auth", "client", "server", "service", "db", "database", "utils",
         "config", "application", "app", "main", "index", "core", "base",
         "resolver", "dispatcher", "scheduler", "worker", "pipeline",
+        "rules", "lint", "parser", "compiler", "engine", "transform",
     ]
-    PERIPHERAL_DIRS = ["compiler/", "devtools/", "playground/", "tools/", "scripts/"]
+    PERIPHERAL_DIRS = ["compiler/", "devtools/", "playground/", "tools/", "scripts/", "bench-report/", "benchmark/"]
 
     scored_paths = []
     for path in file_paths:
@@ -232,8 +233,8 @@ def select_top_structural_files(
         path_lower = path.lower()
         segments = _path_segments(path_lower)
 
-        # +15: exact 'src', 'lib', 'core', 'app', 'include', 'pkg' directory segment
-        if any(_has_exact_segment(path_lower, seg) for seg in ["src", "lib", "core", "app", "include", "pkg"]):
+        # +15: exact 'src', 'lib', 'core', 'app', 'include', 'pkg', 'internal', 'packages' directory segment
+        if any(_has_exact_segment(path_lower, seg) for seg in ["src", "lib", "core", "app", "include", "pkg", "internal", "packages"]):
             score += 15
 
         # +12: top-level folder matches the repo package name

@@ -68,7 +68,7 @@ def calculate_retrieval_metrics(retrieved_files: List[str], ground_truth_files: 
     }
 
 
-def run_rolling_rag_eval(min_age_days: int = 1, max_cases_to_evaluate: int = 15, dry_run: bool = False) -> Dict[str, Any]:
+def run_rolling_rag_eval(min_age_days: int = 1, max_cases_to_evaluate: int = 35, dry_run: bool = False) -> Dict[str, Any]:
     """
     Rolling RAG evaluation pipeline:
     1. Queries stored GitNova issues in Supabase older than min_age_days.
@@ -103,8 +103,8 @@ def run_rolling_rag_eval(min_age_days: int = 1, max_cases_to_evaluate: int = 15,
 
     # 1. Query stored issues
     issues_resp = supabase.table("issues").select(
-        "id, repo_name, github_issue_number, title, is_published, created_at, repo_id"
-    ).order("created_at", desc=True).limit(100).execute()
+        "id, repo_name, github_issue_number, title, is_published, created_at, repo_id, repo_commit_sha"
+    ).order("created_at", desc=True).limit(200).execute()
 
     all_issues = issues_resp.data or []
     print(f"📊 Found {len(all_issues)} total candidates in database to audit for ground-truth PRs.")
@@ -194,6 +194,7 @@ def run_rolling_rag_eval(min_age_days: int = 1, max_cases_to_evaluate: int = 15,
                 repo_name=repo_name,
                 issue_title=issue_title,
                 issue_body=issue_body,
+                commit_sha=iss.get("repo_commit_sha"),
                 limit=10
             )
 
