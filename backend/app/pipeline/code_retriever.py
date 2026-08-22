@@ -281,3 +281,45 @@ def retrieve_chunks_for_issue(
     except Exception as e:
         print(f"Retrieval Exception for {repo_name}: {e}")
         return "", []
+
+
+class CodeRetriever:
+    """Class wrapper for code retrieval providing unified interface for pipelines and evaluation harnesses."""
+
+    def __init__(self, supabase_client: Any = None):
+        if supabase_client is None:
+            from supabase import create_client
+            from app.core.config import settings
+            self.supabase = create_client(settings.supabase_url, settings.supabase_key)
+        else:
+            self.supabase = supabase_client
+
+    def retrieve_code_context(
+        self,
+        repo_name: str,
+        issue_title: str = "",
+        issue_body: str = "",
+        commit_sha: Optional[str] = None,
+        limit: int = 10,
+        max_tokens: int = 15000,
+        mode: str = "hybrid"
+    ) -> Dict[str, Any]:
+        """
+        Retrieves code chunks and formatted context for an issue.
+        Returns {"context": formatted_text, "chunks": selected_chunks, "chunk_ids": [ids]}.
+        """
+        context_str, chunks = retrieve_chunks_for_issue(
+            supabase_client=self.supabase,
+            repo_name=repo_name,
+            commit_sha=commit_sha,
+            issue_title=issue_title,
+            issue_body=issue_body,
+            max_tokens=max_tokens,
+            k_candidates=limit,
+            mode=mode
+        )
+        return {
+            "context": context_str,
+            "chunks": chunks,
+            "chunk_ids": [c.get("chunk_id") for c in chunks if isinstance(c, dict)]
+        }
