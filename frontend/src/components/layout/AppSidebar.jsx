@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Layers, BookOpen, Bookmark, Activity, Sparkles, ChevronRight, User, Terminal, Compass, Sun, Moon } from 'lucide-react';
+import { Layers, BookOpen, Bookmark, Activity, Sparkles, ChevronRight, User, Terminal, Compass, Sun, Moon, X } from 'lucide-react';
 import GitNovaLogo from '../GitNovaLogo';
 import { useTheme } from '../../lib/ThemeContext';
 
-export const AppSidebar = ({ className = '' }) => {
+export const AppSidebar = ({ className = '', isOpen = false, onClose }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -30,26 +30,53 @@ export const AppSidebar = ({ className = '' }) => {
   const userDiff = userPrefs.difficulty || 'BEGINNER';
 
   return (
-    <aside className={`w-64 flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30 p-5
-      bg-white dark:bg-obsidian-900
-      border-r border-slate-200/90 dark:border-obsidian-700
-      ${className}`}
-    >
-      <div>
-        {/* Logo Header */}
-        <Link to="/" className="flex items-center gap-2.5 mb-8 group">
-          <div className="w-8 h-8 rounded-xl bg-slate-900 dark:bg-obsidian-800 flex items-center justify-center shadow-nova-sm border border-slate-700 group-hover:border-teal-500/50 transition-colors">
-            <GitNovaLogo className="w-5 h-5 text-teal-400" />
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Main Sidebar Container (Desktop Sticky + Mobile Drawer) */}
+      <aside
+        className={`w-64 flex flex-col justify-between shrink-0 h-screen p-5
+          bg-white dark:bg-[#08131A]
+          border-r border-slate-200/90 dark:border-slate-800
+          transition-transform duration-300 ease-in-out z-50
+          fixed md:sticky top-0 inset-y-0 left-0
+          ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
+          ${className}`}
+      >
+        <div>
+          {/* Logo Header & Mobile Close Button */}
+          <div className="flex items-center justify-between mb-8">
+            <Link to="/" onClick={onClose} className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-xl bg-slate-900 dark:bg-slate-800 flex items-center justify-center shadow-nova-sm border border-slate-700 group-hover:border-teal-500/50 transition-colors">
+                <GitNovaLogo className="w-5 h-5 text-teal-400" />
+              </div>
+              <div>
+                <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-slate-100 block leading-tight">
+                  GitNova
+                </span>
+                <span className="text-[10px] font-mono text-teal-600 dark:text-teal-400 font-bold uppercase tracking-wider">
+                  Contribution Mentor
+                </span>
+              </div>
+            </Link>
+
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white md:hidden"
+                aria-label="Close menu"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
-          <div>
-            <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-slate-100 block leading-tight">
-              GitNova
-            </span>
-            <span className="text-[10px] font-mono text-teal-600 dark:text-teal-400 font-bold uppercase tracking-wider">
-              Contribution Mentor
-            </span>
-          </div>
-        </Link>
 
         {/* Primary Nav List */}
         <nav className="space-y-1">
@@ -135,6 +162,7 @@ export const AppSidebar = ({ className = '' }) => {
         </Link>
       </div>
     </aside>
+    </>
   );
 };
 

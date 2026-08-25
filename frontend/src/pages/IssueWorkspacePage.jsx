@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { RefreshCw, ArrowLeft, ExternalLink, Sun, Moon } from 'lucide-react';
+import { RefreshCw, ArrowLeft, ExternalLink, Sun, Moon, Menu, Compass, ChevronRight, ChevronLeft } from 'lucide-react';
 import JourneySidebar from '../components/layout/JourneySidebar';
 import IssueOverviewView from '../components/workspace/IssueOverviewView';
 import ContributionStatusView from '../components/workspace/ContributionStatusView';
@@ -15,6 +15,19 @@ import ReviewChecklistView from '../components/workspace/ReviewChecklistView';
 import { fetchIssueById, fetchIssueCode, fetchIssueJourney } from '../lib/api';
 import { useTheme } from '../lib/ThemeContext';
 
+const STAGE_LABELS = {
+  understand: '01 Understand',
+  check_status: '02 Check Status',
+  learn: '03 Learn Concepts',
+  explore: '04 Explore Code',
+  investigate: '05 Investigate',
+  plan: '06 Plan Fix',
+  implement: '07 Implement',
+  test: '08 Test',
+  prepare_pr: '09 Prepare PR',
+  review: '10 Review'
+};
+
 export const IssueWorkspacePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,6 +36,7 @@ export const IssueWorkspacePage = () => {
 
   const [activeStep, setActiveStep] = useState('understand');
   const [completedSteps, setCompletedSteps] = useState(['understand']);
+  const [isJourneyOpen, setIsJourneyOpen] = useState(false);
 
   const [issue, setIssue] = useState(null);
   const [journey, setJourney] = useState(null);
@@ -125,35 +139,50 @@ export const IssueWorkspacePage = () => {
     <div className={`flex h-screen font-sans overflow-hidden transition-colors ${
       isDark ? 'bg-[#050B0E] text-white' : 'bg-[#F8FAFC] text-slate-900'
     }`}>
-      {/* Left 10-Stage Journey Sidebar */}
+      {/* Left 10-Stage Journey Sidebar (Desktop Sticky + Mobile Drawer) */}
       <JourneySidebar
         activeStep={activeStep}
         onSelectStep={handleStepSelect}
         completedSteps={completedSteps}
+        isOpen={isJourneyOpen}
+        onClose={() => setIsJourneyOpen(false)}
       />
 
       {/* Main Workspace Content Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto custom-scrollbar">
-        {/* Top Sticky Breadcrumb Bar */}
-        <header className={`px-6 sm:px-8 py-3.5 sticky top-0 z-10 flex items-center justify-between shrink-0 border-b backdrop-blur-md transition-colors ${
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto custom-scrollbar w-full min-w-0">
+        {/* Top Sticky Breadcrumb & Stage Navigation Bar */}
+        <header className={`px-4 sm:px-8 py-3 sticky top-0 z-10 flex items-center justify-between shrink-0 border-b backdrop-blur-md transition-colors ${
           isDark 
             ? 'bg-[#050B0E]/90 border-slate-800 text-white' 
             : 'bg-white/90 border-slate-200 text-slate-900'
         }`}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => navigate('/issues')}
-              className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors shrink-0 ${
                 isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to issues
+              <ArrowLeft className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Back to issues</span><span className="sm:hidden">Back</span>
+            </button>
+
+            {/* Mobile Journey Stage Button */}
+            <button
+              onClick={() => setIsJourneyOpen(true)}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold md:hidden border shrink-0 transition-all ${
+                isDark 
+                  ? 'bg-[#09151D] border-slate-700 text-[#34D399] hover:bg-[#0E202B]' 
+                  : 'bg-teal-50 border-teal-200 text-teal-800 hover:bg-teal-100 shadow-sm'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>{STAGE_LABELS[activeStep] || 'Stages'}</span>
             </button>
 
             {prevStepMap[activeStep] && (
               <button
                 onClick={() => handleStepSelect(prevStepMap[activeStep])}
-                className={`text-xs font-medium transition-colors ${
+                className={`hidden md:inline-flex text-xs font-medium transition-colors ${
                   isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-700'
                 }`}
               >
@@ -162,11 +191,11 @@ export const IssueWorkspacePage = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className={`text-xs font-mono font-medium hidden sm:inline ${
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <span className={`text-xs font-mono font-medium hidden md:inline truncate max-w-[200px] lg:max-w-none ${
               isDark ? 'text-slate-400' : 'text-slate-500'
             }`}>
-              {issue.repo_full_name} / Issue #{issue.github_issue_number}
+              {issue.repo_full_name} #{issue.github_issue_number}
             </span>
             
             <a
@@ -198,7 +227,7 @@ export const IssueWorkspacePage = () => {
         </header>
 
         {/* Tab Sub-Views for the 10 Journey Stages */}
-        <div className="flex-1 p-6 sm:p-8 pb-16">
+        <div className="flex-1 p-4 sm:p-8 pb-24 sm:pb-16">
           {activeStep === 'understand' && (
             <IssueOverviewView
               issue={issue}
@@ -267,6 +296,51 @@ export const IssueWorkspacePage = () => {
             <ReviewChecklistView
               issue={issue}
             />
+          )}
+        </div>
+
+        {/* Mobile Sticky Bottom Stage Navigation Bar */}
+        <div className={`md:hidden fixed bottom-0 inset-x-0 p-3 border-t z-30 flex items-center justify-between gap-3 backdrop-blur-lg ${
+          isDark ? 'bg-[#050B0E]/95 border-slate-800' : 'bg-white/95 border-slate-200 shadow-lg'
+        }`}>
+          {prevStepMap[activeStep] ? (
+            <button
+              onClick={() => handleStepSelect(prevStepMap[activeStep])}
+              className={`inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                isDark 
+                  ? 'bg-[#09151D] border-slate-700 text-slate-300' 
+                  : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Prev</span>
+            </button>
+          ) : (
+            <div />
+          )}
+
+          <button
+            onClick={() => setIsJourneyOpen(true)}
+            className="text-[11px] font-mono font-bold text-[#34D399] px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30"
+          >
+            {STAGE_LABELS[activeStep] || activeStep}
+          </button>
+
+          {nextStepMap[activeStep] ? (
+            <button
+              onClick={() => handleStepSelect(nextStepMap[activeStep])}
+              className="inline-flex items-center gap-1 px-4 py-2 bg-[#9FE8C3] hover:bg-[#86EFAC] text-[#064E3B] rounded-xl text-xs font-extrabold transition-all shadow-sm"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/issues')}
+              className="inline-flex items-center gap-1 px-3 py-2 bg-[#9FE8C3] text-[#064E3B] rounded-xl text-xs font-extrabold"
+            >
+              <span>Done</span>
+            </button>
           )}
         </div>
       </main>
