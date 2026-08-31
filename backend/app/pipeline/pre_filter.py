@@ -42,6 +42,15 @@ CLOSED_OR_INVALID_LABELS = {
     "wontfix", "won't fix", "invalid", "duplicate", "stale",
 }
 
+# Common technical acronyms / uppercase tokens that are not emotional shouting
+TECHNICAL_ACRONYMS = {
+    "API", "APIS", "SDK", "SDKS", "HTTP", "HTTPS", "JSON", "JWT", "SQL", "URL", "URLS",
+    "URI", "URIS", "REST", "HTML", "CSS", "AWS", "GCP", "EKS", "IAM", "SSH", "TCP", "UDP",
+    "IP", "DNS", "SSL", "TLS", "CLI", "UUID", "UUIDS", "DOM", "AST", "IDE", "RPC", "GRPC",
+    "ORM", "TTL", "EOF", "CURL", "POST", "GET", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS",
+    "TRUE", "FALSE", "NULL", "NONE", "NaN", "PR", "PRS", "RFC", "WIP", "CI", "CD", "OS",
+}
+
 # Unicode Script Pattern for Non-Latin Detection
 # CJK: \u4e00-\u9fff, \u3400-\u4dbf, \u3040-\u30ff (Hiragana/Katakana), \uac00-\ud7af (Hangul)
 # Cyrillic: \u0400-\u04ff
@@ -54,8 +63,8 @@ NON_LATIN_SCRIPT_PATTERN = re.compile(
 
 def clean_prose_text(text: str) -> str:
     """
-    Strips code blocks, inline code, URLs, stack traces, and formatting
-    to isolate human prose for language suitability analysis.
+    Strips code blocks, inline code, URLs, markdown links/images, stack traces,
+    shell shebangs, technical operators, and formatting to isolate human prose.
     """
     if not text:
         return ""
@@ -63,10 +72,18 @@ def clean_prose_text(text: str) -> str:
     cleaned = re.sub(r'```[\s\S]*?```', ' ', text)
     # Strip inline code (`...`)
     cleaned = re.sub(r'`[^`]*`', ' ', cleaned)
+    # Strip markdown image syntax (![alt](url))
+    cleaned = re.sub(r'!\[.*?\](?:\(.*?\)|\[.*?\])', ' ', cleaned)
+    # Strip markdown link syntax ([text](url))
+    cleaned = re.sub(r'\[.*?\](?:\(.*?\)|\[.*?\])', ' ', cleaned)
     # Strip URLs
     cleaned = re.sub(r'https?://\S+', ' ', cleaned)
+    # Strip shell shebangs (#!/bin/bash, #!/usr/bin/env python, etc.)
+    cleaned = re.sub(r'#!\S+', ' ', cleaned)
     # Strip stack trace lines
     cleaned = re.sub(r'(?:File\s+".*",\s+line\s+\d+|at\s+[\w\.\$/\\]+\([\w\.:\s]+\)|Traceback\s+\(most\s+recent\s+call\s+last\):)', ' ', cleaned)
+    # Strip technical comparison/logical operators (!=, !==, ==, ===, <=, >=, ->, =>)
+    cleaned = re.sub(r'(?:!==?|===?|<=|>=|->|=>)', ' ', cleaned)
     # Strip HTML tags
     cleaned = re.sub(r'<[^>]+>', ' ', cleaned)
     return cleaned
@@ -174,11 +191,20 @@ def pre_filter_issue(
         if upper_ratio > 0.70 and len(alpha_chars) > 5:
             return _reject(f"Title is {upper_ratio:.0%} uppercase (screaming/rant)", rule_id="ALL_CAPS_TITLE")
 
-    # Rule 9: Rant tone detection (≥3 exclamation marks + ≥2 all-caps words)
-    exclamation_count = body_clean.count("!")
-    allcaps_words = [w for w in words if w.isupper() and len(w) > 2]
-    if exclamation_count >= 3 and len(allcaps_words) >= 2:
-        return _reject(f"Rant tone detected ({exclamation_count} exclamations, {len(allcaps_words)} all-caps words)", rule_id="RANT_TONE")
+    # Rule 9: Rant tone detection (≥3 exclamation marks + ≥2 shouting all-caps words in human prose)
+    prose_body = clean_prose_text(body_clean)
+    prose_exclamations = prose_body.count("!")
+    prose_words = prose_body.split()
+    shouting_words = [
+        w.strip("!?,.:;\"'()")
+        for w in prose_words
+        if w.strip("!?,.:;\"'()").isalpha()
+        and w.strip("!?,.:;\"'()").isupper()
+        and len(w.strip("!?,.:;\"'()")) > 2
+        and w.strip("!?,.:;\"'()") not in TECHNICAL_ACRONYMS
+    ]
+    if prose_exclamations >= 3 and len(shouting_words) >= 2:
+        return _reject(f"Rant tone detected ({prose_exclamations} exclamations, {len(shouting_words)} shouting words in prose)", rule_id="RANT_TONE")
 
     # Rule 10: Epic / tracking checklist overflow (≥5 pending sub-tasks)
     unchecked_count = len(re.findall(r'- \[ \]', body_clean))

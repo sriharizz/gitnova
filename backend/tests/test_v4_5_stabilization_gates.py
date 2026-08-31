@@ -343,3 +343,310 @@ def test_gate_19_llm_failure_fails_closed():
 def test_gate_20_schema_accepts_not_verified_provenance():
     prov = ProvenanceItem(text="Unverified item", provenance_type=ProvenanceType.NOT_VERIFIED)
     assert prov.provenance_type == ProvenanceType.NOT_VERIFIED
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Phase 4 Publication Gate Tests (17 Comprehensive Scenarios)
+# ═════════════════════════════════════════════════════════════════════════════
+
+class TestPhase4PublicationGate:
+    def _create_valid_explanation(self):
+        return IssueExplanation(
+            status="SUCCESS",
+            summary="TypeError occurs when passing timezone-naive datetime objects to format_iso_timestamp().",
+            why_it_happens=(
+                "In `src/date_utils.py`, the `format_iso_timestamp()` function expects an aware datetime "
+                "object with `.tzinfo` populated. When a naive datetime is passed, `dt.astimezone()` "
+                "raises a ValueError or defaults incorrectly."
+            ),
+            step_by_step_plan=[
+                GuidedSolutionStep(
+                    step_number=1,
+                    title="Locate datetime formatter",
+                    description="Inspect the implementation of `format_iso_timestamp()` in `src/date_utils.py`.",
+                    target_file="src/date_utils.py"
+                ),
+                GuidedSolutionStep(
+                    step_number=2,
+                    title="Add naive datetime guard",
+                    description="Check if `dt.tzinfo is None` and apply UTC timezone by default before conversion.",
+                    target_file="src/date_utils.py"
+                ),
+                GuidedSolutionStep(
+                    step_number=3,
+                    title="Add regression test",
+                    description="Add a unit test in `tests/test_date.py` passing both naive and aware datetimes.",
+                    target_file="tests/test_date.py"
+                )
+            ],
+            relevant_locations=[
+                GroundedCodeLocation(
+                    file_path="src/date_utils.py",
+                    symbol_name="format_iso_timestamp",
+                    lines="42-60",
+                    is_verified=True
+                )
+            ]
+        )
+
+    # 1. Missing target -> reject
+    def test_missing_target_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.relevant_locations = []
+        verifier = GroundingVerifier(
+            retrieved_chunks=[],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is False
+        assert "NO_VERIFIED_TARGET" in gate["rejection_codes"]
+
+    # 2. Valid code target + verified symbol -> pass
+    def test_valid_code_target_and_verified_symbol_passes(self):
+        exp = self._create_valid_explanation()
+        chunks = [{
+            "file_path": "src/date_utils.py",
+            "symbol_name": "format_iso_timestamp",
+            "content": "def format_iso_timestamp(dt): return dt.isoformat()"
+        }]
+        verifier = GroundingVerifier(
+            retrieved_chunks=chunks,
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        exp = verifier.verify_and_sanitize(exp)
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is True
+        assert gate["rejection_codes"] == []
+
+    # 3. Valid documentation target without symbol -> pass
+    def test_valid_documentation_target_without_symbol_passes(self):
+        exp = self._create_valid_explanation()
+        exp.relevant_locations = [
+            GroundedCodeLocation(file_path="docs/getting_started.md", is_verified=True)
+        ]
+        exp.step_by_step_plan = [
+            GuidedSolutionStep(step_number=1, title="Review docs", description="Inspect docs/getting_started.md.", target_file="docs/getting_started.md"),
+            GuidedSolutionStep(step_number=2, title="Update setup", description="Update installation steps in docs/getting_started.md.", target_file="docs/getting_started.md"),
+            GuidedSolutionStep(step_number=3, title="Preview docs", description="Preview markdown rendering locally.", target_file="docs/getting_started.md")
+        ]
+        chunks = [{"file_path": "docs/getting_started.md", "content": "# Getting Started"}]
+        verifier = GroundingVerifier(
+            retrieved_chunks=chunks,
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is True
+        assert "SYMBOL_NOT_VERIFIED" not in gate["rejection_codes"]
+
+    # 4. Fabricated target -> reject
+    def test_fabricated_target_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.relevant_locations = [
+            GroundedCodeLocation(file_path="src/hallucinated_file.py", is_verified=False)
+        ]
+        chunks = [{"file_path": "src/real_file.py", "content": "class Real: pass"}]
+        verifier = GroundingVerifier(
+            retrieved_chunks=chunks,
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        sanitized = verifier.verify_and_sanitize(exp)
+        gate = verifier.validate_publication_gate(sanitized)
+        assert gate["is_safe"] is False
+        assert "NO_VERIFIED_TARGET" in gate["rejection_codes"]
+
+    # 5. Fabricated symbol -> reject
+    def test_fabricated_symbol_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.relevant_locations = [
+            GroundedCodeLocation(file_path="src/date_utils.py", symbol_name="HallucinatedMethod", is_verified=False)
+        ]
+        chunks = [{
+            "file_path": "src/date_utils.py",
+            "symbol_name": "real_method",
+            "content": "def real_method(): pass"
+        }]
+        verifier = GroundingVerifier(
+            retrieved_chunks=chunks,
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        sanitized = verifier.verify_and_sanitize(exp)
+        gate = verifier.validate_publication_gate(sanitized)
+        assert gate["is_safe"] is False
+        assert "SYMBOL_NOT_VERIFIED" in gate["rejection_codes"]
+
+    # 6. Empty plan -> reject
+    def test_empty_plan_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.step_by_step_plan = []
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is False
+        assert "INSUFFICIENT_PLAN" in gate["rejection_codes"]
+
+    # 7. Fewer than 3 meaningful plan steps -> reject
+    def test_fewer_than_3_plan_steps_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.step_by_step_plan = [
+            GuidedSolutionStep(step_number=1, title="Step 1", description="Inspect src/date_utils.py"),
+            GuidedSolutionStep(step_number=2, title="Step 2", description="Apply timezone fix in src/date_utils.py")
+        ]
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is False
+        assert "INSUFFICIENT_PLAN" in gate["rejection_codes"]
+
+    # 8. Generic filler plan -> reject
+    def test_generic_filler_plan_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.step_by_step_plan = [
+            GuidedSolutionStep(step_number=1, title="Review", description="Review the code carefully."),
+            GuidedSolutionStep(step_number=2, title="Fix", description="Make the changes to fix the issue."),
+            GuidedSolutionStep(step_number=3, title="Test", description="Run the tests to verify.")
+        ]
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is False
+        assert "INSUFFICIENT_PLAN" in gate["rejection_codes"]
+
+    # 9. Unsupported root cause -> reject
+    def test_unsupported_root_cause_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.why_it_happens = "Fix the issue by updating the code."
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is False
+        assert "UNSUPPORTED_ROOT_CAUSE" in gate["rejection_codes"]
+
+    # 10. Unverified test command -> reject
+    def test_unverified_test_command_rejects(self):
+        exp = self._create_valid_explanation()
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp, repo_data={"test_command": "mvn test"})
+        assert gate["is_safe"] is False
+        assert "TEST_GUIDANCE_NOT_VERIFIED" in gate["rejection_codes"]
+
+    # 11. Cross-repository target -> reject
+    def test_cross_repository_target_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.relevant_locations = [
+            GroundedCodeLocation(file_path="src/main/java/com/example/Handler.java", is_verified=True)
+        ]
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/main/java/com/example/Handler.java"}],
+            repo_name="pallets/click",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is False
+        assert "CROSS_REPOSITORY_MISMATCH" in gate["rejection_codes"]
+
+    # 12. Cross-stage target mismatch -> reject
+    def test_cross_stage_target_mismatch_rejects(self):
+        exp = self._create_valid_explanation()
+        exp.step_by_step_plan.append(
+            GuidedSolutionStep(
+                step_number=4,
+                title="Unexpected step",
+                description="Modify hallucinated backend file",
+                target_file="src/completely/different/unindexed_module.py"
+            )
+        )
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert gate["is_safe"] is False
+        assert "CROSS_STAGE_TARGET_DIVERGENCE" in gate["rejection_codes"]
+
+    # 13. Python issue -> Python target passes
+    def test_python_issue_allows_python_target(self):
+        exp = self._create_valid_explanation()
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py", "symbol_name": "format_iso_timestamp", "content": "def format_iso_timestamp(): pass"}],
+            repo_name="org/python-tool",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert "CROSS_REPOSITORY_MISMATCH" not in gate["rejection_codes"]
+
+    # 14. Documentation issue -> documentation target passes
+    def test_documentation_issue_allows_docs_target(self):
+        exp = self._create_valid_explanation()
+        exp.relevant_locations = [
+            GroundedCodeLocation(file_path="docs/architecture.md", is_verified=True)
+        ]
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "docs/architecture.md", "content": "# Architecture"}],
+            repo_name="org/python-tool",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert "CROSS_REPOSITORY_MISMATCH" not in gate["rejection_codes"]
+
+    # 15. Bounded beginner issue -> passes
+    def test_bounded_beginner_issue_passes(self):
+        exp = self._create_valid_explanation()
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py", "symbol_name": "format_iso_timestamp", "content": "def format_iso_timestamp(): pass"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp, raw_issue={"title": "Fix date offset bug", "body": "Small bug in ISO parsing"})
+        assert gate["is_safe"] is True
+
+    # 16. Clearly massive multi-system issue -> rejects
+    def test_massive_multi_system_issue_rejects(self):
+        exp = self._create_valid_explanation()
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py", "symbol_name": "format_iso_timestamp", "content": "def format_iso_timestamp(): pass"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(
+            exp,
+            raw_issue={"title": "Proposal: Complete rewrite of the architecture and overhaul everything", "body": "We need to rewrite the entire system from scratch."}
+        )
+        assert gate["is_safe"] is False
+        assert "SCOPE_TOO_BROAD" in gate["rejection_codes"]
+
+    # 17. Legitimate technical identifiers do not cause rejection
+    def test_technical_identifiers_pass(self):
+        exp = self._create_valid_explanation()
+        exp.why_it_happens = (
+            "When sending HTTP POST requests with Content-Type: application/json to the REST API, "
+            "the JWT authorization token parser throws a NullPointerException in `src/date_utils.py`."
+        )
+        verifier = GroundingVerifier(
+            retrieved_chunks=[{"file_path": "src/date_utils.py", "symbol_name": "format_iso_timestamp", "content": "def format_iso_timestamp(): pass"}],
+            repo_name="org/repo",
+            repo_language="python"
+        )
+        gate = verifier.validate_publication_gate(exp)
+        assert "UNSUPPORTED_ROOT_CAUSE" not in gate["rejection_codes"]

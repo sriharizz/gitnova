@@ -368,10 +368,19 @@ class CanonicalIngestionPipeline:
             )
             gemini_latency_ms = (time.time() - t_llm_start) * 1000
 
-        # Step 13: Grounding Verification (Prune hallucinated locations)
-        verifier = GroundingVerifier(retrieved_chunks)
+        # Step 13: Grounding Verification (Prune hallucinated locations & validate publication safety)
+        verifier = GroundingVerifier(
+            retrieved_chunks=retrieved_chunks,
+            repo_name=repo_full_name,
+            repo_language=repo_data.get("language")
+        )
         explanation_obj = verifier.verify_and_sanitize(explanation_obj)
         verification_status, verification_reasons = verifier.compute_verification_status(explanation_obj)
+        pub_gate_res = verifier.validate_publication_gate(
+            explanation=explanation_obj,
+            repo_data=repo_data,
+            raw_issue=raw_issue
+        )
 
         # Step 13b: Extract LLM Semantic Publication & Difficulty Decision (Zero extra calls)
         llm_diff_tier = getattr(explanation_obj, "difficulty_tier", None)
@@ -447,7 +456,7 @@ class CanonicalIngestionPipeline:
         quality_grade = q_metrics["grade"]
 
         # Step 16: Publishing Firewall Gate (FAIL CLOSED)
-        # An issue may ONLY receive is_published = TRUE when ALL 10 strict criteria are satisfied:
+        # An issue may ONLY receive is_published = TRUE when ALL strict criteria are satisfied:
         criteria_breakdown = {
             "1_firewall_safe": bool(firewall_res["is_safe_to_publish"]),
             "2_ast_grounding_verified": (verification_status == "VERIFIED"),
@@ -458,11 +467,14 @@ class CanonicalIngestionPipeline:
             "7_llm_pub_decision_publish": bool(llm_pub_decision == "PUBLISH"),
             "8_llm_avail_available": bool(llm_avail == "AVAILABLE"),
             "9_llm_suit_suitable": bool(llm_suit == "SUITABLE"),
-            "10_llm_ev_suff_sufficient": bool(llm_ev_suff == "SUFFICIENT")
+            "10_llm_ev_suff_sufficient": bool(llm_ev_suff == "SUFFICIENT"),
+            "11_publication_gate_safe": bool(pub_gate_res["is_safe"])
         }
         
         is_safe = all(criteria_breakdown.values())
         rejection_reasons = [c_name for c_name, c_passed in criteria_breakdown.items() if not c_passed]
+        if pub_gate_res.get("rejection_reasons"):
+            rejection_reasons.extend(pub_gate_res["rejection_reasons"])
 
         if active_tracer and trace_id:
             active_tracer.record_stage_8_publication_gate(

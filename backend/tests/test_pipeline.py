@@ -203,6 +203,141 @@ class TestPreFilter:
         assert result['rule_id'] == "EPIC_TRACKING_ISSUE"
 
 
+class TestRantToneHardening:
+    # 1. iss != sub -> PASS
+    def test_passes_jwt_assertion_with_inequality(self):
+        body = (
+            "When authenticating via JWT-profile assertion, the server returns 400 Bad Request "
+            "whenever `iss != sub`. In our enterprise multi-tenant configuration, the issuer ID "
+            "and subject ID represent distinct entities according to RFC 7523 section 3. "
+            "We need to allow `iss != sub` when client_assertion_type is configured."
+        )
+        result = pre_filter_issue("[Bug]: JWT-profile assertion with iss != sub returns 400", body)
+        assert result['pass'] is True
+
+    # 2. x == y -> PASS
+    def test_passes_equality_operator(self):
+        body = (
+            "The comparison function in `src/matcher.py` fails when evaluating if `x == y`. "
+            "Because `x` is a floating point numpy array and `y` is a scalar, the operator returns "
+            "a boolean array instead of a single truth value, causing ValueError: The truth value of an array is ambiguous."
+        )
+        result = pre_filter_issue("Comparison error when x == y in matcher module", body)
+        assert result['pass'] is True
+
+    # 3. x <= y -> PASS
+    def test_passes_comparison_operator(self):
+        body = (
+            "In the rate limiter algorithm, we should verify that `x <= y` before resetting the token bucket. "
+            "Currently, if `x > y` the remaining tokens become negative, leading to unexpected 429 errors for legitimate clients."
+        )
+        result = pre_filter_issue("Rate limiter token underflow when x <= y condition fails", body)
+        assert result['pass'] is True
+
+    # 4. #!/bin/bash -> PASS
+    def test_passes_shell_shebang(self):
+        body = (
+            "The bootstrap script fails on Ubuntu 24.04 LTS:\n"
+            "```bash\n"
+            "#!/bin/bash\n"
+            "set -euo pipefail\n"
+            "docker-verify.sh exits 1 with no message\n"
+            "```\n"
+            "When running in non-interactive CI environments, the docker verification script terminates unexpectedly."
+        )
+        result = pre_filter_issue("docker-verify.sh exits 1 with no message on clean checkout", body)
+        assert result['pass'] is True
+
+    # 5. Markdown screenshot syntax -> PASS
+    def test_passes_markdown_screenshot_syntax(self):
+        body = (
+            "The dark mode toggle has visual artifacts across the header bar.\n\n"
+            "![screenshot 1](https://example.com/assets/screen1.png)\n"
+            "![screenshot 2](https://example.com/assets/screen2.png)\n"
+            "![screenshot 3](https://example.com/assets/screen3.png)\n\n"
+            "Notice how the border radius clips the user profile avatar in the navigation component."
+        )
+        result = pre_filter_issue("Dark mode toggle navigation bar visual clipping", body)
+        assert result['pass'] is True
+
+    # 6. Code containing ! -> PASS
+    def test_passes_code_containing_exclamation(self):
+        body = (
+            "When checking validation state in `src/validator.ts`, the condition `if (!isValid || !isReady)` "
+            "evaluates incorrectly because `isValid` is undefined during initial mount. "
+            "In Rust bindings, `println!(\"error occurred!\")` also causes a panic on unwrap."
+        )
+        result = pre_filter_issue("Uncaught TypeError during validation condition check", body)
+        assert result['pass'] is True
+
+    # 7. URL containing punctuation -> PASS
+    def test_passes_url_containing_punctuation(self):
+        body = (
+            "The query parser fails when parsing incoming webhook URLs containing exclamation marks: "
+            "https://api.example.com/v1/events?filter=critical!&tag=release-v2.0! "
+            "The percent-encoding logic strips the exclamation mark and corrupts the HMAC signature."
+        )
+        result = pre_filter_issue("HMAC verification fails on query parameters with special characters", body)
+        assert result['pass'] is True
+
+    # 8. Stack trace with punctuation -> PASS
+    def test_passes_stack_trace_with_punctuation(self):
+        body = (
+            "Encountered unhandled exception during database connection initialization:\n"
+            "```\n"
+            "Traceback (most recent call last):\n"
+            "  File \"src/db.py\", line 45, in connect\n"
+            "    raise RuntimeError(\"FATAL: Database host unreachable! Connection refused!\")\n"
+            "RuntimeError: FATAL: Database host unreachable! Connection refused!\n"
+            "```\n"
+            "This occurs whenever the primary node fails over to the replica."
+        )
+        result = pre_filter_issue("Database failover crashes with unhandled RuntimeError", body)
+        assert result['pass'] is True
+
+    # 9. Technical issue with many code symbols and acronyms -> PASS
+    def test_passes_technical_issue_with_many_code_symbols(self):
+        body = (
+            "When sending HTTP POST requests with Content-Type: application/json to AWS API Gateway, "
+            "the JWT authorization header fails validation if `iss != sub` or `exp <= iat`. "
+            "The CLI response code is HTTP 401 UNAUTHORIZED with JSON payload error details."
+        )
+        result = pre_filter_issue("HTTP 401 on AWS API Gateway JWT authorization validation", body)
+        assert result['pass'] is True
+
+    # 10. Genuine emotional rant prose -> REJECT
+    def test_rejects_genuine_screaming_rant_prose(self):
+        body = (
+            "THIS IS COMPLETELY BROKEN!!! WHY DOES THIS KEEP HAPPENING!!!! "
+            "PLEASE FIX THIS STUPID SYSTEM IMMEDIATELY THIS IS UNUSABLE AND TERRIBLE!!!!"
+        )
+        result = pre_filter_issue("SYSTEM COMPLETELY BROKEN FIX NOW", body)
+        assert result['pass'] is False
+        assert result['rule_id'] in ["RANT_TONE", "ALL_CAPS_TITLE"]
+
+    # 11. Mixed technical issue + mild single exclamation -> PASS
+    def test_passes_mixed_technical_issue_with_mild_single_exclamation(self):
+        body = (
+            "When running `npm test`, the Jest test runner times out after 5000ms on the auth test suite. "
+            "This happens because the mock Redis server does not start in time. Please help take a look! "
+            "Steps to reproduce: 1. Clone repository 2. Run npm install 3. Run npm test."
+        )
+        result = pre_filter_issue("Jest auth test suite times out on CI runners", body)
+        assert result['pass'] is True
+
+    # 12. Borderline technical case -> PASS
+    def test_passes_borderline_technical_case(self):
+        body = (
+            "Summary of problem: The HTTP REST API client throws a NullPointerException in EKS cluster. "
+            "Here is the curl command: `curl -X POST https://api.prod.local/v1/auth -H 'Content-Type: application/json'`\n"
+            "Notice that `iss != sub` and `response_status != 200`!\n"
+            "![diagram](https://example.com/arch.png)\n"
+            "We should update the default configuration to handle this cleanly."
+        )
+        result = pre_filter_issue("NullPointerException during auth token refresh in EKS", body)
+        assert result['pass'] is True
+
+
 class TestPreFilterCSV:
     def test_rejects_roadmap_in_csv(self):
         result = pre_filter_issue_from_csv("[Roadmap] DeepSpeed Roadmap Q1 2026", "some hint")
