@@ -61,14 +61,16 @@ export const IssueFeedPage = () => {
       issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       issue.repo_full_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    // Client-side difficulty filter (safety net — API already returns BEGINNER only)
+    // Client-side difficulty filter
     const matchesDifficulty = difficulty === 'All' || 
-      (issue.difficulty_tier || '').toUpperCase() === difficulty.toUpperCase();
+      (difficulty.toUpperCase() === 'BEGINNER' 
+        ? ['BEGINNER', 'BEGINNER_PLUS'].includes((issue.difficulty_tier || '').toUpperCase())
+        : (issue.difficulty_tier || '').toUpperCase() === difficulty.toUpperCase());
     return matchesSearch && matchesDifficulty;
   });
 
   const activePrefString = [
-    userPrefs.languages?.join(', ') || 'Any Language',
+    (language !== 'All' ? language : userPrefs.languages?.join(', ')) || 'Any Language',
     (difficulty !== 'All' ? difficulty : userPrefs.difficulty) || 'Beginner',
     userPrefs.domains?.slice(0, 2).join(', ')
   ].filter(Boolean).join(' · ');
@@ -208,34 +210,58 @@ export const IssueFeedPage = () => {
         </div>
 
         {/* Filter Pills Row */}
-        <div className="px-4 sm:px-8 pt-2.5 pb-2 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Tier:</span>
+        <div className="px-4 sm:px-8 pt-2.5 pb-2 flex flex-col gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-0.5 shrink-0">Stack:</span>
+                {['All', 'Python', 'TypeScript', 'JavaScript', 'Java', 'Go'].map(l => (
+                  <button
+                    key={l}
+                    onClick={() => setLanguage(l)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all shrink-0 ${
+                      language === l
+                        ? (isDark 
+                            ? 'bg-[#9FE8C3] text-[#064E3B] border-[#9FE8C3] font-bold shadow-sm' 
+                            : 'bg-teal-700 text-white border-teal-700 shadow-nova-sm')
+                        : (isDark 
+                            ? 'bg-[#08131A] text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white' 
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50')
+                    }`}
+                  >
+                    {l === 'All' ? 'All Stacks' : l}
+                  </button>
+                ))}
+              </div>
 
-            {['All', 'Beginner', 'Intermediate', 'Advanced'].map(diff => (
-              <button
-                key={diff}
-                onClick={() => setDifficulty(diff)}
-                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-semibold border transition-all shrink-0 ${
-                  difficulty === diff
-                    ? (isDark 
-                        ? 'bg-[#9FE8C3] text-[#064E3B] border-[#9FE8C3] font-bold shadow-sm' 
-                        : 'bg-teal-700 text-white border-teal-700 shadow-nova-sm')
-                    : (isDark 
-                        ? 'bg-[#08131A] text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white' 
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50')
-                }`}
-              >
-                {diff === 'All' ? 'All Tiers' : diff}
-              </button>
-            ))}
-          </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-0.5 shrink-0">Tier:</span>
+                {['All', 'Beginner', 'Intermediate', 'Advanced'].map(diff => (
+                  <button
+                    key={diff}
+                    onClick={() => setDifficulty(diff)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all shrink-0 ${
+                      difficulty === diff
+                        ? (isDark 
+                            ? 'bg-[#9FE8C3] text-[#064E3B] border-[#9FE8C3] font-bold shadow-sm' 
+                            : 'bg-teal-700 text-white border-teal-700 shadow-nova-sm')
+                        : (isDark 
+                            ? 'bg-[#08131A] text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white' 
+                            : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50')
+                    }`}
+                  >
+                    {diff === 'All' ? 'All Tiers' : diff}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          <div className={`hidden sm:flex items-center gap-1.5 text-xs font-medium shrink-0 ${
-            isDark ? 'text-slate-400' : 'text-slate-500'
-          }`}>
-            <span className="w-2 h-2 rounded-full bg-[#34D399] animate-pulse" />
-            <span>{filteredIssues.length} verified opportunities</span>
+            <div className={`hidden lg:flex items-center gap-1.5 text-xs font-medium shrink-0 ${
+              isDark ? 'text-slate-400' : 'text-slate-500'
+            }`}>
+              <span className="w-2 h-2 rounded-full bg-[#34D399] animate-pulse" />
+              <span>{filteredIssues.length} verified opportunities</span>
+            </div>
           </div>
         </div>
 

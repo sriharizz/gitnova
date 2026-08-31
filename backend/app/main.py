@@ -641,7 +641,7 @@ async def get_recommendations(
         difficulty_tier=None,
         domain=None,
         verification_status="VERIFIED",
-        limit=100,
+        limit=300,
         offset=0,
     )
 
@@ -655,6 +655,14 @@ async def get_recommendations(
         if iss.explanation and iss.explanation.status == "INSUFFICIENT_EVIDENCE":
             continue
 
+        # 2. Quality Floor: ensure issue has actionable plan and target locations
+        if iss.explanation:
+            plan = getattr(iss.explanation, "step_by_step_plan", []) or []
+            locs = getattr(iss.explanation, "relevant_locations", []) or []
+            verified_locs = [l for l in locs if getattr(l, "is_verified", False) or getattr(l, "file_path", None)]
+            if len(plan) == 0 or len(verified_locs) == 0:
+                continue
+
         suit_dict = iss.beginner_suitability.model_dump() if iss.beginner_suitability else {}
         iss_contrib_complexity = (
             suit_dict.get("contribution_complexity")
@@ -665,11 +673,11 @@ async def get_recommendations(
         iss_contrib_type = (suit_dict.get("contribution_type") or "BUG_FIX").upper()
         iss_lang = (iss.repo_language or "").lower()
 
-        # 2. Strict Language Filter (if user specified preferred languages)
+        # 3. Strict Language Filter (if user specified preferred languages)
         if lang_list and iss_lang not in lang_list:
             continue
 
-        # 3. Contribution Type Filter (if user specified preferred contribution types)
+        # 4. Contribution Type Filter (if user specified preferred contribution types)
         if type_list and iss_contrib_type not in type_list:
             continue
 
@@ -680,14 +688,13 @@ async def get_recommendations(
             # Hard setup complexity is forbidden for beginners
             if iss_setup_complexity == "HARD":
                 continue
-            # CHECK_DISCUSSION issues (like Cobra #2481) are NOT immediately actionable for beginners
+            # CHECK_DISCUSSION issues are NOT immediately actionable for beginners
             if iss.availability_status != "LIKELY_AVAILABLE":
                 continue
         elif target_diff == "INTERMEDIATE":
             # Intermediate users can see BEGINNER, BEGINNER_PLUS, and INTERMEDIATE
             if iss_contrib_complexity not in ["BEGINNER", "BEGINNER_PLUS", "INTERMEDIATE"]:
                 continue
-            # Intermediates can review CHECK_DISCUSSION or LIKELY_AVAILABLE
             if iss.availability_status not in ["LIKELY_AVAILABLE", "CHECK_DISCUSSION"]:
                 continue
         elif target_diff in ["ADVANCED", "ALL"]:
@@ -711,7 +718,7 @@ async def get_recommendations(
 
         # 2. Domain & Topic Match (+20 points)
         if dom_list:
-            iss_text = f"{iss.title} {iss.repo_full_name} {' '.join(iss.domain_topics)}".lower()
+            iss_text = f"{iss.title} {iss.repo_full_name} {iss.ai_summary_preview or ''} {' '.join(iss.domain_topics)}".lower()
             matched_doms = sum(1 for d in dom_list if d in iss_text or any(d in t.lower() for t in iss.domain_topics))
             score += min(20.0, matched_doms * 10.0)
 
