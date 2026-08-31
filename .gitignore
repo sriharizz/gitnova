@@ -85,3 +85,7 @@ traces/
 *.csv
 !backend/golden_set.csv
 
+
+# --- Local Interview Evidence & Demonstration Packs (Kept Local) ---
+interview_evidence/
+/interview_evidence/
