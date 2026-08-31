@@ -69,6 +69,8 @@ async def collect_repo_metrics(
     open_issues_count = meta.get("open_issues_count", 0) or 0
     language          = meta.get("language")
     topics            = meta.get("topics", []) or []
+    repo_size_kb      = meta.get("size")
+    description       = meta.get("description")
 
     # License
     license_info = meta.get("license") or {}
@@ -100,48 +102,38 @@ async def collect_repo_metrics(
             closed  = issue.get("closed_at")
             if created and closed:
                 try:
-                    c = datetime.datetime.fromisoformat(created.replace("Z", "+00:00"))
-                    cl = datetime.datetime.fromisoformat(closed.replace("Z", "+00:00"))
-                    close_times.append((cl - c).days)
+                    c_dt = datetime.datetime.fromisoformat(created.replace("Z", "+00:00"))
+                    cl_dt = datetime.datetime.fromisoformat(closed.replace("Z", "+00:00"))
+                    close_times.append((cl_dt - c_dt).total_seconds() / 86400)
                 except ValueError:
                     pass
         if close_times:
             close_times.sort()
-            mid = len(close_times) // 2
-            median_issue_close_days = float(close_times[mid])
+            median_issue_close_days = close_times[len(close_times) // 2]
     except Exception as e:
         logger.warning("collect_issues_failed", extra={"repo": full_name, "error": str(e)})
 
-    # ── 3. Pull requests ──────────────────────────────────────────────────────
+    # ── 3. Pull requests (30-day window) ──────────────────────────────────────
     prs_total_30d: Optional[int] = None
     prs_merged_30d: Optional[int] = None
     avg_pr_merge_days: Optional[float] = None
     try:
-        pulls = await client.get_pulls(full_name, state="all")
-        cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=30)
-        prs_total = 0
-        prs_merged = 0
+        prs = await client.get_pulls(full_name, state="closed")
+        prs_total_30d = len(prs)
+        merged = [p for p in prs if p.get("merged_at")]
+        prs_merged_30d = len(merged)
+
         merge_times = []
-        for pr in pulls:
-            created_at = pr.get("created_at")
-            if not created_at:
-                continue
-            try:
-                created_dt = datetime.datetime.fromisoformat(created_at.replace("Z", "+00:00"))
-            except ValueError:
-                continue
-            if created_dt < cutoff:
-                continue
-            prs_total += 1
-            if pr.get("merged_at"):
-                prs_merged += 1
+        for pr in merged:
+            created = pr.get("created_at")
+            merged_at = pr.get("merged_at")
+            if created and merged_at:
                 try:
-                    merged_dt = datetime.datetime.fromisoformat(pr["merged_at"].replace("Z", "+00:00"))
-                    merge_times.append((merged_dt - created_dt).days)
+                    c_dt = datetime.datetime.fromisoformat(created.replace("Z", "+00:00"))
+                    m_dt = datetime.datetime.fromisoformat(merged_at.replace("Z", "+00:00"))
+                    merge_times.append((m_dt - c_dt).total_seconds() / 86400)
                 except ValueError:
                     pass
-        prs_total_30d = prs_total
-        prs_merged_30d = prs_merged
         if merge_times:
             avg_pr_merge_days = sum(merge_times) / len(merge_times)
     except Exception as e:
@@ -150,14 +142,16 @@ async def collect_repo_metrics(
     # ── 4. CONTRIBUTING.md (3-state: True / False / None) ─────────────────────
     has_contributing_md: Optional[bool] = None
     try:
-        has_contributing_md = await client.file_exists(full_name, "CONTRIBUTING.md")
+        res = await client.get_contents(full_name, "CONTRIBUTING.md")
+        has_contributing_md = (res is not None)
     except Exception as e:
         logger.warning("collect_contributing_failed", extra={"repo": full_name, "error": str(e)})
 
     # ── 5. CODE_OF_CONDUCT.md (3-state: True / False / None) ──────────────────
     has_code_of_conduct: Optional[bool] = None
     try:
-        has_code_of_conduct = await client.file_exists(full_name, "CODE_OF_CONDUCT.md")
+        res = await client.get_contents(full_name, "CODE_OF_CONDUCT.md")
+        has_code_of_conduct = (res is not None)
     except Exception as e:
         logger.warning("collect_coc_failed", extra={"repo": full_name, "error": str(e)})
 
@@ -165,17 +159,22 @@ async def collect_repo_metrics(
     has_good_first_issue_label: Optional[bool] = None
     try:
         labels = await client.get_labels(full_name)
-        gfi_names = {"good first issue", "good-first-issue", "beginner", "starter", "first-timers-only"}
-        has_good_first_issue_label = any(
-            (lbl.get("name") or "").lower() in gfi_names for lbl in labels
-        )
+        if labels is not None:
+            names = {l.get("name", "").lower() for l in labels}
+            gfi_synonyms = {
+                "good first issue", "good-first-issue",
+                "beginner friendly", "beginner",
+                "easy", "starter", "help wanted",
+                "first-timers-only", "low-hanging-fruit"
+            }
+            has_good_first_issue_label = bool(names & gfi_synonyms)
     except Exception as e:
         logger.warning("collect_labels_failed", extra={"repo": full_name, "error": str(e)})
 
     # ── 7. README length ──────────────────────────────────────────────────────
     readme_length: Optional[int] = None
     try:
-        readme = await client._request("GET", f"/repos/{full_name}/contents/README.md")
+        readme = await client.get_contents(full_name, "README.md")
         if readme and isinstance(readme, dict):
             readme_length = readme.get("size", 0) or 0
         elif readme is None:
@@ -211,6 +210,8 @@ async def collect_repo_metrics(
         language=language,
         license_spdx=license_spdx,
         topics=topics,
+        repo_size_kb=repo_size_kb,
+        description=description,
         days_since_push=days_since_push,
         issues_closed_30d=issues_closed_30d,
         prs_merged_30d=prs_merged_30d,

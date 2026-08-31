@@ -145,11 +145,24 @@ class CanonicalIngestionPipeline:
         repo_id = repo_data.get("id")
         repo_complexity = float(repo_data.get("complexity_estimate") or 50.0)
 
-        # Step 4: Pre-Filter Check (Rule-based noise filter)
+        # Step 4: Pre-Filter Check (Rule-based noise & language suitability filter)
         title = raw_issue.get("title", "")
         body = raw_issue.get("body") or ""
         labels = raw_issue.get("labels") or []
-        pf_res = pre_filter_issue(title, body, labels)
+        author = raw_issue.get("user", {}).get("login") if isinstance(raw_issue.get("user"), dict) else None
+        state = raw_issue.get("state", "open")
+        is_pr = ("pull_request" in raw_issue) or ("/pull/" in raw_issue.get("html_url", ""))
+        html_url = raw_issue.get("html_url", "")
+
+        pf_res = pre_filter_issue(
+            title=title,
+            body=body,
+            labels=labels,
+            author=author,
+            state=state,
+            is_pr=is_pr,
+            html_url=html_url,
+        )
         if not pf_res["pass"]:
             if active_tracer and trace_id:
                 active_tracer.record_stage_2_prefilter(
@@ -162,7 +175,8 @@ class CanonicalIngestionPipeline:
                 "success": False,
                 "published": False,
                 "rejection_stage": "PRE_FILTER",
-                "reason": pf_res["reason"]
+                "reason": pf_res["reason"],
+                "reason_codes": pf_res.get("reason_codes", [pf_res.get("rule_id", "PREFILTER_REJECT")]),
             }
 
         # Step 5: Timeline & Discussion Intelligence

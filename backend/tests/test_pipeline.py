@@ -24,28 +24,170 @@ from app.pipeline.quality_scorer import compute_quality_score
 # ═══════════════════════════════════════════
 
 class TestPreFilter:
-    def test_rejects_proposal_title(self):
-        result = pre_filter_issue("Proposal: Rewrite the rendering engine", "This is a detailed body with enough words to pass the minimum word count threshold easily")
-        assert result['pass'] is False
-        assert "Proposal" in result['reason'] or "proposal" in result['reason']
+    # 1. Valid English bug
+    def test_passes_valid_english_bug(self):
+        result = pre_filter_issue(
+            "TypeError in date formatting function",
+            "Getting a TypeError when passing an ISO string to formatDate(). "
+            "Stack trace shows it breaks in src/utils/date.ts at line 42. "
+            "The function receives undefined instead of a Date object when "
+            "the input string has no timezone offset."
+        )
+        assert result['pass'] is True
+        assert result['eligible'] is True
 
-    def test_rejects_rfc_title(self):
-        result = pre_filter_issue("RFC: Parameter Server Training for Keras JAX backend", "A detailed proposal for implementing parameter server training with many words here")
-        assert result['pass'] is False
+    # 2. Valid English feature
+    def test_passes_valid_english_feature(self):
+        result = pre_filter_issue(
+            "Add support for custom headers in HTTP client",
+            "We should allow users to configure custom default headers when initializing "
+            "the ApiClient instance. This is useful for passing authentication tokens "
+            "and custom User-Agent headers across all outgoing requests."
+        )
+        assert result['pass'] is True
 
-    def test_rejects_roadmap_title(self):
-        result = pre_filter_issue("[Roadmap] DeepSpeed Q1 2026", "Here is our roadmap for the first quarter with all planned items and milestones listed")
-        assert result['pass'] is False
+    # 3. Valid documentation issue
+    def test_passes_valid_documentation_issue(self):
+        result = pre_filter_issue(
+            "Fix typo in README installation instructions",
+            "The README currently instructs users to run `npm install --save react-router` "
+            "instead of `npm install react-router-dom`. We should update this to prevent confusion.",
+            labels=[{"name": "documentation"}]
+        )
+        assert result['pass'] is True
 
-    def test_rejects_short_body(self):
-        result = pre_filter_issue("Fix button color", "Just fix it please")
-        assert result['pass'] is False
-        assert "too short" in result['reason'].lower()
+    # 4. Valid question / actionable discussion
+    def test_passes_valid_question_or_discussion(self):
+        result = pre_filter_issue(
+            "How to configure logging format in config.yaml?",
+            "I want to know how to configure structured JSON logging in this project because "
+            "the standard logging output is plain text and our log aggregator requires JSON timestamps."
+        )
+        assert result['pass'] is True
 
+    # 5. Empty title -> FAIL
+    def test_rejects_empty_title(self):
+        result = pre_filter_issue("", "This is a body with plenty of words describing a problem.")
+        assert result['pass'] is False
+        assert result['rule_id'] == "EMPTY_TITLE"
+        assert "EMPTY_TITLE" in result['reason_codes']
+
+    # 6. Empty / near-empty body -> FAIL
+    def test_rejects_empty_or_near_empty_body(self):
+        result = pre_filter_issue("Fix button color", "Just fix it")
+        assert result['pass'] is False
+        assert result['rule_id'] == "EMPTY_BODY"
+
+    # 7. Pull request record -> FAIL
+    def test_rejects_pull_request_record(self):
+        result = pre_filter_issue(
+            "Fix navbar responsive breakpoint",
+            "This pull request updates the CSS media queries for tablet devices.",
+            is_pr=True,
+            html_url="https://github.com/org/repo/pull/123"
+        )
+        assert result['pass'] is False
+        assert result['rule_id'] == "PULL_REQUEST"
+
+    # 8. Closed issue -> FAIL
+    def test_rejects_closed_issue(self):
+        result = pre_filter_issue(
+            "Memory leak in worker connection pool",
+            "Workers do not release TCP connections after timeout occurs in production.",
+            state="closed"
+        )
+        assert result['pass'] is False
+        assert result['rule_id'] == "CLOSED_ISSUE"
+
+    # 9. Obvious Chinese content -> FAIL for English primary feed
+    def test_rejects_obvious_chinese_content(self):
+        result = pre_filter_issue(
+            "启动服务时数据库连接失败",
+            "在Windows环境下运行npm start时，程序无法连接到本地PostgreSQL数据库，报错提示连接超时，请问如何解决？"
+        )
+        assert result['pass'] is False
+        assert result['rule_id'] == "NON_ENGLISH_CONTENT"
+
+    # 10. Obvious Cyrillic content -> FAIL for English primary feed
+    def test_rejects_obvious_cyrillic_content(self):
+        result = pre_filter_issue(
+            "Ошибка при инициализации модуля конфигурации",
+            "При запуске приложения возникает исключение FileNotFoundException в модуле загрузки настроек."
+        )
+        assert result['pass'] is False
+        assert result['rule_id'] == "NON_ENGLISH_CONTENT"
+
+    # 11. English issue containing code and URLs -> PASS
+    def test_passes_english_issue_with_code_and_urls(self):
+        body = (
+            "When sending a request to https://api.example.com/v1/users with the following payload:\n"
+            "```json\n"
+            "{\"user_id\": \"usr_12345\", \"status\": \"ACTIVE\"}\n"
+            "```\n"
+            "The client throws a ValidationError at `src/client.py` line 88. "
+            "Please see documentation at https://docs.example.com/errors for expected behavior."
+        )
+        result = pre_filter_issue("Validation error when creating user via API endpoint", body)
+        assert result['pass'] is True
+
+    # 12. Stack trace-heavy English issue -> PASS
+    def test_passes_stack_trace_heavy_english_issue(self):
+        body = (
+            "The application crashed on startup with this stack trace:\n"
+            "```\n"
+            "Traceback (most recent call last):\n"
+            "  File \"app/main.py\", line 14, in <module>\n"
+            "    from app.db.connection import init_db\n"
+            "  File \"app/db/connection.py\", line 28, in init_db\n"
+            "    raise ConnectionError(\"Failed to connect to host\")\n"
+            "ConnectionError: Failed to connect to host\n"
+            "```\n"
+            "This happens whenever the DATABASE_URL environment variable is unset."
+        )
+        result = pre_filter_issue("Crash with ConnectionError when DATABASE_URL is missing", body)
+        assert result['pass'] is True
+
+    # 13. Technical identifiers and abbreviations -> PASS
+    def test_passes_technical_identifiers_and_abbreviations(self):
+        result = pre_filter_issue(
+            "NullPointerException in KafkaConsumerConfigProvider when SSL_ENABLED is true",
+            "When deploying to AWS EKS with IAM_ROLE authentication, the getKafkaConfig() method "
+            "throws an NPE. The sslKeyStorePassword property is evaluated before initialization."
+        )
+        assert result['pass'] is True
+
+    # 14. Borderline multilingual issue (foreign proper names) -> PASS
+    def test_passes_borderline_multilingual_with_foreign_author_or_word(self):
+        result = pre_filter_issue(
+            "Fix localization crash reported by François for Tokyo server",
+            "Users in the São Paulo and München offices report that currency formatting fails "
+            "when switching locales. The formatCurrency() function needs to handle multi-byte symbols properly."
+        )
+        assert result['pass'] is True
+
+    # 15. Bot / System generated content -> FAIL
+    def test_rejects_bot_or_system_generated_content(self):
+        result_bot = pre_filter_issue(
+            "Bump certifi from 2024.2.2 to 2024.7.4",
+            "Bumps certifi from 2024.2.2 to 2024.7.4. Release notes and changelog are available in the repository.",
+            author="dependabot[bot]"
+        )
+        assert result_bot['pass'] is False
+        assert result_bot['rule_id'] == "BOT_OR_SYSTEM_CONTENT"
+
+        result_stale = pre_filter_issue(
+            "This issue has been automatically marked as stale",
+            "This issue has been automatically marked as stale because it has not had recent activity.",
+            author="stale[bot]"
+        )
+        assert result_stale['pass'] is False
+        assert result_stale['rule_id'] == "BOT_OR_SYSTEM_CONTENT"
+
+    # Legacy Noise & Screaming tests
     def test_rejects_allcaps_title(self):
         result = pre_filter_issue("FIX THIS NOW BROKEN URGENT ASAP", "This is a detailed body with plenty of words describing the actual bug in question and what happened")
         assert result['pass'] is False
-        assert "uppercase" in result['reason'].lower()
+        assert result['rule_id'] == "ALL_CAPS_TITLE"
 
     def test_rejects_epic_with_checklists(self):
         body = """Tracking issue for the v2 release:
@@ -58,32 +200,7 @@ class TestPreFilter:
         """
         result = pre_filter_issue("v2 Release Tracking", body)
         assert result['pass'] is False
-        assert "checklist" in result['reason'].lower() or "epic" in result['reason'].lower()
-
-    def test_rejects_non_code_labels(self):
-        result = pre_filter_issue("How to configure logging?", "I want to know how to configure logging in this project because I cannot find any documentation about it and its confusing",
-                                  labels=[{"name": "question"}])
-        assert result['pass'] is False
-
-    def test_passes_good_issue(self):
-        result = pre_filter_issue(
-            "Button onClick handler fires twice on mobile Safari",
-            "When tapping a button on iOS Safari, the onClick handler fires twice. "
-            "This happens specifically on the submit button in the checkout flow. "
-            "Steps to reproduce: 1. Open checkout page on iPhone. 2. Tap submit. "
-            "3. Observe two network requests being sent. Expected: One request."
-        )
-        assert result['pass'] is True
-
-    def test_passes_normal_bug(self):
-        result = pre_filter_issue(
-            "TypeError in date formatting function",
-            "Getting a TypeError when passing an ISO string to formatDate(). "
-            "Stack trace shows it breaks in src/utils/date.ts at line 42. "
-            "The function receives undefined instead of a Date object when "
-            "the input string has no timezone offset."
-        )
-        assert result['pass'] is True
+        assert result['rule_id'] == "EPIC_TRACKING_ISSUE"
 
 
 class TestPreFilterCSV:

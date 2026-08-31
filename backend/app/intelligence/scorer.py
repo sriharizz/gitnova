@@ -57,6 +57,8 @@ class RepoMetrics:
     language: Optional[str]
     license_spdx: Optional[str]
     topics: List[str] = field(default_factory=list)
+    repo_size_kb: Optional[int] = None
+    description: Optional[str] = None
 
     # Activity signals (None = API fetch failed)
     days_since_push: int = 999
@@ -81,6 +83,24 @@ class RepoMetrics:
     days_since_release: Optional[int] = None
 
 
+def get_manageability_profile(complexity_score: float) -> str:
+    """
+    Classifies a repository into a manageability profile based on its complexity score (0-100).
+      - MANAGEABLE:  < 35.0 (compact libraries, isolated tools, straightforward entry)
+      - MODERATE:    35.0 - 54.9 (medium-sized modular frameworks, typical services)
+      - LARGE:       55.0 - 74.9 (multi-component ecosystems, extensive architectures)
+      - VERY_LARGE:  >= 75.0 (massive monorepos, multi-package platform systems)
+    """
+    if complexity_score < 35.0:
+        return "MANAGEABLE"
+    elif complexity_score < 55.0:
+        return "MODERATE"
+    elif complexity_score < 75.0:
+        return "LARGE"
+    else:
+        return "VERY_LARGE"
+
+
 # ── Output data ───────────────────────────────────────────────────────────────
 
 @dataclass
@@ -94,17 +114,24 @@ class RepoScore:
     tier: Optional[str]                   # starter | growing | established | None
     breakdown: Dict[str, float]           # per-pillar scores
     explanation: List[str]                # human-readable, deterministic
-    complexity_estimate: float            # 0-100 (PROVISIONAL until Sprint 5)
-    complexity_signals: Dict[str, float]  # what fed into complexity (transparency)
+    complexity_estimate: float            # 0-100 (provisional or structural)
+    complexity_signals: Dict[str, Any]    # what fed into complexity (transparency)
     unavailable_metrics: List[str]        # metrics that failed to collect (confidence reduction)
     metrics: RepoMetrics                  # raw inputs for debugging
+    manageability_profile: str = "MODERATE" # MANAGEABLE | MODERATE | LARGE | VERY_LARGE
+    rejection_reasons: List[str] = field(default_factory=list) # Machine-readable rejection/downgrade codes
+
+    @property
+    def complexity_score(self) -> float:
+        """Alias for complexity_estimate adhering to updated terminology."""
+        return self.complexity_estimate
 
 
 # ── Scorer ────────────────────────────────────────────────────────────────────
 
 class RepositoryScorer:
     """
-    Computes Contribution Success Score and Onboarding Complexity for a repository.
+    Computes Contribution Success Score, Onboarding Complexity, and Manageability Profile.
 
     Usage:
         scorer = RepositoryScorer()
@@ -113,6 +140,7 @@ class RepositoryScorer:
 
     def score(self, metrics: RepoMetrics) -> RepoScore:
         unavailable_metrics: List[str] = []
+        rejection_reasons: List[str] = []
 
         # Identify missing metrics (None = API fetch failed)
         if metrics.issues_closed_30d is None:
@@ -149,11 +177,24 @@ class RepositoryScorer:
 
         grade = self._grade(total)
 
-        # ── Complexity estimate (provisional) ─────────────────────────────────
+        # ── Complexity & Manageability Estimate ──────────────────────────────
         complexity, complexity_signals = self._estimate_complexity(metrics)
+        manageability_profile = get_manageability_profile(complexity)
 
         # ── Tier (complexity-based, quality-gated) ────────────────────────────
         tier = self._assign_tier(total, complexity)
+
+        # ── Reason codes & Soft signals ───────────────────────────────────────
+        if total < 30.0:
+            rejection_reasons.append("REPO_BELOW_QUALITY_FLOOR")
+        if metrics.days_since_push > 180:
+            rejection_reasons.append("REPO_STALE")
+
+        # Soft signal: Check description non-ASCII composition
+        if metrics.description:
+            non_ascii = sum(1 for c in metrics.description if ord(c) > 127)
+            if non_ascii / max(len(metrics.description), 1) > 0.30:
+                rejection_reasons.append("SOFT_NON_ENGLISH_METADATA")
 
         # ── Explanation (deterministic, no LLM) ──────────────────────────────
         explanation = self._generate_explanation(breakdown, metrics, complexity, unavailable_metrics)
@@ -175,6 +216,8 @@ class RepositoryScorer:
             complexity_signals=complexity_signals,
             unavailable_metrics=unavailable_metrics,
             metrics=metrics,
+            manageability_profile=manageability_profile,
+            rejection_reasons=rejection_reasons,
         )
 
         logger.info("repo_scored", extra={
@@ -183,6 +226,7 @@ class RepositoryScorer:
             "grade": grade,
             "tier": tier,
             "complexity": round(complexity, 1),
+            "manageability_profile": manageability_profile,
             "unavailable_count": len(unavailable_metrics),
         })
 
@@ -230,7 +274,6 @@ class RepositoryScorer:
 
     def _score_health(self, m: RepoMetrics) -> float:
         permissive = 5 if m.license_spdx in {"MIT", "Apache-2.0", "BSD-3-Clause", "ISC"} else 0
-        # open_issues_count < 100 evaluated as a weak backlog/health heuristic
         manageable = 5 if m.open_issues_count < 100 else 0
         contrib_cnt = m.contributor_count if m.contributor_count is not None else 0
         community  = 5 if contrib_cnt > 5 else 0
@@ -245,36 +288,43 @@ class RepositoryScorer:
         if total >= 30: return "fair"
         return "avoid"
 
-    # ── Onboarding Complexity Estimate (PROVISIONAL) ──────────────────────────
-    #
-    # Answers: "How difficult is this codebase estimated to be to enter?"
-    # PROVISIONAL: Uses GitHub API metadata signals only (stars, backlog count,
-    # contributor count, docs). open_issues_count is evaluated strictly as a
-    # weak backlog/scale proxy, NOT direct codebase structural complexity.
-    # Sprint 5 will add file_count, total_loc, directory_depth from cloned repository structure.
+    # ── Onboarding Complexity & Manageability Estimate ─────────────────────────
 
-    def _estimate_complexity(self, m: RepoMetrics) -> tuple[float, Dict[str, float]]:
-        scale         = min(math.log10(max(m.stars, 1)) / 5, 1.0) * 30          # 0-30
-        # open_issues_count evaluated only as a weak backlog scale proxy
-        backlog       = min(m.open_issues_count / 500, 1.0) * 20                 # 0-20
+    def _estimate_complexity(self, m: RepoMetrics) -> tuple[float, Dict[str, Any]]:
+        unavailable_provisional: List[str] = []
+        
+        # Scale signal: Prefer repo_size_kb if available; fallback gracefully to stars
+        if m.repo_size_kb is not None:
+            # 10 KB to 1,000,000 KB (1GB) maps log10 from 1 to 6 -> normalized to 0-30
+            scale = min(math.log10(max(m.repo_size_kb, 10)) / 5.0, 1.0) * 30.0
+            scale_source = "repo_size_kb"
+        else:
+            unavailable_provisional.append("repo_size_kb")
+            scale = min(math.log10(max(m.stars, 1)) / 5.0, 1.0) * 30.0
+            scale_source = "stars_fallback"
+
+        backlog       = min(m.open_issues_count / 500.0, 1.0) * 20.0
         contrib_cnt   = m.contributor_count if m.contributor_count is not None else 1
-        community_sz  = min(math.log10(max(contrib_cnt, 1)) / 3, 1.0) * 20        # 0-20
+        community_sz  = min(math.log10(max(contrib_cnt, 1)) / 3.0, 1.0) * 20.0
 
         # Mitigation signals
         onboarding_guide = -10.0 if m.has_contributing_md is True else 0.0
         readme_len       = m.readme_length if m.readme_length is not None else 0
-        doc_quality      = -min(readme_len / 8000, 1.0) * 10                     # -10 to 0
+        doc_quality      = -min(readme_len / 8000.0, 1.0) * 10.0
 
         raw = scale + backlog + community_sz + onboarding_guide + doc_quality
         estimate = max(0.0, min(100.0, raw))
 
         signals = {
             "complexity_source": "provisional",
+            "scale_source":   scale_source,
             "scale":          round(scale, 2),
             "backlog":        round(backlog, 2),
             "community_size": round(community_sz, 2),
             "onboarding_guide": round(onboarding_guide, 2),
             "doc_quality":    round(doc_quality, 2),
+            "unavailable_provisional_signals": unavailable_provisional,
+            "manageability_profile": get_manageability_profile(estimate),
         }
 
         return estimate, signals
@@ -295,22 +345,68 @@ class RepositoryScorer:
         self,
         provisional_complexity: float,
         provisional_signals: Dict[str, Any],
-        file_count: int,
-        total_loc: int,
-        max_directory_depth: int,
+        file_count: Optional[int] = None,
+        total_loc: Optional[int] = None,
+        max_directory_depth: Optional[int] = None,
+        subpackage_count: Optional[int] = None,
+        has_isolated_components: Optional[bool] = None,
     ) -> Tuple[float, Dict[str, Any]]:
         """
         Refines onboarding complexity using ground-truth codebase structural metrics.
-        Blends provisional API scale metadata with actual LOC, file count, and directory depth.
-        Sets complexity_source = "structural" in signals.
+        Blends provisional API scale metadata with actual LOC, file count, directory depth, and package density.
+        Preserves unavailable signals as UNKNOWN and records them in unavailable_structural_signals.
         """
-        loc_signal = min(math.log10(max(total_loc, 10)) / 5.0, 1.0) * 35.0
-        file_signal = min(file_count / 500.0, 1.0) * 15.0
-        depth_signal = min(max_directory_depth / 10.0, 1.0) * 10.0
+        unavailable_structural: List[str] = []
+        
+        # Check availability of each signal — NEVER convert None to 0
+        if total_loc is None:
+            unavailable_structural.append("total_loc")
+        if file_count is None:
+            unavailable_structural.append("file_count")
+        if max_directory_depth is None:
+            unavailable_structural.append("max_directory_depth")
+        if subpackage_count is None:
+            unavailable_structural.append("subpackage_count")
 
-        structural_raw = loc_signal + file_signal + depth_signal
+        # If ALL structural metrics are unavailable, we cannot refine structurally
+        if len(unavailable_structural) == 4:
+            refined_signals = dict(provisional_signals)
+            refined_signals.update({
+                "complexity_source": "provisional_unrefined",
+                "unavailable_structural_signals": unavailable_structural,
+                "confidence": "low_missing_structural_metrics",
+                "manageability_profile": get_manageability_profile(provisional_complexity),
+            })
+            return round(provisional_complexity, 1), refined_signals
 
-        # Extract gross provisional scale (before documentation discounts)
+        # Compute available structural signals without converting missing to 0
+        if total_loc is not None:
+            loc_signal = min(math.log10(max(total_loc, 10)) / 5.0, 1.0) * 30.0
+        else:
+            loc_signal = provisional_signals.get("scale", 15.0)
+
+        if file_count is not None:
+            file_signal = min(file_count / 500.0, 1.0) * 15.0
+        else:
+            file_signal = 7.5
+
+        if max_directory_depth is not None:
+            depth_signal = min(max_directory_depth / 10.0, 1.0) * 10.0
+        else:
+            depth_signal = 5.0
+
+        if subpackage_count is not None:
+            # Multi-package indicator: 1 package = 0 pts; >=10 packages = 15 pts
+            pkg_signal = min(max(0, subpackage_count - 1) / 9.0, 1.0) * 15.0
+        else:
+            pkg_signal = 0.0
+
+        structural_raw = loc_signal + file_signal + depth_signal + pkg_signal
+
+        # Mitigations
+        isolated_discount = -5.0 if has_isolated_components is True else 0.0
+
+        # Extract gross provisional scale
         provisional_gross = (
             provisional_signals.get("scale", 0.0)
             + provisional_signals.get("backlog", 0.0)
@@ -319,21 +415,33 @@ class RepositoryScorer:
         onboarding_guide = provisional_signals.get("onboarding_guide", 0.0)
         doc_quality = provisional_signals.get("doc_quality", 0.0)
 
-        # 40% provisional API scale + 60% ground-truth codebase structure, minus documentation discounts once
-        blended_gross = (provisional_gross * 0.4) + (structural_raw * 0.6)
-        blended_raw = blended_gross + onboarding_guide + doc_quality
+        # Weight based on structural data completeness
+        structural_weight = 0.6 * (1.0 - (len(unavailable_structural) / 4.0) * 0.5)
+        provisional_weight = 1.0 - structural_weight
+
+        blended_gross = (provisional_gross * provisional_weight) + (structural_raw * structural_weight)
+        blended_raw = blended_gross + onboarding_guide + doc_quality + isolated_discount
         refined_complexity = max(0.0, min(100.0, blended_raw))
+
+        manageability_profile = get_manageability_profile(refined_complexity)
 
         refined_signals = dict(provisional_signals)
         refined_signals.update({
             "complexity_source": "structural",
-            "total_loc": total_loc,
-            "file_count": file_count,
-            "max_directory_depth": max_directory_depth,
+            "total_loc": total_loc if total_loc is not None else "UNKNOWN",
+            "file_count": file_count if file_count is not None else "UNKNOWN",
+            "max_directory_depth": max_directory_depth if max_directory_depth is not None else "UNKNOWN",
+            "subpackage_count": subpackage_count if subpackage_count is not None else "UNKNOWN",
+            "has_isolated_components": has_isolated_components if has_isolated_components is not None else "UNKNOWN",
             "loc_signal": round(loc_signal, 2),
             "file_signal": round(file_signal, 2),
             "depth_signal": round(depth_signal, 2),
+            "pkg_signal": round(pkg_signal, 2),
+            "isolated_discount": round(isolated_discount, 2),
             "structural_raw": round(structural_raw, 2),
+            "unavailable_structural_signals": unavailable_structural,
+            "structural_confidence": "high" if not unavailable_structural else "medium",
+            "manageability_profile": manageability_profile,
         })
 
         return round(refined_complexity, 1), refined_signals
@@ -391,12 +499,21 @@ class RepositoryScorer:
         elif breakdown["health"] <= 5:
             exp.append("⚠ Limited community signals")
 
-        # Provisional Onboarding Complexity (Explicitly provisional for Sprint 3)
-        if complexity < 25:
-            exp.append("✓ Low provisional onboarding complexity — estimated accessible entry")
-        elif complexity < 50:
-            exp.append("⚠ Moderate provisional onboarding complexity — expect some ramp-up")
+        # Onboarding Complexity & Manageability
+        profile = get_manageability_profile(complexity)
+        if profile == "MANAGEABLE":
+            exp.append("✓ Low provisional onboarding complexity — manageable entry for newcomers")
+        elif profile == "MODERATE":
+            exp.append("⚠ Moderate provisional onboarding complexity — typical modular architecture")
+        elif profile == "LARGE":
+            exp.append("⚠ High provisional onboarding complexity — multi-component architecture")
         else:
-            exp.append("⚠ High provisional onboarding complexity — deeper study expected")
+            exp.append("⚠ Very high provisional onboarding complexity — large monorepo / platform architecture")
+
+        # Soft Metadata Signal
+        if m.description:
+            non_ascii = sum(1 for c in m.description if ord(c) > 127)
+            if non_ascii / max(len(m.description), 1) > 0.30:
+                exp.append("ℹ Non-English description metadata detected")
 
         return exp

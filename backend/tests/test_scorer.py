@@ -561,3 +561,127 @@ class TestMissingMetrics:
         assert any("provisional onboarding complexity" in e.lower() for e in result.explanation)
 
 
+# ── Phase 1: Generalized Manageability & Profile Tests ────────────────────────
+
+class TestManageabilityAndPhase1Profile:
+
+    def test_high_star_compact_repo_is_manageable(self):
+        """High-star repository with compact codebase (small file count / LOC) should be MANAGEABLE."""
+        m = make_metrics(
+            stars=50000,
+            repo_size_kb=800,
+            open_issues_count=15,
+            contributor_count=8,
+            has_contributing_md=True,
+            readme_length=5000,
+        )
+        provisional = scorer.score(m)
+        assert provisional.manageability_profile in ("MANAGEABLE", "MODERATE")
+
+        # Refine with structural metrics (35 files, 4500 LOC, depth 3, 1 package)
+        refined_score, signals = scorer.refine_complexity_with_structural_metrics(
+            provisional_complexity=provisional.complexity_estimate,
+            provisional_signals=provisional.complexity_signals,
+            file_count=35,
+            total_loc=4500,
+            max_directory_depth=3,
+            subpackage_count=1,
+        )
+        assert refined_score < 35.0
+        assert signals["manageability_profile"] == "MANAGEABLE"
+
+    def test_low_star_large_monorepo_is_very_large(self):
+        """Low-star repo with massive codebase (many packages, files, deep directory) should be VERY_LARGE or LARGE."""
+        m = make_metrics(
+            stars=120,
+            repo_size_kb=150000,
+            open_issues_count=400,
+            contributor_count=3,
+            has_contributing_md=False,
+            readme_length=800,
+        )
+        provisional = scorer.score(m)
+
+        # Refine with massive monorepo structural metrics (2500 files, 600,000 LOC, depth 9, 25 subpackages)
+        refined_score, signals = scorer.refine_complexity_with_structural_metrics(
+            provisional_complexity=provisional.complexity_estimate,
+            provisional_signals=provisional.complexity_signals,
+            file_count=2500,
+            total_loc=600000,
+            max_directory_depth=9,
+            subpackage_count=25,
+        )
+        assert refined_score >= 55.0
+        assert signals["manageability_profile"] in ("LARGE", "VERY_LARGE")
+
+    def test_missing_structural_metrics_preserves_unknown_without_zeroing(self):
+        """Structural metrics must preserve UNKNOWN as UNKNOWN and never convert None to 0."""
+        m = make_metrics(stars=1000, repo_size_kb=5000)
+        provisional = scorer.score(m)
+
+        # All structural signals None
+        refined_score, signals = scorer.refine_complexity_with_structural_metrics(
+            provisional_complexity=provisional.complexity_estimate,
+            provisional_signals=provisional.complexity_signals,
+            file_count=None,
+            total_loc=None,
+            max_directory_depth=None,
+            subpackage_count=None,
+        )
+        assert signals["complexity_source"] == "provisional_unrefined"
+        assert set(signals["unavailable_structural_signals"]) == {"total_loc", "file_count", "max_directory_depth", "subpackage_count"}
+        assert signals["confidence"] == "low_missing_structural_metrics"
+
+    def test_missing_metadata_resilience(self):
+        """When repo_size_kb is missing, fallback gracefully to stars with signal tracking."""
+        m = make_metrics(repo_size_kb=None, stars=2000)
+        result = scorer.score(m)
+        assert "repo_size_kb" in result.complexity_signals["unavailable_provisional_signals"]
+        assert result.complexity_signals["scale_source"] == "stars_fallback"
+        assert result.complexity_estimate > 0
+
+    def test_large_repo_with_isolated_contribution_area_receives_discount(self):
+        """A larger repo with isolated component architecture receives a structural mitigation discount."""
+        m = make_metrics(stars=5000, repo_size_kb=20000)
+        provisional = scorer.score(m)
+
+        score_standard, _ = scorer.refine_complexity_with_structural_metrics(
+            provisional_complexity=provisional.complexity_estimate,
+            provisional_signals=provisional.complexity_signals,
+            file_count=600,
+            total_loc=120000,
+            max_directory_depth=6,
+            has_isolated_components=False,
+        )
+
+        score_isolated, signals_isolated = scorer.refine_complexity_with_structural_metrics(
+            provisional_complexity=provisional.complexity_estimate,
+            provisional_signals=provisional.complexity_signals,
+            file_count=600,
+            total_loc=120000,
+            max_directory_depth=6,
+            has_isolated_components=True,
+        )
+
+        assert score_isolated < score_standard
+        assert signals_isolated["isolated_discount"] == -5.0
+
+    def test_non_english_readme_soft_signal_does_not_hard_reject(self):
+        """Non-English metadata triggers a soft explanation signal and reason code, but does not hard reject an otherwise healthy repo."""
+        m = make_metrics(
+            description="这是一个开源项目用于自动化测试和数据分析",
+            stars=1500,
+            days_since_push=2,
+            issues_closed_30d=10,
+            prs_merged_30d=5,
+            prs_total_30d=5,
+            has_contributing_md=True,
+        )
+        result = scorer.score(m)
+        assert result.total >= 70
+        assert result.grade == "excellent"
+        assert "SOFT_NON_ENGLISH_METADATA" in result.rejection_reasons
+        assert any("Non-English description" in e for e in result.explanation)
+
+
+
