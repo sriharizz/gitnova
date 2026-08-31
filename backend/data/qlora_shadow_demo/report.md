@@ -84,7 +84,7 @@
 
 You can re-run this shadow evaluation anytime using this single command:
 ```bash
-python backend/scripts/analysis/run_qlora_shadow_eval.py
+python backend/scripts/evaluation/run_qlora_shadow_eval.py
 ```
 
 ---
