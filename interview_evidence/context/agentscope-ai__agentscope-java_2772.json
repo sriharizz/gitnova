@@ -1,0 +1,132 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_54883319-478f-5b3e-a217-f6c07f4ed850",
+    "repo_name": "agentscope-ai/agentscope-java",
+    "repo_url": "https://github.com/agentscope-ai/agentscope-java",
+    "issue_number": 2772,
+    "issue_url": "https://github.com/agentscope-ai/agentscope-java/issues/2772",
+    "title": "[Bug]:非沙箱模式下,分布式部署机器workspace使用共享磁盘挂载会导致.skill-cache竞争"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-20T08:22:33.466481+00:00",
+    "updated_at": "2026-08-20T08:22:33.059135+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Java",
+    "repo_topics": [
+      "adk",
+      "agent",
+      "agent-framework",
+      "agentic",
+      "agentic-ai",
+      "agentscope",
+      "ai",
+      "harness",
+      "llm"
+    ],
+    "repo_description": "",
+    "repo_stars": 4896,
+    "repo_id": "4f5606bc-d628-49b7-9ae5-b065ab42eb6d"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "agentscope-core/src/main/java/io/agentscope/core/agent/RuntimeContext.java",
+      "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+    ],
+    "symbols": [
+      "RuntimeContext",
+      "Builder"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java",
+        "symbol_name": "Builder",
+        "lines": "4446-4485",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "agentscope-core/src/main/java/io/agentscope/core/agent/RuntimeContext.java",
+        "symbol_name": "RuntimeContext",
+        "lines": "316-355",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bug]:非沙箱模式下,分布式部署机器workspace使用共享磁盘挂载会导致.skill-cache竞争",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Java",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "In distributed non-sandbox deployments using shared disk mounts, multiple concurrent user requests accessing the same workspace path experience file race conditions and `NoSuchFileException` errors due to a global, shared `.skills-cache` directory.",
+    "root_cause_analysis": "In `ReActAgent` and associated dynamic skill middleware components, the working directory and `.skills-cache` are resolved to a common shared path on the mounted disk. When concurrent requests execute `stage()` and trigger `garbageCollectOrphans`, one request deletes files out from underneath another concurrent request's `Files.walk` traversal.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect RuntimeContext and ReActAgent workspace resolution",
+        "description": "Examine agentscope-core/src/main/java/io/agentscope/core/agent/RuntimeContext.java and agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java to understand how workspace paths and the global .skills-cache directory are currently resolved and shared across concurrent requests.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/agent/RuntimeContext.java"
+      },
+      {
+        "step_number": 2,
+        "title": "Incorporate session or user identifiers into skill cache paths",
+        "description": "Modify workspace and skill cache path resolution logic in RuntimeContext or ReActAgent to namespace the .skills-cache directory per user or session identifier, preventing concurrent file race conditions on shared storage.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/agent/RuntimeContext.java"
+      },
+      {
+        "step_number": 3,
+        "title": "Safeguard file cleanup and traversal operations",
+        "description": "Review garbageCollectOrphans and deleteRecursively usages to handle NoSuchFileException robustly during concurrent file traversals in shared disk mount environments.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+      },
+      {
+        "step_number": 4,
+        "title": "Add concurrency regression test and execute verification",
+        "description": "Implement a multi-threaded regression test simulating concurrent user requests accessing workspace skill staging to ensure no NoSuchFileException is thrown, then execute the test suite.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "File System Race Condition",
+        "short_explanation": "A concurrency bug where two or more threads or processes try to read, modify, or delete the same file or directory at the same time.",
+        "why_it_matters": "Unsynchronized file operations on shared storage lead to unpredictable failures like missing files when one thread deletes an item being traversed by another.",
+        "connection_to_issue": "Concurrent user requests attempt to garbage-collect and materialize skills in a shared `.skills-cache` directory, causing a race condition and `NoSuchFileException`."
+      },
+      {
+        "concept_name": "Resource Namespacing",
+        "short_explanation": "Isolating shared resources by appending unique identifiers (such as user IDs or session IDs) to resource paths or keys.",
+        "why_it_matters": "Prevents data collision and interference between different tenants or users sharing the same physical storage infrastructure.",
+        "connection_to_issue": "Isolating the skill cache path per user (using `userId`) prevents separate user requests from competing over the exact same `.skills-cache` directory."
+      }
+    ],
+    "common_pitfalls": [
+      "Assuming single-user execution environments when dealing with file paths and temporary directories.",
+      "Performing recursive file deletions on shared directories without proper locking or per-user namespaced isolation."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

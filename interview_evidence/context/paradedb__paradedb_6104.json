@@ -1,0 +1,137 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_1d54c73e-5776-54c3-8f84-c83a6cadd758",
+    "repo_name": "paradedb/paradedb",
+    "repo_url": "https://github.com/paradedb/paradedb",
+    "issue_number": 6104,
+    "issue_url": "https://github.com/paradedb/paradedb/issues/6104",
+    "title": "Range-partitioned JoinScan converts sampled NUMERIC partition bounds twice"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-26T21:01:51.472209+00:00",
+    "updated_at": "2026-08-26T21:01:50.398333+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Rust",
+    "repo_topics": [
+      "aggregations",
+      "analytics",
+      "bm25",
+      "database",
+      "elasticsearch",
+      "full-text-search",
+      "htap",
+      "hybrid-search",
+      "olap",
+      "postgresql",
+      "real-time-analytics",
+      "similarity-search",
+      "sparse-vector",
+      "sql"
+    ],
+    "repo_description": "",
+    "repo_stars": 9128,
+    "repo_id": "a28c80cb-0321-4a88-8978-9b9bc00022da"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "pg_search/src/query/pdb_query.rs",
+      "pg_search/src/index/fast_fields_helper.rs"
+    ],
+    "symbols": [
+      "range",
+      "WhichFastField"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "pg_search/src/query/pdb_query.rs",
+        "symbol_name": "range",
+        "lines": "1541-1580",
+        "role": "Applies numeric scaling and byte conversion to range bounds",
+        "is_verified": true
+      },
+      {
+        "file_path": "pg_search/src/index/fast_fields_helper.rs",
+        "symbol_name": "WhichFastField",
+        "lines": "351-390",
+        "role": "Defines fast field requests used to fetch stored column values",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Range-partitioned JoinScan converts sampled NUMERIC partition bounds twice",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Rust",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Range-partitioned JoinScan samples `partition_by` fast fields in their raw/stored form, but then wraps these split points in normal `pdb::Query::Range` filters. Because `pdb::Query::Range` automatically runs `scale_numeric_bound` on `Numeric64` fields and parses `NumericBytes` bounds, sampled numeric partition bounds get converted twice or trigger conversion errors.",
+    "root_cause_analysis": "The root cause is a mismatch between how user-provided query bounds and sampled partition bounds are processed. `pdb::Query::Range` assumes input bounds are logical user inputs that require scaling (`scale_numeric_bound`) or byte-conversion (`numeric_bound_to_bytes`). However, range-partitioned join scans supply already-stored internal fast field values, leading to duplicate scaling for `Numeric64` and invalid type conversion errors for `NumericBytes`.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect pdb::Query::Range handling",
+        "description": "Inspect the range query construction and execution logic in pg_search/src/query/pdb_query.rs to understand how scale_numeric_bound and numeric_bound_to_bytes are applied.",
+        "target_file": "pg_search/src/query/pdb_query.rs"
+      },
+      {
+        "step_number": 2,
+        "title": "Inspect sample_fast_field and WhichFastField usage",
+        "description": "Examine how WhichFastField and sample_fast_field extract raw/stored partition bounds in pg_search/src/index/fast_fields_helper.rs.",
+        "target_file": "pg_search/src/index/fast_fields_helper.rs"
+      },
+      {
+        "step_number": 3,
+        "title": "Prevent double scaling or conversion for sampled bounds",
+        "description": "Modify the range query constructor or introduce a dedicated variant/flag in pg_search/src/query/pdb_query.rs so that sampled numeric or byte partition bounds bypass redundant scaling and byte conversion.",
+        "target_file": "pg_search/src/query/pdb_query.rs"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test and verify with cargo test",
+        "description": "Add a regression test case covering range-partitioned join scans on Numeric64 and NumericBytes columns, then execute the verified test command to ensure correctness.",
+        "target_file": "pg_search/src/query/pdb_query.rs"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Fixed-Point Numeric Scaling",
+        "short_explanation": "A technique where decimals are stored as scaled integers (e.g., multiplying by 10^scale) to avoid floating-point inaccuracies.",
+        "why_it_matters": "Developers must ensure scaling is applied exactly once during round-tripping to prevent data corruption or skewed partitions.",
+        "connection_to_issue": "Sampled `Numeric64` bounds are already stored in their scaled form, but passing them through `range()` applies scaling a second time."
+      },
+      {
+        "concept_name": "Query Range Bounding",
+        "short_explanation": "The mechanism that translates high-level search range bounds (inclusive/exclusive/unbounded) into low-level query terms.",
+        "why_it_matters": "Query filters must accurately interpret boundaries to return correct search results without runtime type errors.",
+        "connection_to_issue": "`NumericBytes` range bounds expect sortable byte representations, but raw sampled bytes fail validation when treated as unencoded inputs."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying global numeric scaling functions without checking how standard user queries vs. internal partition scans construct their ranges.",
+      "Forgetting to update DataFusion range partitioning declarations (`RangePartitioning::to_datafusion`) when changing how partition bounds are interpreted."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

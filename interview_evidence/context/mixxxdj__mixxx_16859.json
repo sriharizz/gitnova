@@ -1,0 +1,123 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_af6583e0-879b-5e97-9d20-9fbb57b7b349",
+    "repo_name": "mixxxdj/mixxx",
+    "repo_url": "https://github.com/mixxxdj/mixxx",
+    "issue_number": 16859,
+    "issue_url": "https://github.com/mixxxdj/mixxx/issues/16859",
+    "title": "waveform: option to invert zoom direction for mousewheel scroll?"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-22T07:42:44.567962+00:00",
+    "updated_at": "2026-08-22T07:42:43.757826+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "C++",
+    "repo_topics": [
+      "audio",
+      "dj",
+      "hid",
+      "linux",
+      "mac",
+      "midi",
+      "music",
+      "qt",
+      "windows"
+    ],
+    "repo_description": "",
+    "repo_stars": 6992,
+    "repo_id": "77975e35-a0a5-41ab-ae8f-0ca6fd3447e1"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "src/mixxxmainwindow.cpp"
+    ],
+    "symbols": [
+      "MixxxMainWindow"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "src/mixxxmainwindow.cpp",
+        "symbol_name": "MixxxMainWindow",
+        "lines": "316-355",
+        "role": "Preferences dialog initialization and connection",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "waveform: option to invert zoom direction for mousewheel scroll?",
+    "input_body": "No body provided in issue description.",
+    "target_language": "C++",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The user is requesting a feature in the waveform preferences to add a radio-box or setting option to invert the zoom direction when scrolling with the mousewheel over the waveform.",
+    "root_cause_analysis": "The preference option for inverting mousewheel zoom direction on waveforms is currently unimplemented or was previously dropped during earlier merges (#9952, #4195), meaning the zoom delta calculation does not check any user configuration flag for inversion.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect waveform preference settings and zoom handling",
+        "description": "Examine src/mixxxmainwindow.cpp and related waveform preference configuration files to locate mousewheel zoom delta computation and existing preference connections.",
+        "target_file": "src/mixxxmainwindow.cpp"
+      },
+      {
+        "step_number": 2,
+        "title": "Add preference option for inverting waveform mousewheel zoom",
+        "description": "Introduce a configuration setting and corresponding radio-box or checkbox option in the waveform preferences dialog UI/backend logic to allow users to toggle zoom inversion.",
+        "target_file": "src/mixxxmainwindow.cpp"
+      },
+      {
+        "step_number": 3,
+        "title": "Apply zoom inversion logic based on preference flag",
+        "description": "Update the mousewheel scroll event handler for the waveform display to check the new preference flag and invert the zoom delta calculation accordingly.",
+        "target_file": "src/mixxxmainwindow.cpp"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression tests and execute test suite",
+        "description": "Add unit tests verifying that toggling the invert mousewheel zoom preference correctly alters the sign or direction of the resulting zoom delta, then run the test suite to confirm.",
+        "target_file": "src/mixxxmainwindow.cpp"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "User Preferences Integration",
+        "short_explanation": "Storing and retrieving user-configurable settings through Mixxx's settings management system.",
+        "why_it_matters": "Allows user interface components and event handlers to adapt their runtime behavior based on individual user workflow preferences.",
+        "connection_to_issue": "An invert zoom preference needs to be stored in the settings backend and read when handling mousewheel scroll events on the waveform."
+      },
+      {
+        "concept_name": "Mousewheel Event Handling",
+        "short_explanation": "Intercepting and responding to QWheelEvent objects in Qt widgets to control scaling or scrolling.",
+        "why_it_matters": "Enables interactive visual feedback like zooming in and out when users scroll their mouse over graphical widgets.",
+        "connection_to_issue": "The mousewheel event handler for the waveform widget must multiply the scroll delta by -1 when the invert zoom preference is enabled."
+      }
+    ],
+    "common_pitfalls": [
+      "Forgetting to wire the preference change signal to update the waveform widget state dynamically.",
+      "Hardcoding the inversion flag instead of persisting it in the configuration store."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

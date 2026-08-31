@@ -1,0 +1,146 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_29c25175-cee2-5037-b589-dda18090efdf",
+    "repo_name": "paradedb/paradedb",
+    "repo_url": "https://github.com/paradedb/paradedb",
+    "issue_number": 6101,
+    "issue_url": "https://github.com/paradedb/paradedb/issues/6101",
+    "title": "BM25 indexes reject valid NUMERIC typmods with |scale| > 18"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-26T21:09:40.334724+00:00",
+    "updated_at": "2026-08-26T21:09:39.12459+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Rust",
+    "repo_topics": [
+      "aggregations",
+      "analytics",
+      "bm25",
+      "database",
+      "elasticsearch",
+      "full-text-search",
+      "htap",
+      "hybrid-search",
+      "olap",
+      "postgresql",
+      "real-time-analytics",
+      "similarity-search",
+      "sparse-vector",
+      "sql"
+    ],
+    "repo_description": "",
+    "repo_stars": 9128,
+    "repo_id": "a28c80cb-0321-4a88-8978-9b9bc00022da"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "pg_search/src/query/pdb_query.rs",
+      "pg_search/src/schema/config.rs",
+      "pg_search/src/postgres/utils.rs"
+    ],
+    "symbols": [
+      "range",
+      "default_numeric_bytes",
+      "extract_numeric_precision_scale"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "pg_search/src/postgres/utils.rs",
+        "symbol_name": "extract_numeric_precision_scale",
+        "lines": "946-985",
+        "role": "Extracts precision and scale from PostgreSQL NUMERIC typmod",
+        "is_verified": true
+      },
+      {
+        "file_path": "pg_search/src/schema/config.rs",
+        "symbol_name": "default_numeric_bytes",
+        "lines": "281-320",
+        "role": "Provides alternative numeric bytes representation for wide precision or scales",
+        "is_verified": true
+      },
+      {
+        "file_path": "pg_search/src/query/pdb_query.rs",
+        "symbol_name": "range",
+        "lines": "1541-1580",
+        "role": "Handles numeric bound scaling based on selected field type",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "BM25 indexes reject valid NUMERIC typmods with |scale| > 18",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Rust",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "PostgreSQL NUMERIC(precision, scale) columns with |scale| > 18 fail when building a BM25 index or initializing an empty index due to the representation-selection logic incorrectly choosing Numeric64 even when the scale exceeds the bounds supported by Decimal64NoScale (-18 through 18).",
+    "root_cause_analysis": "`SearchFieldType::try_from_type_info` or equivalent configuration builders inspect precision to choose `Numeric64` but fail to validate that the absolute scale is within the 18-scale limit mandated by `Decimal64NoScale`.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect extract_numeric_precision_scale and representation selection",
+        "description": "Inspect extract_numeric_precision_scale in pg_search/src/postgres/utils.rs and the field configuration builders in pg_search/src/schema/config.rs to understand how precision and scale are currently evaluated for choosing Numeric64 versus NumericBytes.",
+        "target_file": "pg_search/src/postgres/utils.rs"
+      },
+      {
+        "step_number": 2,
+        "title": "Update numeric representation selection logic for scale bounds",
+        "description": "Modify the schema configuration logic to verify that not only is precision <= 18, but the absolute scale (|scale| <= 18) is also within the supported range of Decimal64NoScale before selecting Numeric64; otherwise, fall back to NumericBytes.",
+        "target_file": "pg_search/src/schema/config.rs"
+      },
+      {
+        "step_number": 3,
+        "title": "Add a regression test for NUMERIC with scale > 18",
+        "description": "Add a new test case to the test suite that defines a table with a NUMERIC(precision, scale) column where precision <= 18 but scale > 18 (e.g., NUMERIC(10, 20)), initializes a BM25 index on it, and verifies that index creation and queries succeed without failing on Decimal64NoScale range limits.",
+        "target_file": "pg_search/tests/integration_tests.rs"
+      },
+      {
+        "step_number": 4,
+        "title": "Run test suite verification",
+        "description": "Run cargo test to verify that all existing tests pass and the new regression test correctly validates the wide scale NUMERIC field mapping.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "PostgreSQL NUMERIC Typmod Encoding",
+        "short_explanation": "PostgreSQL encodes column precision and scale metadata into an integer called a typmod.",
+        "why_it_matters": "Extensions must correctly decode typmods to understand the decimal constraints and numeric ranges defined by users.",
+        "connection_to_issue": "The issue stems from correctly extracting the scale but failing to validate it against the limits of the chosen backend encoder."
+      },
+      {
+        "concept_name": "Fixed-Point Numeric Representations (Numeric64 vs NumericBytes)",
+        "short_explanation": "Choice between fast 64-bit integer storage (Numeric64) and flexible byte-encoded storage (NumericBytes) for decimals.",
+        "why_it_matters": "Numeric64 offers high performance but has strict precision and scale boundaries (-18 to 18), whereas NumericBytes supports arbitrary precision and scale.",
+        "connection_to_issue": "The selection logic must evaluate whether the column's scale exceeds 18 so it can fall back to NumericBytes instead of crashing in Decimal64NoScale."
+      }
+    ],
+    "common_pitfalls": [
+      "Forgetting that PostgreSQL scales can be negative (e.g., rounding to tens or hundreds), meaning the check must use absolute scale (|scale| > 18).",
+      "Modifying query execution paths without updating schema generation logic."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

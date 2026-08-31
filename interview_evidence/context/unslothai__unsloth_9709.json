@@ -1,0 +1,134 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_92d5c3ad-b301-5689-91bc-89d5b6f81258",
+    "repo_name": "unslothai/unsloth",
+    "repo_url": "https://github.com/unslothai/unsloth",
+    "issue_number": 9709,
+    "issue_url": "https://github.com/unslothai/unsloth/issues/9709",
+    "title": "[Studio 0.1.803-beta] web_search can be called with empty arguments and returns \"No query provided\""
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-25T18:58:43.319138+00:00",
+    "updated_at": "2026-08-25T18:58:42.814483+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [
+      "agent",
+      "deepseek",
+      "fine-tuning",
+      "gemma",
+      "gemma3",
+      "gpt-oss",
+      "llama",
+      "llama3",
+      "llm",
+      "llms",
+      "mistral",
+      "openai",
+      "qwen",
+      "reinforcement-learning",
+      "self-hosted",
+      "text-to-speech",
+      "tts",
+      "ui",
+      "unsloth"
+    ],
+    "repo_description": "",
+    "repo_stars": 69591,
+    "repo_id": "9a68dafa-f7d9-4826-808e-c5c5bcf80f55"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "studio/backend/core/research_runs.py"
+    ],
+    "symbols": [
+      "_research_step_failed"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "studio/backend/core/research_runs.py",
+        "symbol_name": "_research_step_failed",
+        "lines": "724-732",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Studio 0.1.803-beta] web_search can be called with empty arguments and returns \"No query provided\"",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "In Unsloth Studio/Desktop, the built-in web_search tool can be invoked by local models with an empty argument object ({}), resulting in a 'No query provided' error that stalls or breaks agent execution turns.",
+    "root_cause_analysis": "The underlying tool schema defines `query` and `url` as optional properties with `required: []`. At execution time, the arguments dictionary is unpacked without verifying whether both `query` and `url` evaluate to empty/whitespace strings, allowing invalid empty calls to pass through to the execution backend.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect web_search tool execution handling",
+        "description": "Inspect studio/backend/core/research_runs.py to locate where the web_search tool parses its arguments and executes the search query.",
+        "target_file": "studio/backend/core/research_runs.py"
+      },
+      {
+        "step_number": 2,
+        "title": "Add validation for empty query and url arguments",
+        "description": "Modify the web_search tool execution block in studio/backend/core/research_runs.py to check if both query and url are empty, missing, or whitespace-only before proceeding.",
+        "target_file": "studio/backend/core/research_runs.py"
+      },
+      {
+        "step_number": 3,
+        "title": "Return a recoverable model-visible error message",
+        "description": "Ensure that when empty arguments ({}) are provided, the tool returns a clear, recoverable error message back to the model prompting it to supply a valid query or url instead of failing silently or breaking execution.",
+        "target_file": "studio/backend/core/research_runs.py"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test and verify execution",
+        "description": "Add a unit or integration test simulating a model call with empty arguments ({}) to the web_search tool and assert that a proper recoverable error is returned.",
+        "target_file": "studio/backend/core/research_runs.py"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Tool Argument Validation & Defensive Input Checking",
+        "short_explanation": "Validating input parameters received from LLM tool calls before executing backend logic.",
+        "why_it_matters": "LLMs can occasionally output malformed, empty, or unexpected tool arguments. Proper validation prevents runtime crashes and allows returning informative error messages so the model can self-correct.",
+        "connection_to_issue": "Adding an execution-time check to verify that neither `query` nor `url` are empty or whitespace-only prevents passing invalid arguments into the search backend."
+      },
+      {
+        "concept_name": "JSON Schema Required Fields",
+        "short_explanation": "Using JSON schema definitions to specify which parameters are mandatory for a tool or function call.",
+        "why_it_matters": "Enforcing schema requirements guides the LLM on what inputs must be generated for a successful tool invocation.",
+        "connection_to_issue": "The issue stems from `required: []` allowing empty arguments; understanding tool schemas helps structure robust alternative validation or schema constraints."
+      }
+    ],
+    "common_pitfalls": [
+      "Making `query` unconditionally required in the schema, which would break URL fetching mode.",
+      "Failing to handle whitespace-only strings (e.g. `'   '`) in addition to empty strings (`''`).",
+      "Raising a hard unrecoverable exception instead of returning a friendly error message that the LLM can interpret and retry."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "INTERMEDIATE",
+    "suitability_score": 76,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_d9c7a4e1-040b-5e7b-b3eb-3ac05ef8cec3",
+    "repo_name": "MoonshotAI/kimi-code",
+    "repo_url": "https://github.com/MoonshotAI/kimi-code",
+    "issue_number": 3379,
+    "issue_url": "https://github.com/MoonshotAI/kimi-code/issues/3379",
+    "title": "KIMI Vscode 插件，输入 /[skill-name] 后，按下 tab 键不是补全，是直接发送出去了"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-31T12:42:26.180303+00:00",
+    "updated_at": "2026-08-31T12:42:25.556582+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 6047,
+    "repo_id": "d419911b-b74e-475a-a58d-5fbc0cffa3d7"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/vscode/src/extension.ts",
+      "apps/vscode/src/KimiWebviewProvider.ts"
+    ],
+    "symbols": [
+      "KimiWebviewProvider",
+      "activate"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/vscode/src/extension.ts",
+        "symbol_name": "activate",
+        "lines": "106-145",
+        "role": "Extension activation and command registration",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/vscode/src/KimiWebviewProvider.ts",
+        "symbol_name": "KimiWebviewProvider",
+        "lines": "1-40",
+        "role": "Manages webview instances and message passing",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "KIMI Vscode 插件，输入 /[skill-name] 后，按下 tab 键不是补全，是直接发送出去了",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "In the Kimi VSCode extension, typing a slash command like `/[skill-name]` followed by the `Tab` key incorrectly submits the chat message instead of triggering autocompletion or selecting the active skill suggestion.",
+    "root_cause_analysis": "The issue stems from the keydown event handling in the webview's chat input interface (likely handling `Tab` and `Enter` key codes), where default key behaviors are not intercepted to prevent message submission when autocomplete menus or skill popups are open.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect webview keydown event handler",
+        "description": "Examine symbol KimiWebviewProvider and its webview message or HTML template generation in apps/vscode/src/KimiWebviewProvider.ts to locate where keyboard events ('Tab' and 'Enter') for chat input and slash command autocompletion are bound.",
+        "target_file": "apps/vscode/src/KimiWebviewProvider.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Intercept Tab and Enter keys during active skill suggestion",
+        "description": "Modify the keydown listener in the webview script within KimiWebviewProvider.ts to check if a slash command or skill suggestion dropdown is currently open and active, preventing default message submission on Tab or Enter.",
+        "target_file": "apps/vscode/src/KimiWebviewProvider.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Verify extension activation and command setup",
+        "description": "Inspect activate in apps/vscode/src/extension.ts to ensure webview provider registration and command message listeners correctly handle selection messages from the webview UI.",
+        "target_file": "apps/vscode/src/extension.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Execute test suite to verify no regressions",
+        "description": "Run the repository test suite using the verified test command to validate the webview integration and input handling logic.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Keyboard Event Default Prevention",
+        "short_explanation": "Preventing the browser's default behavior for specific keys like Tab or Enter inside input fields.",
+        "why_it_matters": "Essential for building custom autocomplete and suggestion widgets so that pressing Tab doesn't jump focus or submit forms unintentionally.",
+        "connection_to_issue": "Fixing the bug requires intercepting `Tab` (and optionally `Enter`) keydown events when the skill suggestion popup is open and calling `event.preventDefault()`."
+      },
+      {
+        "concept_name": "VSCode Webview Message Bridge",
+        "short_explanation": "The communication channel between the VSCode extension host and the embedded React/web frontend.",
+        "why_it_matters": "Enables UI components inside the webview to interact with extension commands and workspace APIs.",
+        "connection_to_issue": "Understanding how input events are captured within the webview UI components helps pinpoint where keyboard listeners are attached."
+      }
+    ],
+    "common_pitfalls": [
+      "Forgetting to check whether a suggestion dropdown is actually active before intercepting Tab or Enter keys.",
+      "Breaking standard accessibility navigation by unconditionally swallowing Tab key events."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

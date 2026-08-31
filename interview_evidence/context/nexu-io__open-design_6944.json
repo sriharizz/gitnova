@@ -1,0 +1,161 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_9ea185cb-1122-5e79-9999-50be84566990",
+    "repo_name": "nexu-io/open-design",
+    "repo_url": "https://github.com/nexu-io/open-design",
+    "issue_number": 6944,
+    "issue_url": "https://github.com/nexu-io/open-design/issues/6944",
+    "title": "Guard DeepSeek Harness native-session resume with a compatibility generation"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-16T07:10:34.517906+00:00",
+    "updated_at": "2026-08-16T07:10:33.648814+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [
+      "agent-skills",
+      "ai-agents",
+      "ai-design",
+      "byok",
+      "claude-code-for-design",
+      "claude-design",
+      "codex-design",
+      "coding-agents",
+      "cursor-design",
+      "design-systems",
+      "design-tools",
+      "desktop-app",
+      "figma-alternative",
+      "generative-ai",
+      "hermes-agent",
+      "local-first",
+      "no-code",
+      "prototyping",
+      "ui-generator",
+      "vibe-coding"
+    ],
+    "repo_description": "",
+    "repo_stars": 83752,
+    "repo_id": "b643e094-0b45-45ef-a75f-d1f325a74b4e"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/daemon/src/agent-session-resume.ts",
+      "apps/daemon/src/db.ts"
+    ],
+    "symbols": [
+      "persistCapturedAgentSession",
+      "agent_sessions",
+      "resolveAgentResumeContext",
+      "getAgentSessionRecord"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/daemon/src/db.ts",
+        "symbol_name": "agent_sessions",
+        "lines": "176-215",
+        "role": "Database schema definition for agent sessions",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/daemon/src/db.ts",
+        "symbol_name": "getAgentSessionRecord",
+        "lines": "2416-2455",
+        "role": "Retrieves the persisted agent session record from SQLite",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/daemon/src/agent-session-resume.ts",
+        "symbol_name": "resolveAgentResumeContext",
+        "lines": "71-110",
+        "role": "Evaluates whether a session can be resumed based on model, cwd, and cursor",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/daemon/src/agent-session-resume.ts",
+        "symbol_name": "persistCapturedAgentSession",
+        "lines": "106-145",
+        "role": "Persists a captured agent session to the database",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Guard DeepSeek Harness native-session resume with a compatibility generation",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When the daemon decides whether to resume a previously saved agent session (such as DeepSeek Harness), it checks if the model, current working directory (cwd), and conversation cursor match. However, if the underlying agent's executable, plugin version, or configuration (compatibility generation) changes, the session might be incompatible. Currently, the daemon does not store or check this compatibility generation, meaning it will incorrectly try to resume a session even after an upgrade or configuration change, leading to potential runtime errors.",
+    "root_cause_analysis": "The root cause is a lack of persistence and validation of the compatibility generation in the session resume control flow. Specifically:\n1. The SQLite schema for `agent_sessions` in `apps/daemon/src/db.ts` lacks a column to store compatibility metadata (e.g., `compatibility_generation`).\n2. `getAgentSessionRecord` and `persistCapturedAgentSession` in `apps/daemon/src/db.ts` and `apps/daemon/src/agent-session-resume.ts` do not read, write, or pass any compatibility generation parameter.\n3. `evaluateResumeInvalidation` only compares `storedModel` vs `currentModel` and `storedCwd` vs `currentCwd`.\n4. Because run construction resolves the resume decision before spawning the profile, and the spawned profile's actual identity/compatibility is only verified at `ready` time, the daemon cannot proactively invalidate the resume path when a changed-but-loadable runtime composition is introduced.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Schema and Resume Logic",
+        "description": "Inspect the `agent_sessions` table schema and the `getAgentSessionRecord` function in `apps/daemon/src/db.ts`. Also, inspect `resolveAgentResumeContext` and `evaluateResumeInvalidation` in `apps/daemon/src/agent-session-resume.ts` to understand how session parameters are currently compared.",
+        "target_file": "apps/daemon/src/db.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Update Database Schema and Persistence",
+        "description": "Modify the `agent_sessions` table definition in `apps/daemon/src/db.ts` to include a new column `compatibility_generation` (TEXT). Update `getAgentSessionRecord` and `persistCapturedAgentSession` to read and write this new field.",
+        "target_file": "apps/daemon/src/db.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Implement Compatibility Validation",
+        "description": "Update `resolveAgentResumeContext` and `evaluateResumeInvalidation` in `apps/daemon/src/agent-session-resume.ts` to accept the current agent's compatibility generation. Compare this value against the stored `compatibility_generation` from the database. If they do not match, or if the stored value is missing, invalidate the session by setting `isResuming` to false.",
+        "target_file": "apps/daemon/src/agent-session-resume.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Tests",
+        "description": "Create or update tests in `apps/daemon/src/connectionTest.ts` (or a dedicated test file) to verify that a session is successfully resumed when the compatibility generation matches, and is correctly invalidated when the compatibility generation changes.",
+        "target_file": "apps/daemon/src/connectionTest.ts"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Session Resume Guard",
+        "short_explanation": "A mechanism that ensures a saved agent session is only resumed if the environment and conversation state are completely compatible with when the session was saved.",
+        "why_it_matters": "Without proper resume guards, an agent might resume a session with mismatched assumptions (e.g., different working directory, different model, or different tool versions), leading to silent failures, corrupted states, or crashes.",
+        "connection_to_issue": "The issue is that the current resume guard only checks model, cwd, and message cursor, but misses the agent's compatibility generation (executable identity, protocol version, and composition). We need to extend the resume guard to include this compatibility generation."
+      },
+      {
+        "concept_name": "Database Schema Migration & Evolution",
+        "short_explanation": "The process of updating the database structure (like adding a new column to an existing table) to support new features while preserving existing data.",
+        "why_it_matters": "As applications grow, the data we need to persist changes. Developers must update table schemas and the corresponding read/write queries carefully to avoid breaking existing installations or causing data loss.",
+        "connection_to_issue": "To fix this issue, we must add a new column (e.g., `compatibility_generation`) to the `agent_sessions` table in SQLite, and update the database helper functions to read and write this new field."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying the `agent_sessions` table schema without updating all queries that select from or insert/update into it (e.g., `getAgentSessionRecord` and `persistCapturedAgentSession`).",
+      "Breaking backward compatibility for non-opt-in adapters (like Claude or Codex) that do not use or need compatibility generations.",
+      "Failing to handle the case where a legacy session record exists in the database without a compatibility generation (it should be treated as a mismatch/invalidated rather than crashing).",
+      "Resolving the resume decision too early without preserving both full and incremental prompt candidates until the spawned profile's `ready` event is received."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

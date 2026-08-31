@@ -1,0 +1,114 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_d5d2a5ad-0821-52df-aa04-822005a950f7",
+    "repo_name": "expressjs/express",
+    "repo_url": "https://github.com/expressjs/express",
+    "issue_number": 7362,
+    "issue_url": "https://github.com/expressjs/express/issues/7362",
+    "title": "res.send(ArrayBuffer) silently sends {} as JSON"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-16T18:32:04.575908+00:00",
+    "updated_at": "2026-08-16T18:32:03.045903+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "JavaScript",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 64000,
+    "repo_id": "96b754dc-57b6-4cbb-b18a-8ae2928687a3"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "lib/response.js"
+    ],
+    "symbols": [
+      "res.send"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "lib/response.js",
+        "symbol_name": "res.send",
+        "lines": "141-160",
+        "role": "Type checking and handling of response chunk",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "res.send(ArrayBuffer) silently sends {} as JSON",
+    "input_body": "No body provided in issue description.",
+    "target_language": "JavaScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When a developer passes a raw ArrayBuffer to res.send(), Express treats it as a generic object and serializes it to an empty JSON object '{}' instead of sending it as binary data.",
+    "root_cause_analysis": "In lib/response.js, the 'object' type check only checks ArrayBuffer.isView(chunk) to identify binary views (like Uint8Array). It lacks a check for raw 'ArrayBuffer' instances (e.g., chunk instanceof ArrayBuffer). Consequently, raw ArrayBuffers fall through to the JSON serialization logic, resulting in an empty JSON object response.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect res.send in lib/response.js",
+        "description": "Inspect the res.send method in lib/response.js and locate the switch (typeof chunk) block. Identify where ArrayBuffer.isView(chunk) is used to handle binary views.",
+        "target_file": "lib/response.js"
+      },
+      {
+        "step_number": 2,
+        "title": "Add ArrayBuffer Instance Check",
+        "description": "Modify the condition in the object case of res.send to check if chunk is an instance of ArrayBuffer (using chunk instanceof ArrayBuffer). If it is, convert it to a Node.js Buffer using Buffer.from(chunk) and set the content type to binary using this.type('bin') before sending.",
+        "target_file": "lib/response.js"
+      },
+      {
+        "step_number": 3,
+        "title": "Add Regression Tests in test/res.send.js",
+        "description": "Add a new test suite or test case in test/res.send.js that calls res.send(new ArrayBuffer(10)) and asserts that the response has the 'Content-Type' header set to 'application/octet-stream' and contains the correct binary payload.",
+        "target_file": "test/res.send.js"
+      },
+      {
+        "step_number": 4,
+        "title": "Run Tests and Verify",
+        "description": "Execute the test suite using the command npm test to verify that the new test passes and no regressions are introduced in other response-sending behaviors.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "ArrayBuffer vs ArrayBuffer Views",
+        "short_explanation": "An ArrayBuffer represents a generic, fixed-length raw binary data buffer. ArrayBuffer.isView() returns true only for views like TypedArrays (e.g., Uint8Array) or DataView, but false for the raw ArrayBuffer itself.",
+        "why_it_matters": "Developers need to understand this distinction because APIs handling binary data must check for both the raw buffer container and its views to correctly process binary payloads.",
+        "connection_to_issue": "The bug occurs because the code only checks ArrayBuffer.isView(chunk), completely missing raw ArrayBuffer instances and letting them fall through to JSON serialization."
+      },
+      {
+        "concept_name": "Node.js Buffer from ArrayBuffer",
+        "short_explanation": "Node.js Buffers can be created directly from an ArrayBuffer using Buffer.from(arrayBuffer), which shares the same allocated memory without copying.",
+        "why_it_matters": "This allows efficient conversion of standard web binary types (ArrayBuffer) into Node.js-native binary types (Buffer) for network transmission.",
+        "connection_to_issue": "Once the ArrayBuffer is correctly identified, the existing fallback logic in res.send() will automatically convert it to a Buffer using Buffer.from(chunk) and calculate its correct byte length."
+      }
+    ],
+    "common_pitfalls": [
+      "Do not use typeof chunk === 'ArrayBuffer' because typeof an ArrayBuffer is 'object'.",
+      "Avoid manually converting the ArrayBuffer to a string or manually copying bytes, as Buffer.from(chunk) handles this natively and efficiently.",
+      "Do not forget to ensure that the Content-Type is set to binary ('bin') when an ArrayBuffer is detected, matching the behavior of ArrayBuffer views."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 67,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "CHECK_DISCUSSION"
+  }
+}

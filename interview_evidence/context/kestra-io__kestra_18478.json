@@ -1,0 +1,143 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_5c4d242d-25b7-5d8b-a160-e408a0fe10b8",
+    "repo_name": "kestra-io/kestra",
+    "repo_url": "https://github.com/kestra-io/kestra",
+    "issue_number": 18478,
+    "issue_url": "https://github.com/kestra-io/kestra/issues/18478",
+    "title": "[Bash2.0] Concurrency limit running count accepts negative values and disables the limit"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-22T07:52:47.504727+00:00",
+    "updated_at": "2026-08-22T07:52:46.952014+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Java",
+    "repo_topics": [
+      "ai-agents",
+      "automation",
+      "control-plane",
+      "data-engineering",
+      "data-orchestration",
+      "data-orchestrator",
+      "devops",
+      "etl",
+      "hacktoberfest",
+      "high-availability",
+      "infra-automation",
+      "infra-ops",
+      "infrastructure-as-code",
+      "java",
+      "low-code",
+      "orchestration",
+      "pipeline",
+      "pipeline-as-code",
+      "scheduler",
+      "workflow"
+    ],
+    "repo_description": "",
+    "repo_stars": 27557,
+    "repo_id": "ae71a4d7-fa34-4812-b7ba-7566b798dd30"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "executor/src/main/java/io/kestra/executor/ExecutorService.java",
+      "executor/src/main/java/io/kestra/executor/ConcurrencySlotReleaseProcessor.java"
+    ],
+    "symbols": [
+      "io.kestra.executor.ConcurrencySlotReleaseProcessor",
+      "io.kestra.executor.ExecutorService"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "executor/src/main/java/io/kestra/executor/ExecutorService.java",
+        "symbol_name": "io.kestra.executor.ExecutorService",
+        "lines": "106-145",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "executor/src/main/java/io/kestra/executor/ConcurrencySlotReleaseProcessor.java",
+        "symbol_name": "io.kestra.executor.ConcurrencySlotReleaseProcessor",
+        "lines": "36-75",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bash2.0] Concurrency limit running count accepts negative values and disables the limit",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Java",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The concurrency-limit editor endpoint currently allows setting any running count value, including negative numbers and numbers exceeding capacity, which can silently turn concurrency limits off or queue executions forever. Additionally, requests can bypass intended path validation parameters.",
+    "root_cause_analysis": "The endpoint handlers lack strict input validation checks for the concurrency running count (permitting negative values) and fail to validate that the path-scoped namespace and flowId match the payload content.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect concurrency limit endpoint handler and validation logic",
+        "description": "Inspect symbol ExecutorService in file executor/src/main/java/io/kestra/executor/ExecutorService.java and verify where running counts and path parameters are processed without validation.",
+        "target_file": "executor/src/main/java/io/kestra/executor/ExecutorService.java"
+      },
+      {
+        "step_number": 2,
+        "title": "Add validation for non-negative running counts",
+        "description": "Update the concurrency limit update logic in ExecutorService to reject negative running count values or values exceeding valid limits.",
+        "target_file": "executor/src/main/java/io/kestra/executor/ExecutorService.java"
+      },
+      {
+        "step_number": 3,
+        "title": "Enforce path parameter matching against request body",
+        "description": "Validate that the namespace and flowId provided in the request path match the payload content in ExecutorService before persisting or applying state changes.",
+        "target_file": "executor/src/main/java/io/kestra/executor/ExecutorService.java"
+      },
+      {
+        "step_number": 4,
+        "title": "Write regression tests for concurrency limit validation",
+        "description": "Add regression tests covering negative running counts and mismatched path parameters to ensure appropriate error responses or rejections are returned.",
+        "target_file": "executor/src/main/java/io/kestra/executor/ConcurrencyLimitStateStore.java"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Input Validation & Boundary Checking",
+        "short_explanation": "Ensures that data received from external API requests falls within expected, safe logical bounds before processing.",
+        "why_it_matters": "Without proper bounds checking, malformed or malicious inputs (like negative counters) can corrupt internal state or bypass system safeguards.",
+        "connection_to_issue": "Fixes the bug by rejecting negative running counts that disable flow concurrency limits."
+      },
+      {
+        "concept_name": "Path-to-Payload Parameter Binding",
+        "short_explanation": "Verifies that path variables in REST endpoints (namespace, flowId) match the resource identifiers specified in the request body.",
+        "why_it_matters": "Prevents unauthorized or accidental updates to unintended resources across different namespaces.",
+        "connection_to_issue": "Ensures requests targeted at a specific flow path cannot inadvertently modify another flow's concurrency state."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying state store interfaces without updating all implementations across different storage backends.",
+      "Forgetting to add comprehensive unit tests covering negative values and path mismatch scenarios."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

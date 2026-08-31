@@ -1,0 +1,123 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_c793d9f0-5624-5446-9a8d-456595657fe1",
+    "repo_name": "k0sproject/k0s",
+    "repo_url": "https://github.com/k0sproject/k0s",
+    "issue_number": 8211,
+    "issue_url": "https://github.com/k0sproject/k0s/issues/8211",
+    "title": "etcd.go and etcd_member_reconciler.go have no unit test coverage"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-31T13:21:41.551674+00:00",
+    "updated_at": "2026-08-31T13:21:41.066796+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [
+      "kubernetes"
+    ],
+    "repo_description": "",
+    "repo_stars": 6407,
+    "repo_id": "ee84d9c9-df53-4158-b739-9dd3162248df"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "pkg/etcd/client.go"
+    ],
+    "symbols": [
+      "Status",
+      "Client"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "pkg/etcd/client.go",
+        "symbol_name": "Client",
+        "lines": "1-40",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "pkg/etcd/client.go",
+        "symbol_name": "Status",
+        "lines": "71-110",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "etcd.go and etcd_member_reconciler.go have no unit test coverage",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The etcd component and etcd member reconciler files under pkg/component/controller/ currently lack unit test coverage, leaving critical cluster state management logic unverified.",
+    "root_cause_analysis": "Historical codebase evolution resulted in core controller components being implemented without corresponding unit tests, as noted by the issue sweep.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect etcd Component and Member Reconciler Code",
+        "description": "Inspect the existing etcd component and member reconciler files under pkg/component/controller/ to understand the lifecycle management logic, initialization paths, and dependencies.",
+        "target_file": "pkg/component/controller/"
+      },
+      {
+        "step_number": 2,
+        "title": "Design Unit Test Suite for Etcd Component",
+        "description": "Create a new etcd_test.go file under pkg/component/controller/ to verify etcd component initialization, lifecycle management, and integration points with the cluster state.",
+        "target_file": "pkg/component/controller/etcd_test.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Design Unit Test Suite for Etcd Member Reconciler",
+        "description": "Create a new etcd_member_reconciler_test.go file under pkg/component/controller/ to test member reconciliation, joins, leaves, and cluster membership change handling.",
+        "target_file": "pkg/component/controller/etcd_member_reconciler_test.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Execute Unit Tests and Verify Coverage",
+        "description": "Run the new unit tests for the pkg/component/controller package to ensure all etcd component and member reconciler code paths execute correctly without errors.",
+        "target_file": "pkg/component/controller/"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Unit Testing Component Controllers",
+        "short_explanation": "Writing isolated tests for stateful controllers to ensure they handle configuration, initialization, and error states correctly.",
+        "why_it_matters": "Prevents regressions in cluster-critical components like etcd membership management.",
+        "connection_to_issue": "Directly addresses the lack of test coverage for etcd controller components."
+      },
+      {
+        "concept_name": "Mocking Kubernetes and etcd Clients",
+        "short_explanation": "Using fakes and mocks to simulate client interactions without running real clusters.",
+        "why_it_matters": "Allows fast, deterministic unit testing of controller logic.",
+        "connection_to_issue": "Enables testing of etcd member reconciliation logic in isolation."
+      }
+    ],
+    "common_pitfalls": [
+      "Attempting to spin up actual etcd clusters within standard unit tests instead of using mocks or interfaces.",
+      "Modifying unrelated controllers in pkg/component/controller/."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "TEST",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

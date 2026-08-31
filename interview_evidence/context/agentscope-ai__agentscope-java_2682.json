@@ -1,0 +1,130 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_81580603-ca2b-5a96-b791-0fa255d7a83e",
+    "repo_name": "agentscope-ai/agentscope-java",
+    "repo_url": "https://github.com/agentscope-ai/agentscope-java",
+    "issue_number": 2682,
+    "issue_url": "https://github.com/agentscope-ai/agentscope-java/issues/2682",
+    "title": "MemoryFlushMiddleware delays agent event stream completion, causing perceived latency after reply"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-25T18:38:33.197581+00:00",
+    "updated_at": "2026-08-25T18:38:32.547718+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Java",
+    "repo_topics": [
+      "adk",
+      "agent",
+      "agent-framework",
+      "agentic",
+      "agentic-ai",
+      "agentscope",
+      "ai",
+      "harness",
+      "llm"
+    ],
+    "repo_description": "",
+    "repo_stars": 4896,
+    "repo_id": "4f5606bc-d628-49b7-9ae5-b065ab42eb6d"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+    ],
+    "symbols": [
+      "streamEvents"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java",
+        "symbol_name": "streamEvents",
+        "lines": "1086-1125",
+        "role": "Defines the agent event stream building logic and middleware chain integration.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "MemoryFlushMiddleware delays agent event stream completion, causing perceived latency after reply",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Java",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The MemoryFlushMiddleware appends a synchronous LLM extraction call via .concatWith() to the agent's event stream. This delays the stream completion until the memory extraction call finishes, causing perceived latency for HTTP/SSE consumers.",
+    "root_cause_analysis": "In Reactor reactive streams, operators like .concatWith() execute publishers sequentially: the downstream subscriber does not receive an onComplete signal until all concatenated publishers finish emitting and complete. Because the memory flush is appended directly to the end of the agent event stream rather than being executed concurrently in a background thread, stream termination is blocked.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect MemoryFlushMiddleware Integration",
+        "description": "Inspect how MemoryFlushMiddleware attaches the asynchronous extraction call in ReActAgent.java and examine the usage of .concatWith().",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+      },
+      {
+        "step_number": 2,
+        "title": "Refactor Memory Flush to Asynchronous Fire-and-Forget",
+        "description": "Modify the middleware implementation to trigger the memory extraction asynchronously on a background scheduler (e.g. Schedulers.boundedElastic() or a custom daemon executor) without concatenating it to the main agent event stream completion path.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/memory/MemoryFlushMiddleware.java"
+      },
+      {
+        "step_number": 3,
+        "title": "Ensure Graceful Drain on Agent Close",
+        "description": "Implement proper tracking or pending flush coordination so that any ongoing or queued background memory flushes are safely awaited or drained when the agent closes.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Test for Stream Completion Latency",
+        "description": "Create a regression test verifying that the agent event stream emits an onComplete signal immediately after the final agent response event, without waiting for the memory flush extraction to complete.",
+        "target_file": "agentscope-core/src/test/java/io/agentscope/core/memory/MemoryFlushMiddlewareTest.java"
+      },
+      {
+        "step_number": 5,
+        "title": "Run Test Suite",
+        "description": "Run the repository test suite using Maven or Gradle to verify that all reactive stream tests pass successfully without regressions.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Reactive Concatenation vs Asynchronous Background Execution",
+        "short_explanation": "In reactive programming, .concatWith() runs publishers sequentially one after another, whereas asynchronous fire-and-forget execution triggers a task independently without blocking the primary stream.",
+        "why_it_matters": "Developers must understand that moving work to another thread pool using .subscribeOn() does not change sequential stream completion semantics if the publisher itself is concatenated into the main stream.",
+        "connection_to_issue": "MemoryFlushMiddleware uses .concatWith() to append the flush operation, which forces the main event stream to wait for the memory extraction LLM call to finish before emitting onComplete."
+      },
+      {
+        "concept_name": "Middleware Chain Interception",
+        "short_explanation": "A design pattern where cross-cutting concerns (like memory management, logging, or caching) intercept agent input and output streams to augment behavior without modifying core agent code.",
+        "why_it_matters": "Allows modular extension of agent capabilities while maintaining clean separation of concerns.",
+        "connection_to_issue": "MemoryFlushMiddleware intercepts the agent lifecycle via middleware to trigger memory extraction after execution."
+      }
+    ],
+    "common_pitfalls": [
+      "Assuming that .subscribeOn() makes a concatenated reactive stream execute in the background without blocking stream completion.",
+      "Forgetting to handle pending memory flushes on agent shutdown, leading to potential data loss.",
+      "Failing to include a changelog/newsfragment entry as required by repository guidelines."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

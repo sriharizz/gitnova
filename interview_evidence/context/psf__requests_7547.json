@@ -1,0 +1,86 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_c6457f25-56b0-5b97-a793-faed476cde21",
+    "repo_name": "psf/requests",
+    "repo_url": "https://github.com/psf/requests",
+    "issue_number": 7547,
+    "issue_url": "https://github.com/psf/requests/issues/7547",
+    "title": "Documentation suggestion: Add troubleshooting guidance for common SSL verification errors"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-14T06:48:09.290811+00:00",
+    "updated_at": "2026-08-14T07:09:20.800474+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 52000,
+    "repo_id": "79e6a1fa-ffa6-456d-9d15-065cd9af531a"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "src/requests/exceptions.py"
+    ],
+    "symbols": [],
+    "relevant_locations": [
+      {
+        "file_path": "src/requests/exceptions.py",
+        "symbol_name": null,
+        "lines": "",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Documentation suggestion: Add troubleshooting guidance for common SSL verification errors",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The issue is about adding documentation to help users troubleshoot common SSL verification errors when using the Requests library.",
+    "root_cause_analysis": "SSL verification errors occur due to issues with HTTPS certificate verification, which can be confusing for new users.",
+    "step_by_step_plan": [],
+    "structured_concepts": [
+      {
+        "concept_name": "SSL Verification",
+        "short_explanation": "The process of verifying the identity of a server through its SSL certificate.",
+        "why_it_matters": "It ensures the security and integrity of data exchanged between the client and server.",
+        "connection_to_issue": "The issue is related to troubleshooting common SSL verification errors."
+      },
+      {
+        "concept_name": "HTTPS Certificate Verification",
+        "short_explanation": "The process of verifying the validity of an HTTPS certificate.",
+        "why_it_matters": "It ensures the security and integrity of data exchanged between the client and server.",
+        "connection_to_issue": "The issue is related to troubleshooting common SSL verification errors."
+      }
+    ],
+    "common_pitfalls": [
+      "Disabling SSL verification without understanding the security implications.",
+      "Not properly formatting the URL."
+    ],
+    "llm_provider": "google",
+    "llm_model": "gemini-3.6-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 71,
+    "contribution_type": "DOCUMENTATION",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "CHECK_DISCUSSION"
+  }
+}

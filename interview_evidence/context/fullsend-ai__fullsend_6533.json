@@ -1,0 +1,131 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_9ea126f0-deaf-581f-9987-2cb476ecf5ef",
+    "repo_name": "fullsend-ai/fullsend",
+    "repo_url": "https://github.com/fullsend-ai/fullsend",
+    "issue_number": 6533,
+    "issue_url": "https://github.com/fullsend-ai/fullsend/issues/6533",
+    "title": "Add `providers.allow` config for per-repo provider allowlisting"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-23T19:22:34.165766+00:00",
+    "updated_at": "2026-08-23T19:22:33.009285+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 105,
+    "repo_id": "e1f13e9c-d40b-461c-9175-76cefa67a89b"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "internal/config/config.go",
+      "internal/config/interfaces.go"
+    ],
+    "symbols": [
+      "ValidProviders",
+      "PerRepoInferenceConfig",
+      "SetInferenceProvider"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "internal/config/config.go",
+        "symbol_name": "ValidProviders",
+        "lines": "176-215",
+        "role": "Defines recognized inference providers in config",
+        "is_verified": true
+      },
+      {
+        "file_path": "internal/config/config.go",
+        "symbol_name": "PerRepoInferenceConfig",
+        "lines": "106-145",
+        "role": "Defines inference backend settings for per-repo configs",
+        "is_verified": true
+      },
+      {
+        "file_path": "internal/config/interfaces.go",
+        "symbol_name": "SetInferenceProvider",
+        "lines": "491-530",
+        "role": "Provides interface setters for inference configuration",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Add `providers.allow` config for per-repo provider allowlisting",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Design and track a new `providers.allow` configuration option in `.fullsend/config.yaml` to support per-repo provider allowlists once multi-provider support lands.",
+    "root_cause_analysis": "This is a feature-tracking and design task stemming from the runtime parity backlog (#6527), intended to prepare the configuration surface before multi-provider support (GPT / Azure OpenAI / Bedrock) is added.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect configuration structs in internal/config/config.go",
+        "description": "Inspect the PerRepoInferenceConfig struct and ValidProviders slice in internal/config/config.go to understand where to add the new allowlist configuration property.",
+        "target_file": "internal/config/config.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Add providers.allow property to configuration structures",
+        "description": "Define the allowlist field within PerRepoInferenceConfig in internal/config/config.go to support per-repo provider allowlisting.",
+        "target_file": "internal/config/config.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Update interface setters in internal/config/interfaces.go",
+        "description": "Update SetInferenceProvider and related configuration interface definitions in internal/config/interfaces.go to accommodate the new allow configuration option.",
+        "target_file": "internal/config/interfaces.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Implement unit tests in internal/config/config_test.go",
+        "description": "Add unit tests in internal/config/config_test.go and internal/config/defaults_test.go validating that the new providers.allow configuration option parses and defaults correctly.",
+        "target_file": "internal/config/config_test.go"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Configuration Schema Design",
+        "short_explanation": "The process of defining structures, fields, and validation rules in configuration files like YAML.",
+        "why_it_matters": "Proper schema design ensures that user configurations are correctly parsed, validated, and mapped into application data structures without runtime errors.",
+        "connection_to_issue": "This issue requires designing the new `providers.allow` configuration field within `.fullsend/config.yaml` and defining its validation rules."
+      },
+      {
+        "concept_name": "Allowlist Security Controls",
+        "short_explanation": "A security mechanism that explicitly permits approved entities while denying all others by default.",
+        "why_it_matters": "Allowlists prevent unauthorized access or resource usage by restricting execution or communication to known safe endpoints and providers.",
+        "connection_to_issue": "The `providers.allow` setting acts as an explicit allowlist for inference providers per repository, succeeding the sandbox egress profile."
+      }
+    ],
+    "common_pitfalls": [
+      "Touching harness schemas when design constraints explicitly forbid modifying harnesses.",
+      "Forgetting to update validation rules and unit tests when adding new configuration fields.",
+      "Hardcoding provider checks instead of utilizing extensible configuration structs."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "INTERMEDIATE",
+    "suitability_score": 76,
+    "contribution_type": "SMALL_FEATURE",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

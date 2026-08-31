@@ -1,0 +1,120 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_8073c9b8-12dc-551d-8f4f-15cd79abc141",
+    "repo_name": "openai/codex",
+    "repo_url": "https://github.com/openai/codex",
+    "issue_number": 39647,
+    "issue_url": "https://github.com/openai/codex/issues/39647",
+    "title": "Gmail connector stamps outgoing Date header with -0700 instead of user timezone"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-20T08:09:33.377981+00:00",
+    "updated_at": "2026-08-20T08:09:32.6133+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Rust",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 104019,
+    "repo_id": "6ab5f734-bfd5-402d-9a7a-e492396664be"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "codex-rs/app-server/src/current_time.rs"
+    ],
+    "symbols": [
+      "AppServerTimeProvider"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "codex-rs/app-server/src/current_time.rs",
+        "symbol_name": "AppServerTimeProvider",
+        "lines": "36-75",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Gmail connector stamps outgoing Date header with -0700 instead of user timezone",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Rust",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When the Gmail connector sends mail via Codex Desktop, the RFC 5322 Date header uses a hardcoded or default Pacific-time timezone offset (-0700) instead of the user's actual configured account or local timezone.",
+    "root_cause_analysis": "The message generation code or email client connector defaults to a hardcoded timezone offset (-0700) rather than querying or utilizing the user's dynamic timezone or timestamp provider (such as AppServerTimeProvider) when constructing the RFC 5322 Date header.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect AppServerTimeProvider",
+        "description": "Inspect AppServerTimeProvider in codex-rs/app-server/src/current_time.rs to understand how time and timezone information are currently provided to backend services.",
+        "target_file": "codex-rs/app-server/src/current_time.rs"
+      },
+      {
+        "step_number": 2,
+        "title": "Locate Gmail Connector Date Header Serialization",
+        "description": "Locate where the Gmail connector constructs the RFC 5322 Date header and replace the hardcoded -0700 timezone offset with the dynamic local or account timezone derived from AppServerTimeProvider or standard chrono local time.",
+        "target_file": "codex-rs/app-server/src/current_time.rs"
+      },
+      {
+        "step_number": 3,
+        "title": "Implement Dynamic Timezone Offset",
+        "description": "Update the email formatting logic to use chrono::Local or the time provider's offset instead of the fixed literal string '-0700', ensuring proper RFC 5322 compliance.",
+        "target_file": "codex-rs/app-server/src/current_time.rs"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Test",
+        "description": "Add a unit test in codex-rs/app-server/src/attestation.rs or a new test case verifying that the generated Date header reflects the correct local or expected non-hardcoded timezone offset.",
+        "target_file": "codex-rs/app-server/src/attestation.rs"
+      },
+      {
+        "step_number": 5,
+        "title": "Run Test Suite",
+        "description": "Execute cargo test to verify that all app-server and analytics tests pass successfully with the updated timezone handling.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "RFC 5322 Date Header Formatting",
+        "short_explanation": "The standard format for timestamps in internet email messages, requiring a specific date, time, and timezone offset.",
+        "why_it_matters": "Incorrect timezone offsets in email headers lead to confusion in conversation histories, incorrect audit timelines, and mismatched sent times across mail clients.",
+        "connection_to_issue": "The Gmail connector hardcodes a Pacific time offset (-0700) when building the RFC 5322 Date header instead of using the user's correct local timezone offset."
+      },
+      {
+        "concept_name": "Timezone-Aware Date Serialization",
+        "short_explanation": "Handling dates and times in software while correctly preserving and converting local timezone offsets rather than defaulting to system or server zones.",
+        "why_it_matters": "Ensures that user-facing timestamps accurately reflect the user's actual physical or account timezone across different geographical regions.",
+        "connection_to_issue": "Fixing the bug requires updating the timestamp serialization logic in the connector to respect the user's configured timezone or fall back to UTC."
+      }
+    ],
+    "common_pitfalls": [
+      "Hardcoding another static timezone offset instead of fetching or computing the user's local offset dynamically.",
+      "Ignoring Daylight Saving Time (DST) offsets when formatting the RFC 5322 date string.",
+      "Modifying unrelated core server protocols or transport message definitions."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

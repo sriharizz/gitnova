@@ -1,0 +1,113 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_0cdebe8d-5ed7-5bee-8a3a-9244c1b02a83",
+    "repo_name": "pallets/click",
+    "repo_url": "https://github.com/pallets/click",
+    "issue_number": 3802,
+    "issue_url": "https://github.com/pallets/click/issues/3802",
+    "title": "`KeyboardInterrupt` during `click.prompt()` can race"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-29T01:39:30.9404+00:00",
+    "updated_at": "2026-08-29T01:39:30.289089+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 16000,
+    "repo_id": "4aa118aa-e112-4340-8f0f-089947842bcc"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "src/click/testing.py"
+    ],
+    "symbols": [
+      "CliRunner.invoke"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "src/click/testing.py",
+        "symbol_name": "CliRunner.invoke",
+        "lines": "630-720",
+        "role": "Catches standard Exception but does not catch BaseException like KeyboardInterrupt",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "`KeyboardInterrupt` during `click.prompt()` can race",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When a user presses Ctrl-C (sending a KeyboardInterrupt) during a click prompt or stream check, Click may fail to catch or handle it cleanly under certain timing conditions, leading to an unhandled KeyboardInterrupt exception.",
+    "root_cause_analysis": "In Python, `KeyboardInterrupt` and `SystemExit` inherit from `BaseException`, not `Exception`. In `CliRunner.invoke()` and core execution flows, `except Exception as e:` catches standard errors but bypasses `BaseException`, letting `KeyboardInterrupt` propagate unhandled if raised asynchronously or during stream operations.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect CliRunner.invoke in src/click/testing.py",
+        "description": "Examine the exception handling logic within `CliRunner.invoke` in `src/click/testing.py` to identify where standard `Exception` blocks let `BaseException` or `KeyboardInterrupt` escape unhandled.",
+        "target_file": "src/click/testing.py"
+      },
+      {
+        "step_number": 2,
+        "title": "Extend exception handling to catch BaseException or KeyboardInterrupt",
+        "description": "Modify the invocation runner block in `src/click/testing.py` to explicitly catch `KeyboardInterrupt` or `BaseException` where appropriate, ensuring it is cleanly captured and recorded in runner results rather than causing an unhandled traceback crash.",
+        "target_file": "src/click/testing.py"
+      },
+      {
+        "step_number": 3,
+        "title": "Add regression test for KeyboardInterrupt in test suite",
+        "description": "Write a dedicated test case using `CliRunner` that simulates a `KeyboardInterrupt` during command invocation, asserting that the runner captures the exception or exits cleanly without an unhandled traceback crash.",
+        "target_file": "src/click/testing.py"
+      },
+      {
+        "step_number": 4,
+        "title": "Run pytest to verify the fix and regression test",
+        "description": "Execute the verified test suite command to ensure the new regression test passes successfully and that no existing tests are broken.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "BaseException vs Exception",
+        "short_explanation": "In Python, `Exception` is the base class for all ordinary errors, while `BaseException` is the root for system-exiting events like `SystemExit` and `KeyboardInterrupt`.",
+        "why_it_matters": "Using `except Exception:` will accidentally miss `KeyboardInterrupt` and `SystemExit`, which can cause unexpected crashes when a user aborts via Ctrl-C.",
+        "connection_to_issue": "The race condition occurs because `KeyboardInterrupt` is a `BaseException` and bypasses standard `except Exception:` blocks in Click's invocation and stream runners."
+      },
+      {
+        "concept_name": "Exception Propagation in CLI Tools",
+        "short_explanation": "Command-line tools need to intercept user interruptions gracefully to print clean error messages instead of raw Python tracebacks.",
+        "why_it_matters": "Raw tracebacks degrade the user experience and can break automated test runners expecting clean exit codes or structured abort messages.",
+        "connection_to_issue": "Fixing the issue requires ensuring that `KeyboardInterrupt` is properly caught and converted into a clean exit or handled abort."
+      }
+    ],
+    "common_pitfalls": [
+      "Catching `BaseException` too broadly across all threads or generators without letting genuine system exits propagate.",
+      "Forgetting that `KeyboardInterrupt` can be raised asynchronously at almost any bytecode instruction during slow or blocking I/O operations."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

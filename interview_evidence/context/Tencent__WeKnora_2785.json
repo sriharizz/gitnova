@@ -1,0 +1,140 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_185e5432-d586-5cdb-a1d1-b0d83ddf97ec",
+    "repo_name": "Tencent/WeKnora",
+    "repo_url": "https://github.com/Tencent/WeKnora",
+    "issue_number": 2785,
+    "issue_url": "https://github.com/Tencent/WeKnora/issues/2785",
+    "title": "[Feature]: 为问答FAQ 知识库列表增加排序功能"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-25T20:32:26.456481+00:00",
+    "updated_at": "2026-08-28T03:18:38.423723+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [
+      "agent",
+      "agentic",
+      "ai",
+      "chatbot",
+      "embeddings",
+      "evaluation",
+      "generative-ai",
+      "golang",
+      "knowledge-base",
+      "llm",
+      "multi-tenant",
+      "multimodel",
+      "ollama",
+      "openai",
+      "question-answering",
+      "rag",
+      "reranking",
+      "semantic-search",
+      "vector-search",
+      "wiki"
+    ],
+    "repo_description": "",
+    "repo_stars": 19374,
+    "repo_id": "cbaaf2ba-442a-4182-bee8-254ba1b2900a"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "internal/handler/faq.go"
+    ],
+    "symbols": [
+      "ListEntries"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "internal/handler/faq.go",
+        "symbol_name": "ListEntries",
+        "lines": "36-75",
+        "role": "API handler parsing query parameters for FAQ entries listing",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Feature]: 为问答FAQ 知识库列表增加排序功能",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The feature request asks to add sorting functionality to the Q&A FAQ knowledge base entry list in the Tencent/WeKnora repository, supporting creation time, update time, and name fields with ascending/descending order toggle.",
+    "root_cause_analysis": "The backend handler and service methods currently only accept basic sorting parameters (e.g., `sort_order` defaulting or checking for `asc`) and do not process query parameters for sorting field selection (such as creation time, update time, or name) and direction.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect ListEntries Handler",
+        "description": "Examine ListEntries in internal/handler/faq.go to understand existing query parameter binding, sorting parameters, and service call conventions.",
+        "target_file": "internal/handler/faq.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Update Query Parameters for Sorting",
+        "description": "Modify the query parameter binding struct in internal/handler/faq.go to accept sorting field options (creation time, update time, name) and direction options (asc/desc).",
+        "target_file": "internal/handler/faq.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Update Service Layer and SQL Query Generation",
+        "description": "Pass the new sorting field and direction parameters down to the FAQ repository/service layer to build the correct ORDER BY clause dynamically.",
+        "target_file": "internal/handler/faq.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Test",
+        "description": "Add or update test cases in the handler and service tests to verify correct sorting behavior for creation time, update time, and name fields in both ascending and descending order.",
+        "target_file": "internal/handler/embed_flow_test.go"
+      },
+      {
+        "step_number": 5,
+        "title": "Run Test Suite",
+        "description": "Execute the package tests to verify the sorting feature implementation and ensure no regressions are introduced.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "API Query Parameter Binding",
+        "short_explanation": "The process of extracting and validating HTTP query parameters sent by a client in a web request.",
+        "why_it_matters": "Developers need to parse user-supplied filters and sorting options safely to customize database queries.",
+        "connection_to_issue": "Adding sorting fields and order requires capturing new query parameters from the client request in `ListEntries`."
+      },
+      {
+        "concept_name": "Database Sorting and Pagination",
+        "short_explanation": "Ordering database query results by specific columns in ascending or descending order alongside pagination limits.",
+        "why_it_matters": "Enables users to efficiently organize and locate records when dealing with large datasets.",
+        "connection_to_issue": "The core feature requires extending the database query and service layer to sort by creation time, update time, or name."
+      }
+    ],
+    "common_pitfalls": [
+      "Failing to sanitize or validate the sort field input against a whitelist, which could lead to SQL injection vulnerabilities.",
+      "Not updating Swagger/OpenAPI annotations in the handler comments alongside the code changes."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "INTERMEDIATE",
+    "suitability_score": 76,
+    "contribution_type": "SMALL_FEATURE",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

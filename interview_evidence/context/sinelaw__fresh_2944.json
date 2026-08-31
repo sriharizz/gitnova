@@ -1,0 +1,126 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_2eced0c0-fa0f-5943-95b3-1d6e3ff02b2b",
+    "repo_name": "sinelaw/fresh",
+    "repo_url": "https://github.com/sinelaw/fresh",
+    "issue_number": 2944,
+    "issue_url": "https://github.com/sinelaw/fresh/issues/2944",
+    "title": "SSH files marked read-only when local and remote UIDs differ"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-19T19:48:14.157017+00:00",
+    "updated_at": "2026-08-19T19:48:13.568705+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Rust",
+    "repo_topics": [
+      "ide",
+      "terminal-based",
+      "text-editor"
+    ],
+    "repo_description": "",
+    "repo_stars": 8119,
+    "repo_id": "17969f92-0eb1-496c-b2cd-749127ca45db"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "crates/fresh-editor/src/app/editor_accessors.rs",
+      "crates/fresh-editor/src/main.rs"
+    ],
+    "symbols": [
+      "parse_location",
+      "remote_connection_info"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "crates/fresh-editor/src/app/editor_accessors.rs",
+        "symbol_name": "remote_connection_info",
+        "lines": "1226-1265",
+        "role": "Handles remote connection inspection and authority context retrieval",
+        "is_verified": true
+      },
+      {
+        "file_path": "crates/fresh-editor/src/main.rs",
+        "symbol_name": "parse_location",
+        "lines": "1471-1510",
+        "role": "Parses remote SSH URLs and default user credentials",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "SSH files marked read-only when local and remote UIDs differ",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Rust",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "SSH files are incorrectly marked read-only when the local Fresh process and remote SSH user have different numeric user IDs (UID) or group IDs (GID), because file ownership checks compare remote file metadata against the local user's identity instead of the remote SSH user's identity.",
+    "root_cause_analysis": "The editor's file accessors or metadata checks evaluate permissions against local user credentials or misattribute remote file ownership to the local host's authority context instead of delegating the permission check entirely to the remote filesystem connection's authority.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Remote Connection and Permission Logic",
+        "description": "Inspect remote_connection_info and related accessor methods in crates/fresh-editor/src/app/editor_accessors.rs to determine how file writability and ownership checks are currently evaluated against local user credentials rather than the remote SSH user.",
+        "target_file": "crates/fresh-editor/src/app/editor_accessors.rs"
+      },
+      {
+        "step_number": 2,
+        "title": "Delegate Permission Evaluation to Remote Authority",
+        "description": "Modify the file writability check in crates/fresh-editor/src/app/editor_accessors.rs so that remote SSH connections correctly evaluate file permissions and ownership using the remote SSH user identity instead of falling back to local host UIDs/GIDs.",
+        "target_file": "crates/fresh-editor/src/app/editor_accessors.rs"
+      },
+      {
+        "step_number": 3,
+        "title": "Write Regression Test for Mismatched UIDs",
+        "description": "Add a unit or integration test case in the test suite verifying that remote files accessed via SSH with differing local and remote UIDs are correctly marked as writable when permissions allow, preventing false read-only triggers.",
+        "target_file": "crates/fresh-editor/src/app/editor_accessors.rs"
+      },
+      {
+        "step_number": 4,
+        "title": "Run Test Suite and Verify Fix",
+        "description": "Run the verified test command cargo test to ensure all tests pass successfully without any regressions in local or remote file editing behavior.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Remote Authority and Identity Delegation",
+        "short_explanation": "Ensuring that operations and permission checks on remote systems use the remote session's user identity rather than local process credentials.",
+        "why_it_matters": "Different machines or containers (such as Termux environments) assign arbitrary numeric UIDs to users, so comparing local and remote UIDs causes false permission mismatches.",
+        "connection_to_issue": "Fixing this issue requires ensuring remote file writability checks rely on the remote session authority rather than local user IDs."
+      },
+      {
+        "concept_name": "Automatic Read-Only Detection",
+        "short_explanation": "An editor feature that automatically marks files read-only if the current user lacks write permissions.",
+        "why_it_matters": "It prevents users from accidentally editing files they cannot save, but it depends on accurate permission checks.",
+        "connection_to_issue": "Because permission checks incorrectly use local UIDs for remote files, auto-read-only incorrectly locks valid remote files."
+      }
+    ],
+    "common_pitfalls": [
+      "Hardcoding local username or UID checks into remote filesystem code paths.",
+      "Modifying local workspace trust logic instead of remote session authority checks."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

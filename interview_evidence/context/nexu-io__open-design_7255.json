@@ -1,0 +1,144 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_95abfd2c-c675-5576-817c-47c7209617af",
+    "repo_name": "nexu-io/open-design",
+    "repo_url": "https://github.com/nexu-io/open-design",
+    "issue_number": 7255,
+    "issue_url": "https://github.com/nexu-io/open-design/issues/7255",
+    "title": "Allow operators to disable Codex workspace-write network access"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-21T20:18:16.947741+00:00",
+    "updated_at": "2026-08-21T20:18:14.448425+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [
+      "agent-skills",
+      "ai-agents",
+      "ai-design",
+      "byok",
+      "claude-code-for-design",
+      "claude-design",
+      "codex-design",
+      "coding-agents",
+      "cursor-design",
+      "design-systems",
+      "design-tools",
+      "desktop-app",
+      "figma-alternative",
+      "generative-ai",
+      "hermes-agent",
+      "local-first",
+      "no-code",
+      "prototyping",
+      "ui-generator",
+      "vibe-coding"
+    ],
+    "repo_description": "",
+    "repo_stars": 83752,
+    "repo_id": "b643e094-0b45-45ef-a75f-d1f325a74b4e"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/daemon/src/connectionTest.ts",
+      "apps/daemon/src/codex-cli.ts"
+    ],
+    "symbols": [
+      "stripCodexBinOverride",
+      "installCodexMcp"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/daemon/src/codex-cli.ts",
+        "symbol_name": "installCodexMcp",
+        "lines": "35-55",
+        "role": "Codex CLI interaction and runner configuration",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/daemon/src/connectionTest.ts",
+        "symbol_name": "stripCodexBinOverride",
+        "lines": "806-845",
+        "role": "Codex configuration helpers and path overrides",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Allow operators to disable Codex workspace-write network access",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Allow operators to disable Codex workspace-write network access via a new environment variable OD_CODEX_NETWORK_ACCESS=false without changing default behavior or touch UI/API layers.",
+    "root_cause_analysis": "The Codex adapter currently passes hardcoded CLI configuration overrides to subprocess executions of Codex without checking an environment variable flag like OD_CODEX_NETWORK_ACCESS.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Codex CLI Adapter Arguments",
+        "description": "Inspect symbol installCodexMcp in apps/daemon/src/codex-cli.ts and verify where hardcoded sandbox_workspace_write.network_access=true CLI arguments are constructed.",
+        "target_file": "apps/daemon/src/codex-cli.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Implement OD_CODEX_NETWORK_ACCESS Environment Variable Check",
+        "description": "Update apps/daemon/src/codex-cli.ts to read process.env.OD_CODEX_NETWORK_ACCESS, defaulting to 'true' if unset or invalid, and dynamically assign the network_access configuration flag string ('true' or 'false').",
+        "target_file": "apps/daemon/src/codex-cli.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Add Unit and Integration Tests for Network Access Flag",
+        "description": "Add regression tests in apps/daemon/src/connectionTest.ts or a corresponding test suite verifying that setting OD_CODEX_NETWORK_ACCESS=false correctly propagates sandbox_workspace_write.network_access=false while omitting it preserves true.",
+        "target_file": "apps/daemon/src/connectionTest.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Execute Test Suite",
+        "description": "Run the daemon test suite to verify that all existing tests pass and the new network access behavior works as intended.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "CLI Configuration Overrides",
+        "short_explanation": "Command-line flags or config overrides passed to spawned subprocesses that take precedence over user or project config files.",
+        "why_it_matters": "Understanding how configuration overrides flow from environment variables to subprocess arguments allows operators to control runtime behavior securely.",
+        "connection_to_issue": "The issue requires checking an environment variable (`OD_CODEX_NETWORK_ACCESS`) to conditionally alter the configuration override passed to the Codex CLI."
+      },
+      {
+        "concept_name": "Environment Variable Opt-Outs",
+        "short_explanation": "A configuration pattern where a default behavior is active unless an explicit environment variable is set to opt out.",
+        "why_it_matters": "Allows zero-downtime deployment customization across different environments without modifying persistent configuration files.",
+        "connection_to_issue": "Unset or unknown values preserve the default network-enabled behavior, while exact `false` emits `sandbox_workspace_write.network_access=false`."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying default behavior for users who do not set the environment variable.",
+      "Touching UI, API, or dependency layers outside of the adapter args and runtime tests.",
+      "Breaking danger-full-access behavior."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_007bf700-a99a-57b1-9682-5858015fc287",
+    "repo_name": "psf/requests",
+    "repo_url": "https://github.com/psf/requests",
+    "issue_number": 7574,
+    "issue_url": "https://github.com/psf/requests/issues/7574",
+    "title": "Support for HTTP Query Method"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-14T06:47:09.548522+00:00",
+    "updated_at": "2026-08-14T07:08:43.522225+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 52000,
+    "repo_id": "79e6a1fa-ffa6-456d-9d15-065cd9af531a"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "src/requests/_types.py",
+      "src/requests/api.py"
+    ],
+    "symbols": [
+      "request",
+      "SupportsRead"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "src/requests/api.py",
+        "symbol_name": "request",
+        "lines": "45-80",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "src/requests/_types.py",
+        "symbol_name": "SupportsRead",
+        "lines": "",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Support for HTTP Query Method",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The requests library does not currently support the HTTP Query method, which has been proposed for over a decade. This issue is about adding support for this method.",
+    "root_cause_analysis": "The requests library's request function only accepts a limited set of HTTP methods, including GET, OPTIONS, HEAD, POST, PUT, PATCH, and DELETE. The Query method is not currently supported.",
+    "step_by_step_plan": [],
+    "structured_concepts": [
+      {
+        "concept_name": "HTTP Methods",
+        "short_explanation": "HTTP methods are used to specify the action to be taken on a resource. Common methods include GET, POST, PUT, and DELETE.",
+        "why_it_matters": "Understanding HTTP methods is crucial for working with the requests library and making HTTP requests.",
+        "connection_to_issue": "The issue of adding support for the Query method is related to the existing HTTP methods supported by the requests library."
+      },
+      {
+        "concept_name": "Requests Library",
+        "short_explanation": "The requests library is a popular Python library for making HTTP requests.",
+        "why_it_matters": "The requests library is widely used for making HTTP requests in Python, and understanding its usage is essential for working with it.",
+        "connection_to_issue": "The issue of adding support for the Query method is related to the requests library's functionality."
+      }
+    ],
+    "common_pitfalls": [
+      "Not understanding the existing HTTP methods supported by the requests library",
+      "Not reviewing the codebase of the requests library before modifying it",
+      "Not testing the modified request function thoroughly"
+    ],
+    "llm_provider": "google",
+    "llm_model": "gemini-3.6-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "INTERMEDIATE",
+    "suitability_score": 76,
+    "contribution_type": "SMALL_FEATURE",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

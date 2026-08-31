@@ -1,0 +1,121 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_f28d6668-2ee0-5154-8490-3461c93ad28f",
+    "repo_name": "kubescape/kubescape",
+    "repo_url": "https://github.com/kubescape/kubescape",
+    "issue_number": 3286,
+    "issue_url": "https://github.com/kubescape/kubescape/issues/3286",
+    "title": "fix(core): use case-insensitive check for RCE keyword in vulnerability description"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-16T06:50:45.27829+00:00",
+    "updated_at": "2026-08-21T18:58:51.030085+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [
+      "best-practice",
+      "devops",
+      "kubernetes",
+      "mitre-attack",
+      "nsa",
+      "security",
+      "vulnerability-detection"
+    ],
+    "repo_description": "",
+    "repo_stars": 11567,
+    "repo_id": "50b2d28a-f7ae-4dc8-a372-7725ce4c2f68"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "core/cautils/datastructuresmethods.go"
+    ],
+    "symbols": [
+      "IsRCE"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "core/cautils/datastructuresmethods.go",
+        "symbol_name": "IsRCE",
+        "lines": "1-40",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "fix(core): use case-insensitive check for RCE keyword in vulnerability description",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Fix a case-sensitivity bug in the vulnerability remote code execution (RCE) detection where `Vulnerability.IsRCE()` checks for the exact uppercase string \"RCE\" against `v.Description` rather than utilizing the lowercased description string, leading to under-reporting of vulnerabilities.",
+    "root_cause_analysis": "The keyword check was implemented using the original mixed-case `v.Description` with an uppercase literal \"RCE\" instead of using the precomputed lowercased `desc` string like other keyword checks in the same context.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Vulnerability.IsRCE implementation",
+        "description": "Inspect symbol IsRCE in file core/cautils/datastructuresmethods.go and verify how the description string is converted to lowercase and where strings.Contains is used.",
+        "target_file": "core/cautils/datastructuresmethods.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Fix case-sensitivity in IsRCE check",
+        "description": "Modify strings.Contains(v.Description, \"RCE\") in core/cautils/datastructuresmethods.go to check against the lowercased desc variable using strings.Contains(desc, \"rce\").",
+        "target_file": "core/cautils/datastructuresmethods.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Add regression tests for case-insensitive RCE detection",
+        "description": "Update core/cautils/datastructuresmethods_test.go to add test cases covering lowercase \"rce\", mixed-case \"Rce\", and uppercase \"RCE\" descriptions.",
+        "target_file": "core/cautils/datastructuresmethods_test.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Run tests to verify the fix",
+        "description": "Execute the test suite in core/cautils to ensure that all IsRCE test cases pass successfully without regressions.",
+        "target_file": "core/cautils/datastructuresmethods_test.go"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Case-Insensitive Substring Matching",
+        "short_explanation": "Ensuring text searches do not fail due to differing capitalization (uppercase vs. lowercase).",
+        "why_it_matters": "Real-world vulnerability descriptions vary wildly in capitalization; failing to account for case leads to missed detections and false negatives.",
+        "connection_to_issue": "The issue stems from checking for uppercase \"RCE\" on a mixed-case string instead of utilizing the lowercased description."
+      },
+      {
+        "concept_name": "Defensive Variable Reuse",
+        "short_explanation": "Reusing pre-processed or sanitized variables throughout a function to maintain consistency and prevent bugs.",
+        "why_it_matters": "When a function transforms an input once (like lowercasing), subsequent checks should use that transformed version to avoid accidental inconsistencies.",
+        "connection_to_issue": "The function already created a lowercased `desc` variable but failed to use it for the RCE check."
+      }
+    ],
+    "common_pitfalls": [
+      "Hardcoding uppercase literal strings when searching parsed or natural-language descriptions.",
+      "Forgetting to update or add unit test cases covering mixed-case vulnerability descriptions."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

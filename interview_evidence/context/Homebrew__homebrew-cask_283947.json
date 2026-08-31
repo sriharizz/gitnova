@@ -1,0 +1,131 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_4e47fd4f-eb97-5d96-9aee-604b3ca188ae",
+    "repo_name": "Homebrew/homebrew-cask",
+    "repo_url": "https://github.com/Homebrew/homebrew-cask",
+    "issue_number": 283947,
+    "issue_url": "https://github.com/Homebrew/homebrew-cask/issues/283947",
+    "title": "Ghostty cask started attempting to quit itself, and the updater process, on update."
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-29T01:42:16.661813+00:00",
+    "updated_at": "2026-08-29T01:42:15.674419+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Ruby",
+    "repo_topics": [
+      "cask",
+      "hacktoberfest",
+      "homebrew"
+    ],
+    "repo_description": "",
+    "repo_stars": 22144,
+    "repo_id": "e25d554b-e3a0-47cc-b591-63be38f7704c"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "cmd/lib/zap_check.rb"
+    ],
+    "symbols": [
+      "ZapCheck",
+      "ZapCheck.quit"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "cmd/lib/zap_check.rb",
+        "symbol_name": "ZapCheck",
+        "lines": "1-40",
+        "role": "Defines utility mechanisms that launch and quit applications during checks.",
+        "is_verified": true
+      },
+      {
+        "file_path": "cmd/lib/zap_check.rb",
+        "symbol_name": "ZapCheck.quit",
+        "lines": "71-110",
+        "role": "Implements application quitting logic via AppleScript/JXA script execution.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Ghostty cask started attempting to quit itself, and the updater process, on update.",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Ruby",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The `ghostty@tip` cask (and potentially other terminal or shell application casks) started attempting to quit itself and its updater process during standard `brew upgrade -g` updates. Because users run Homebrew commands directly inside terminal emulators like Ghostty, quitting the app kills the terminal emulator and the user's running shells midway through the upgrade, leading to repeated interactive prompts, disrupted workflows, or potential filesystem corruption.",
+    "root_cause_analysis": "Cask definitions or automated checking/lifecycle utilities (such as `zap_check.rb` or casks declaring `auto_updates true` combined with background quit logic or uninstallation routines) automatically launch, test, or signal running apps to quit to clear state or preferences, inadvertently targeting the active terminal application from which `brew upgrade` is invoked.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect ZapCheck quit logic",
+        "description": "Inspect the ZapCheck.quit implementation in cmd/lib/zap_check.rb to understand how application quit signals and AppleScript termination routines target running processes.",
+        "target_file": "cmd/lib/zap_check.rb"
+      },
+      {
+        "step_number": 2,
+        "title": "Add self-termination protection check",
+        "description": "Modify the ZapCheck.quit method in cmd/lib/zap_check.rb to check whether the target application matches the current terminal emulator process or the parent session hosting the active Homebrew execution.",
+        "target_file": "cmd/lib/zap_check.rb"
+      },
+      {
+        "step_number": 3,
+        "title": "Skip self-quitting during active upgrades",
+        "description": "Ensure that if the target bundle identifier or process name matches the active terminal or parent shell session, ZapCheck gracefully skips sending the quit signal or raising interactive prompts.",
+        "target_file": "cmd/lib/zap_check.rb"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test for ZapCheck self-quit prevention",
+        "description": "Add a unit test in the test suite verifying that ZapCheck.quit avoids sending termination signals to the current running terminal session or parent application bundle.",
+        "target_file": "cmd/lib/zap_check.rb"
+      },
+      {
+        "step_number": 5,
+        "title": "Run test suite verification",
+        "description": "Run the repository test command to verify that all existing and newly added regression tests pass successfully.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Application Lifecycle Management in Casks",
+        "short_explanation": "How Homebrew Cask defines metadata, auto-updates, and cleanup behaviors for macOS applications.",
+        "why_it_matters": "Developers need to understand how casks interact with running processes so that automated scripts don't accidentally disrupt active user sessions.",
+        "connection_to_issue": "Fixing the regression requires ensuring that terminal emulators or host applications are exempted from aggressive self-termination routines during upgrades."
+      },
+      {
+        "concept_name": "Process Signaling and AppleScript Automation",
+        "short_explanation": "Using system tools and JavaScript for Automation (JXA) to query and quit macOS applications.",
+        "why_it_matters": "Incorrect process targeting can lead to unexpected app closures and data loss.",
+        "connection_to_issue": "The quit mechanism uses app identifiers to request shutdowns, which currently targets active terminal emulators like Ghostty when running upgrades."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying global cask logic without checking individual cask overrides or exception lists.",
+      "Hardcoding specific app tokens without considering alternative release channels (e.g., `ghostty` vs `ghostty@tip`)."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

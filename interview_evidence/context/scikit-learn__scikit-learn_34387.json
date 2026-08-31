@@ -1,0 +1,120 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_60d65c3b-c08c-57dd-aafb-695e670206a1",
+    "repo_name": "scikit-learn/scikit-learn",
+    "repo_url": "https://github.com/scikit-learn/scikit-learn",
+    "issue_number": 34387,
+    "issue_url": "https://github.com/scikit-learn/scikit-learn/issues/34387",
+    "title": "`OrdinalEncoder` surprising behavior: missing values are treated as unknown categories first"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-15T18:38:45.337735+00:00",
+    "updated_at": "2026-08-15T18:38:44.645176+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 65000,
+    "repo_id": "de9efd92-c104-494a-9a24-508f7029e4b8"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "sklearn/impute/_base.py"
+    ],
+    "symbols": [
+      "_get_mask"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "sklearn/impute/_base.py",
+        "symbol_name": "_get_mask",
+        "lines": "95-168",
+        "role": "Provides reference implementation for missing value masking and handling in scikit-learn.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "`OrdinalEncoder` surprising behavior: missing values are treated as unknown categories first",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "In `OrdinalEncoder`, when transforming data containing missing values (like `np.nan`), the encoder can incorrectly treat these missing values as 'unknown categories' instead of 'missing values'. This happens if the missing value was not present during the `fit` phase, or if the input has an `object` data type. As a result, instead of mapping the missing value to the configured `encoded_missing_value` (e.g., `np.nan`), the encoder either raises an error or maps it to the `unknown_value` (e.g., `-1`).",
+    "root_cause_analysis": "The root cause is that `OrdinalEncoder` (and its parent/helper classes in `sklearn/preprocessing/_encoders.py`) performs unknown category detection before or in a way that interferes with missing value handling. Specifically, during `transform`, the encoder checks if the input values are present in the fitted `categories_`. Since `np.nan` is not in `categories_` (if it wasn't in the training data), it is flagged as an unknown category. The code then applies the `handle_unknown` strategy (either raising an error or mapping to `unknown_value`), completely bypassing the missing value mapping. Furthermore, for `object` dtype arrays, `np.nan` comparison (`np.nan == np.nan` is `False`) causes standard equality checks and search operations to fail or behave inconsistently, leading to unexpected `ValueError` exceptions even when `np.nan` was present during `fit`.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect transform control flow in _encoders.py",
+        "description": "Inspect the `_transform` method of `_BaseEncoder` and `OrdinalEncoder` in `sklearn/preprocessing/_encoders.py` to understand how missing values and unknown categories are currently identified and processed during transformation.",
+        "target_file": "sklearn/preprocessing/_encoders.py"
+      },
+      {
+        "step_number": 2,
+        "title": "Mask missing values before unknown category check",
+        "description": "Modify the transformation logic in `sklearn/preprocessing/_encoders.py` to compute a missing value mask for the input data using `_get_mask` or equivalent. Ensure that any elements identified as missing values are excluded from the unknown category detection checks.",
+        "target_file": "sklearn/preprocessing/_encoders.py"
+      },
+      {
+        "step_number": 3,
+        "title": "Map missing values to encoded_missing_value",
+        "description": "Ensure that the masked missing values are directly mapped to the configured `encoded_missing_value` (e.g., `np.nan`) in the output array, bypassing any `handle_unknown` logic, even if the missing value was not seen during the `fit` phase or if the input array has an `object` dtype.",
+        "target_file": "sklearn/preprocessing/_encoders.py"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression tests for OrdinalEncoder missing values",
+        "description": "Add a new test case in `sklearn/preprocessing/tests/test_encoders.py` that instantiates `OrdinalEncoder` with various configurations of `handle_unknown` and `unknown_value`, fits it on data without missing values, and transforms data containing missing values (including `object` dtype arrays with `np.nan`), asserting that they are correctly mapped to `encoded_missing_value` without raising errors.",
+        "target_file": "sklearn/preprocessing/tests/test_encoders.py"
+      },
+      {
+        "step_number": 5,
+        "title": "Run the encoder test suite",
+        "description": "Execute the test suite for encoders to verify that the new tests pass and no regressions are introduced in existing encoder functionality.",
+        "target_file": "sklearn/preprocessing/tests/test_encoders.py"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Decoupling Missing Values from Unknown Categories",
+        "short_explanation": "Ensuring that missing values (like `NaN` or `None`) are detected and handled separately from actual unseen/unknown categories during data transformation.",
+        "why_it_matters": "If missing values are treated as unknown categories, they will be incorrectly mapped to the unknown value placeholder (e.g., `-1`) or raise validation errors, which breaks pipelines that expect missing values to be preserved or imputed later.",
+        "connection_to_issue": "In `OrdinalEncoder`, missing values should be masked and mapped to `encoded_missing_value` first, before any unknown category checks are performed, preventing them from being treated as unknown categories."
+      },
+      {
+        "concept_name": "NaN Handling in Object Arrays",
+        "short_explanation": "Managing floating-point `NaN` values within NumPy arrays of `object` dtype, where standard equality checks (`val == nan`) fail because `NaN` is not equal to itself.",
+        "why_it_matters": "In Python/NumPy, `np.nan != np.nan`. When arrays have `object` dtype, element-wise comparisons or membership checks (like `in` or `np.unique`) can fail to identify `NaN` correctly unless specialized functions like `is_scalar_nan` or `_get_mask` are used.",
+        "connection_to_issue": "The bug where `OrdinalEncoder` raises an error on `object` dtype arrays containing `np.nan` is caused by incorrect comparison/identification of `NaN` values in object arrays during category validation."
+      }
+    ],
+    "common_pitfalls": [
+      "Using standard equality operators (`==`) to check for `NaN` values in object arrays, which fails because `np.nan != np.nan`.",
+      "Modifying `handle_unknown` logic without ensuring that the missing value mask is applied first to exclude missing values from unknown category checks.",
+      "Assuming that `np.nan` behaves the same way in float arrays and object arrays during membership or sorting operations."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 67,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "CHECK_DISCUSSION"
+  }
+}

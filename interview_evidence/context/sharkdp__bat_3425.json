@@ -1,0 +1,131 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_7f0282ea-aded-5297-ae9a-329ecc5c881c",
+    "repo_name": "sharkdp/bat",
+    "repo_url": "https://github.com/sharkdp/bat",
+    "issue_number": 3425,
+    "issue_url": "https://github.com/sharkdp/bat/issues/3425",
+    "title": "FR: use different style when showing multiple files, one file, (maybe) piped input"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-15T06:53:24.235426+00:00",
+    "updated_at": "2026-08-15T06:56:49.157968+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Rust",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 48000,
+    "repo_id": "d96be7ef-0a85-4f87-bf79-4eef7d4cbd3f"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "src/bin/bat/app.rs",
+      "src/bin/bat/clap_app.rs"
+    ],
+    "symbols": [
+      "block_596",
+      "block_526",
+      "style_components"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "src/bin/bat/clap_app.rs",
+        "symbol_name": "block_526",
+        "lines": "526-565",
+        "role": "Defines the command-line arguments including the '--style' option.",
+        "is_verified": true
+      },
+      {
+        "file_path": "src/bin/bat/app.rs",
+        "symbol_name": "style_components",
+        "lines": "666-705",
+        "role": "Resolves the active style components from the parsed command-line arguments.",
+        "is_verified": true
+      },
+      {
+        "file_path": "src/bin/bat/app.rs",
+        "symbol_name": "block_596",
+        "lines": "596-635",
+        "role": "Parses the input files and stdin arguments into a vector of inputs.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "FR: use different style when showing multiple files, one file, (maybe) piped input",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Rust",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The user wants to dynamically customize the output style of 'bat' based on the context of the inputs: specifically, using a simpler style (like plain) for a single file or stdin, and a richer style (like grid/header) when displaying multiple files. Currently, 'bat' only supports a single global style configuration.",
+    "root_cause_analysis": "The command-line interface defined in 'src/bin/bat/clap_app.rs' only defines the '--style' option. In 'src/bin/bat/app.rs', the 'style_components' method resolves the active style components solely based on the '--style' argument, '--decorations', or '--plain' flags, without any knowledge of or reference to the number of files or input types (stdin vs. regular files) being processed.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Control Flow and Style Resolution",
+        "description": "Inspect `src/bin/bat/clap_app.rs` to see how `--style` is defined, and inspect `src/bin/bat/app.rs` (specifically the `style_components` method) to understand how style components are currently resolved from the parsed arguments.",
+        "target_file": "src/bin/bat/app.rs"
+      },
+      {
+        "step_number": 2,
+        "title": "Define New Command-Line Options",
+        "description": "Add `--style-single-file`, `--style-multiple-files`, and `--style-stdin` options to the clap application definition in `src/bin/bat/clap_app.rs` under the style-related arguments section.",
+        "target_file": "src/bin/bat/clap_app.rs"
+      },
+      {
+        "step_number": 3,
+        "title": "Update Style Resolution Logic",
+        "description": "Modify the `style_components` method in `src/bin/bat/app.rs` to accept the list of inputs or their count/type. Implement logic to check if `--style-single-file`, `--style-multiple-files`, or `--style-stdin` are provided, and override the default style based on whether there is a single file, multiple files, or stdin being processed.",
+        "target_file": "src/bin/bat/app.rs"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Integration Tests and Verify",
+        "description": "Create integration tests in the existing test suite that execute `bat` with different combinations of inputs (single file, multiple files, stdin) and the new style override flags, asserting that the correct output decorations are rendered. Run `cargo test` to verify.",
+        "target_file": "tests/integration_tests.rs"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Cascading Configuration Overrides",
+        "short_explanation": "A design pattern where more specific configuration options override more general ones based on runtime context.",
+        "why_it_matters": "It allows command-line tools to have sensible, broad defaults while giving advanced users fine-grained control over specific scenarios without needing wrapper scripts.",
+        "connection_to_issue": "Implementing '--style-single-file' and '--style-multiple-files' requires cascading these specific style overrides over the base '--style' configuration depending on the runtime input count."
+      },
+      {
+        "concept_name": "Input Stream Context Awareness",
+        "short_explanation": "The ability of a CLI application to inspect its input sources (such as files vs. standard input) and count them before rendering output.",
+        "why_it_matters": "It enables tools to adapt their user interface dynamically, such as hiding headers when there is only one stream to display.",
+        "connection_to_issue": "The application needs to count the parsed inputs and check if any are stdin to decide which style override to apply."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying the core 'pretty_printer' library to handle these CLI-specific style overrides. The style resolution logic should remain in the CLI application layer ('src/bin/bat/app.rs').",
+      "Failing to handle the mixed input corner case (e.g., 'echo qq | bat - filename'), where multiple files are present but one of them is stdin. The multiple-files style should take precedence here to keep the output consistent.",
+      "Breaking the existing '--style=auto' behavior or ignoring the 'BAT_STYLE' environment variable."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

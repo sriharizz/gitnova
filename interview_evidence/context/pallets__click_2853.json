@@ -1,0 +1,136 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_b37b367d-5b33-5a3a-8c76-639eeb60357f",
+    "repo_name": "pallets/click",
+    "repo_url": "https://github.com/pallets/click",
+    "issue_number": 2853,
+    "issue_url": "https://github.com/pallets/click/issues/2853",
+    "title": "The call stack is displayed when an exception is returned when an invalid parameter is displayed during command line association."
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-21T19:05:04.509956+00:00",
+    "updated_at": "2026-08-21T19:05:03.272296+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 16000,
+    "repo_id": "4aa118aa-e112-4340-8f0f-089947842bcc"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "src/click/exceptions.py",
+      "src/click/core.py"
+    ],
+    "symbols": [
+      "UsageError.show",
+      "augment_usage_errors",
+      "Command.main"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "src/click/core.py",
+        "symbol_name": "Command.main",
+        "lines": "825-920",
+        "role": "Standard exception handling block that catches ClickException and calls e.show()",
+        "is_verified": true
+      },
+      {
+        "file_path": "src/click/exceptions.py",
+        "symbol_name": "UsageError.show",
+        "lines": "85-111",
+        "role": "Formats and displays usage errors and error messages",
+        "is_verified": true
+      },
+      {
+        "file_path": "src/click/core.py",
+        "symbol_name": "augment_usage_errors",
+        "lines": "124-139",
+        "role": "Context manager attaching context and parameters to usage errors",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "The call stack is displayed when an exception is returned when an invalid parameter is displayed during command line association.",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When a command line association or custom `get_command` hook invokes `ctx.fail()` during command resolution or completion (such as bash completion), Click raises a `UsageError`. However, if this occurs outside of the standard standalone execution block or during certain resolution routines where the exception isn't caught and handled cleanly via `ClickException.show()` and `sys.exit()`, an unhandled exception traceback is printed instead of a clean user-facing error message.",
+    "root_cause_analysis": "Functions like `ctx.fail()` raise `UsageError`, which inherits from `ClickException`. In standard command invocation via `Command.main()`, these are caught and handled by printing `.show()` and calling `sys.exit(e.exit_code)`. However, during auxiliary flows like shell completion (e.g. `_bashcomplete` or `_resolve_context`) or custom callback hooks where `standalone_mode` or exception handling blocks are bypassed or not active, the exception bubbles up uncaught, leading to a raw Python traceback.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Command.main and exception handling blocks",
+        "description": "Examine the exception handling logic in src/click/core.py -> Command.main to understand how ClickException and UsageError are caught during standard execution.",
+        "target_file": "src/click/core.py"
+      },
+      {
+        "step_number": 2,
+        "title": "Examine shell completion and resolution hooks",
+        "description": "Inspect how command resolution and shell completion routines (such as completion script handlers and _resolve_context) invoke custom callbacks and get_command hooks without standalone exception boundaries.",
+        "target_file": "src/click/core.py"
+      },
+      {
+        "step_number": 3,
+        "title": "Wrap auxiliary invocation entrypoints with proper ClickException handling",
+        "description": "Ensure that custom get_command hooks, completion handlers, and context resolution steps catch UsageError / ClickException gracefully, invoking show() and exiting with the correct exit code instead of raising unhandled tracebacks.",
+        "target_file": "src/click/core.py"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test for ctx.fail in custom get_command hooks",
+        "description": "Add a new test case in the test suite that simulates shell completion or command resolution triggering a custom get_command hook which calls ctx.fail(), asserting that a clean usage error message and correct exit status are produced rather than a traceback.",
+        "target_file": "tests/test_shell_completion.py"
+      },
+      {
+        "step_number": 5,
+        "title": "Run pytest to verify regression tests pass",
+        "description": "Execute pytest to verify that the fix correctly addresses the unhandled exception during command resolution and that all existing tests continue to pass.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Exception Handling in CLI Applications",
+        "short_explanation": "Catching domain-specific user errors and converting them into clean terminal messages rather than crashing with a programming traceback.",
+        "why_it_matters": "End users should never see Python tracebacks for invalid inputs or configuration errors; they need clear, actionable error messages.",
+        "connection_to_issue": "The issue occurs because a `UsageError` raised during command resolution escapes its clean handler and bubbles up as an unhandled exception."
+      },
+      {
+        "concept_name": "Click Exception Hierarchy",
+        "short_explanation": "The relationship between `ClickException`, `UsageError`, and standard Python exceptions in Click.",
+        "why_it_matters": "Click uses specialized exception classes to differentiate between user usage errors (exit code 2) and internal bugs (exit code 1 or unhandled tracebacks).",
+        "connection_to_issue": "`ctx.fail()` raises `UsageError`, which is designed to be caught and displayed gracefully by Click's top-level runners."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying exception classes globally without checking how different entry points (like shell completion and testing runners) handle exceptions.",
+      "Catching generic `Exception` blocks which might mask actual programming bugs."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

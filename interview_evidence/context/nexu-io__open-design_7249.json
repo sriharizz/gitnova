@@ -1,0 +1,142 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_b6d62bd2-5901-5ff6-926b-e1714e382775",
+    "repo_name": "nexu-io/open-design",
+    "repo_url": "https://github.com/nexu-io/open-design",
+    "issue_number": 7249,
+    "issue_url": "https://github.com/nexu-io/open-design/issues/7249",
+    "title": "[Bug]: DSH on Windows: PowerShell loses media CLI stdout"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-21T20:19:09.418602+00:00",
+    "updated_at": "2026-08-21T20:19:08.668126+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [
+      "agent-skills",
+      "ai-agents",
+      "ai-design",
+      "byok",
+      "claude-code-for-design",
+      "claude-design",
+      "codex-design",
+      "coding-agents",
+      "cursor-design",
+      "design-systems",
+      "design-tools",
+      "desktop-app",
+      "figma-alternative",
+      "generative-ai",
+      "hermes-agent",
+      "local-first",
+      "no-code",
+      "prototyping",
+      "ui-generator",
+      "vibe-coding"
+    ],
+    "repo_description": "",
+    "repo_stars": 83752,
+    "repo_id": "b643e094-0b45-45ef-a75f-d1f325a74b4e"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/daemon/src/cli.ts"
+    ],
+    "symbols": [
+      "printMediaHelp",
+      "runMedia"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/daemon/src/cli.ts",
+        "symbol_name": "runMedia",
+        "lines": "1611-1650",
+        "role": "Media CLI entry point and help routing",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/daemon/src/cli.ts",
+        "symbol_name": "printMediaHelp",
+        "lines": "2171-2210",
+        "role": "Media CLI help text containing POSIX bash example contract",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bug]: DSH on Windows: PowerShell loses media CLI stdout",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "On Windows, running the Open Design media CLI via DeepSeek Harness and direct PowerShell invocation ($result = & $env:OD_NODE_BIN $env:OD_BIN media generate ...) fails to capture standard output, leaving $result empty ($null) and preventing agents from obtaining the task ID or status.",
+    "root_cause_analysis": "The CLI help documentation in apps/daemon/src/cli.ts provides bash-specific commands and examples for the generate-wait loop but lacks equivalent verified guidance or wrapper handling for PowerShell on Windows, where direct ampersand invocation drops stdout streams under certain harness runtimes.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect printMediaHelp symbol in apps/daemon/src/cli.ts",
+        "description": "Inspect the printMediaHelp function and surrounding help text in apps/daemon/src/cli.ts to locate existing POSIX bash documentation and identify where PowerShell-specific invocation examples should be inserted.",
+        "target_file": "apps/daemon/src/cli.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Add PowerShell invocation documentation and examples",
+        "description": "Update printMediaHelp in apps/daemon/src/cli.ts to include clear Windows PowerShell instructions and examples using Start-Process or redirection patterns to ensure agents can successfully capture stdout.",
+        "target_file": "apps/daemon/src/cli.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Verify CLI help output generation",
+        "description": "Verify that running the media CLI help command correctly displays the new PowerShell instructions alongside the existing bash examples without formatting regressions.",
+        "target_file": "apps/daemon/src/cli.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Run test suite verification",
+        "description": "Run the repository test command to ensure all existing CLI tests pass successfully and verify the documentation updates.",
+        "target_file": "apps/daemon/src/cli.ts"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "PowerShell Output Redirection",
+        "short_explanation": "How Windows PowerShell handles standard output streams and command execution compared to bash.",
+        "why_it_matters": "Developers and automated agents need to know how to reliably capture stdout and stderr streams when executing CLI tools inside PowerShell environments.",
+        "connection_to_issue": "The issue stems from PowerShell dropping or failing to capture standard output when using direct ampersand execution (&), requiring alternative patterns like Start-Process."
+      },
+      {
+        "concept_name": "CLI Help Contract Documentation",
+        "short_explanation": "Maintaining clear, accurate usage instructions and code examples within application command-line interfaces.",
+        "why_it_matters": "AI coding agents and human developers rely directly on CLI help text to understand how to interact with automation endpoints.",
+        "connection_to_issue": "Updating the help text in apps/daemon/src/cli.ts will guide DeepSeek Harness agents on Windows to use the correct PowerShell workaround pattern."
+      }
+    ],
+    "common_pitfalls": [
+      "Assuming bash command patterns work identically across Windows PowerShell.",
+      "Modifying internal daemon execution logic when the issue is specifically documentation and contract guidance for shell usage."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

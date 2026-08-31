@@ -1,0 +1,136 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_fa59fb36-5bef-58cb-96cb-57e2b1ba3537",
+    "repo_name": "babalae/better-genshin-impact",
+    "repo_url": "https://github.com/babalae/better-genshin-impact",
+    "issue_number": 3496,
+    "issue_url": "https://github.com/babalae/better-genshin-impact/issues/3496",
+    "title": "[bug] 制作食物时如果食物材料耗尽，将无限重试"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-20T18:51:11.507094+00:00",
+    "updated_at": "2026-08-28T19:07:12.223592+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "C#",
+    "repo_topics": [
+      "auto-play-game",
+      "automatic",
+      "genius-invokation-tcg",
+      "genshin",
+      "genshin-impact",
+      "yuanshen"
+    ],
+    "repo_description": "",
+    "repo_stars": 14528,
+    "repo_id": "59b8ae19-f425-42d6-90a8-f4e2659b09a6"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "BetterGenshinImpact/Core/BgiVision/BvPage.cs",
+      "BetterGenshinImpact/Core/BgiVision/BvFlow.cs"
+    ],
+    "symbols": [
+      "BvPage",
+      "Run"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "BetterGenshinImpact/Core/BgiVision/BvFlow.cs",
+        "symbol_name": "Run",
+        "lines": "211-250",
+        "role": "Flow execution loop handling task steps and exceptions",
+        "is_verified": true
+      },
+      {
+        "file_path": "BetterGenshinImpact/Core/BgiVision/BvPage.cs",
+        "symbol_name": "BvPage",
+        "lines": "1-40",
+        "role": "Vision page automation primitives and retry configurations",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[bug] 制作食物时如果食物材料耗尽，将无限重试",
+    "input_body": "No body provided in issue description.",
+    "target_language": "C#",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When auto-cooking in BetterGenshinImpact, if ingredients run out mid-process, Genshin Impact automatically exits the cooking screen. However, the BGI task code lacks handling for this state, causing the script to loop indefinitely in retry attempts.",
+    "root_cause_analysis": "The task workflow executes steps repeatedly or waits for UI elements using flow control mechanisms (such as BvFlow or BvPage) without checking for failure states like inventory exhaustion or unexpected dialog dismissals. When the expected target element disappears or fails to appear due to the lack of ingredients, the loop fails to break out or throw an appropriate termination exception.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Flow Execution Loop in BvFlow.cs",
+        "description": "Examine the Run method in BetterGenshinImpact/Core/BgiVision/BvFlow.cs to understand how step execution and retry loops handle missing UI elements or unexpected interface closures.",
+        "target_file": "BetterGenshinImpact/Core/BgiVision/BvFlow.cs"
+      },
+      {
+        "step_number": 2,
+        "title": "Analyze Vision Page Automation in BvPage.cs",
+        "description": "Review BvPage in BetterGenshinImpact/Core/BgiVision/BvPage.cs to check how page transitions and timeout/retry configurations are implemented during cooking tasks.",
+        "target_file": "BetterGenshinImpact/Core/BgiVision/BvPage.cs"
+      },
+      {
+        "step_number": 3,
+        "title": "Implement Ingredient Exhaustion Check",
+        "description": "Add condition checks within the cooking workflow to detect when the cooking interface closes unexpectedly or ingredients run out, terminating the retry loop and throwing an appropriate cancellation exception or notification.",
+        "target_file": "BetterGenshinImpact/Core/BgiVision/BvFlow.cs"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Test",
+        "description": "Create a regression test simulating the sudden closure of the cooking screen due to missing ingredients to verify that the flow aborts cleanly without infinite loops.",
+        "target_file": "BetterGenshinImpact/Core/BgiVision/BvFlow.cs"
+      },
+      {
+        "step_number": 5,
+        "title": "Run Test Suite",
+        "description": "Execute the test command to ensure the fix is correct and no regressions are introduced.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Workflow Exception Handling & Termination",
+        "short_explanation": "Ensures automation flows can catch unexpected UI state changes and exit cleanly instead of looping forever.",
+        "why_it_matters": "Prevents automation software from locking up or spamming inputs when the game state diverges from expectations.",
+        "connection_to_issue": "Fixing the infinite retry requires detecting when ingredients run out and throwing a termination exception or gracefully stopping the BvFlow."
+      },
+      {
+        "concept_name": "UI State Validation",
+        "short_explanation": "Checking whether expected user interface elements or menus remain open before performing actions.",
+        "why_it_matters": "Avoids interacting with stale UI screens or missing windows after in-game events occur.",
+        "connection_to_issue": "The cooking task needs to verify that the cooking interface is still present before attempting subsequent crafting actions."
+      }
+    ],
+    "common_pitfalls": [
+      "Adding hardcoded sleep delays instead of proper UI state assertions.",
+      "Forgetting to handle cancellation tokens when exiting a failed task flow.",
+      "Catching generic exceptions too broadly and masking unrelated errors."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

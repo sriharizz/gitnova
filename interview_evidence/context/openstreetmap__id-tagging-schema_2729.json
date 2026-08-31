@@ -1,0 +1,110 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_c65ae06a-b8ee-5845-aec6-249e461468a6",
+    "repo_name": "openstreetmap/id-tagging-schema",
+    "repo_url": "https://github.com/openstreetmap/id-tagging-schema",
+    "issue_number": 2729,
+    "issue_url": "https://github.com/openstreetmap/id-tagging-schema/issues/2729",
+    "title": "add shop=eggs as egg vending machine is in presets?"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-19T16:00:15.556945+00:00",
+    "updated_at": "2026-08-19T18:38:40.490532+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "JSON",
+    "repo_topics": [
+      "openstreetmap",
+      "osm",
+      "presets",
+      "tagging"
+    ],
+    "repo_description": "",
+    "repo_stars": 225,
+    "repo_id": "cd56ee78-2f88-46e0-b91f-cf2bfe11296e"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "eslint.config.js"
+    ],
+    "symbols": [],
+    "relevant_locations": [
+      {
+        "file_path": "eslint.config.js",
+        "symbol_name": null,
+        "lines": "1-145",
+        "role": "Linter configuration file",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "add shop=eggs as egg vending machine is in presets?",
+    "input_body": "No body provided in issue description.",
+    "target_language": "JSON",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The issue requests adding 'shop=eggs' as a preset to prevent mistagging of egg shops as egg vending machines, as egg vending machines are already supported in presets.",
+    "root_cause_analysis": "The preset definition file lacks an entry for 'shop=eggs' because it has not yet been added to the repository's configuration data.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect existing preset definitions",
+        "description": "Inspect existing shop preset definitions in the codebase to understand the required structure for adding shop=eggs.",
+        "target_file": "data/presets.json"
+      },
+      {
+        "step_number": 2,
+        "title": "Add shop=eggs preset entry",
+        "description": "Define the new preset entry for shop=eggs with appropriate tags, icon, and name metadata in the preset data file.",
+        "target_file": "data/presets.json"
+      },
+      {
+        "step_number": 3,
+        "title": "Run tests and linter",
+        "description": "Run npm test and npm run lint to verify the schema updates and ensure no lint errors or test failures are introduced.",
+        "target_file": "vitest.config.js"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "OSM Preset Definition",
+        "short_explanation": "A configuration structure that maps specific OpenStreetMap tags to user-friendly UI presets in map editors like iD.",
+        "why_it_matters": "Presets make it easy for everyday mappers to correctly categorize features without needing to memorize raw key-value pairs.",
+        "connection_to_issue": "Adding 'shop=eggs' requires defining a new preset entry so editors recognize the tag and offer it in the user interface."
+      },
+      {
+        "concept_name": "Data-Driven Tagging Schemas",
+        "short_explanation": "A pattern where map features and UI metadata are maintained in structured JSON data files rather than hardcoded in application logic.",
+        "why_it_matters": "It allows community contributors to easily update tagging standards and presets by modifying JSON files.",
+        "connection_to_issue": "Contributors implement new tags and presets by updating the schema data files located in the repository."
+      }
+    ],
+    "common_pitfalls": [
+      "Forgetting to run the linter or tests after modifying JSON or configuration files.",
+      "Incorrect JSON syntax or missing commas in schema entries."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "INTERMEDIATE",
+    "suitability_score": 76,
+    "contribution_type": "SMALL_FEATURE",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_dc6036b6-b6ab-5994-a3de-904dd19412b0",
+    "repo_name": "MoonshotAI/kimi-code",
+    "repo_url": "https://github.com/MoonshotAI/kimi-code",
+    "issue_number": 3178,
+    "issue_url": "https://github.com/MoonshotAI/kimi-code/issues/3178",
+    "title": "[Bug] Swarm 运行中执行 /usage 后，实时进度面板不再可见"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-23T08:06:28.805698+00:00",
+    "updated_at": "2026-08-23T08:06:28.305001+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 6047,
+    "repo_id": "d419911b-b74e-475a-a58d-5fbc0cffa3d7"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/kimi-code/src/main.ts",
+      "apps/kimi-inspect/src/panels.ts"
+    ],
+    "symbols": [
+      "CORE_PANELS",
+      "main"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/kimi-code/src/main.ts",
+        "symbol_name": "main",
+        "lines": "1-110",
+        "role": "Application entry point and runner delegation",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/kimi-inspect/src/panels.ts",
+        "symbol_name": "CORE_PANELS",
+        "lines": "36-75",
+        "role": "Service panel definitions and agent swarm integration",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bug] Swarm 运行中执行 /usage 后，实时进度面板不再可见",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When running an AgentSwarm in the Kimi Code CLI, executing the `/usage` command causes the live progress panel for the swarm to disappear from the interface, leaving it invisible even though background tasks continue to execute.",
+    "root_cause_analysis": "Due to overlapping UI overlay/panel rendering logic when a transient command panel like `/usage` is invoked, active sticky status components such as the AgentSwarm progress tracker are improperly cleared or not re-rendered upon command completion.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect AgentSwarm Progress Panel Rendering and Command Overlays",
+        "description": "Examine CORE_PANELS and active swarm progress tracking logic in apps/kimi-inspect/src/panels.ts and apps/kimi-code/src/main.ts to understand how transient command panels like /usage clear or suppress sticky UI components.",
+        "target_file": "apps/kimi-inspect/src/panels.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Preserve Swarm Progress State During Transient Command Execution",
+        "description": "Modify the panel toggle and rendering sequence in apps/kimi-code/src/main.ts so that executing /usage does not permanently unmount or suppress the AgentSwarm live progress panel.",
+        "target_file": "apps/kimi-code/src/main.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Restore Swarm Visibility After Command Completion",
+        "description": "Ensure that when the /usage panel is dismissed or closed, the active AgentSwarm progress tracker automatically re-renders and reasserts its sticky position above the input box.",
+        "target_file": "apps/kimi-inspect/src/panels.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Test for Swarm Panel Persistence",
+        "description": "Write a test case verifying that running an AgentSwarm and invoking /usage keeps or properly restores the swarm progress panel upon command exit.",
+        "target_file": "apps/kimi-code/src/main.ts"
+      },
+      {
+        "step_number": 5,
+        "title": "Run Test Suite for Verification",
+        "description": "Execute the repository test suite via pnpm test to ensure all tests pass and no UI regression occurs.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "CLI View State Management",
+        "short_explanation": "Managing how different overlapping panels, prompts, and persistent status bars render in a terminal UI.",
+        "why_it_matters": "Ensures that transient diagnostic commands (like `/usage`) do not permanently overwrite or dismiss long-running background progress indicators.",
+        "connection_to_issue": "Fixes the bug where invoking `/usage` causes the persistent AgentSwarm progress panel to vanish permanently from the screen."
+      },
+      {
+        "concept_name": "Active Service State Polling",
+        "short_explanation": "Tracking and querying active background services like agent swarms to decide whether their progress UI should be displayed.",
+        "why_it_matters": "Allows the UI to correctly re-render active background tasks after a transient view or command closes.",
+        "connection_to_issue": "Ensures that after `/usage` completes or closes, the UI checks the active swarm state and restores the progress panel."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying global terminal state without properly cleaning up view layers.",
+      "Forgetting to re-render active persistent panels when modal or slash-command views are dismissed."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

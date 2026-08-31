@@ -1,0 +1,758 @@
+{
+  "leakage_audit_status": "PASS",
+  "timestamp": "2026-08-31T14:37:59.029959+00:00",
+  "evaluation_methodology": "stored_original_retrieval_vs_later_merged_pr_ground_truth",
+  "checks": [
+    {
+      "check": "original_query_isolated",
+      "status": "PASS",
+      "description": "Query was generated strictly from issue title and body during ingestion."
+    },
+    {
+      "check": "pr_files_not_in_retrieval",
+      "status": "PASS",
+      "description": "Ground-truth PR files were fetched during evaluation and never passed to retriever."
+    },
+    {
+      "check": "no_pr_diff_in_retrieval",
+      "status": "PASS",
+      "description": "PR diff code was never ingested into the candidate query."
+    },
+    {
+      "check": "no_retrieval_rerun",
+      "status": "PASS",
+      "description": "Evaluation strictly reads stored historical retrieved chunk IDs / relevant locations."
+    }
+  ],
+  "total_evaluated_cases": 91,
+  "cases": [
+    {
+      "case_key": "pallets/click#3571",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3338",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3326",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "unxed/f4#531",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3217",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "deadlock-mod-manager/deadlock-mod-manager#597",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3288",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4060",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4067",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2183",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "pallets/click#3740",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3272",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "alibaba/nacos#15720",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2273",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3276",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3280",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2224",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3289",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "nexu-io/open-design#6927",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2243",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2182",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2181",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "nexu-io/open-design#6979",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "pallets/flask#6093",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tinygrad/tinygrad#6043",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "facebook/docusaurus#10124",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "sharkdp/bat#2890",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "spf13/cobra#2140",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "psf/requests#6705",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2185",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2184",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "facebook/docusaurus#12331",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2226",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2225",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2223",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2221",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4066",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "alibaba/nacos#15695",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "eclipse-apoapsis/ort-server#5716",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "alibaba/nacos#15705",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "sinelaw/fresh#3006",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "sinelaw/fresh#2988",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "multica-ai/multica#7255",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "alibaba/nacos#15718",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "sinelaw/fresh#3011",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#2796",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "nexu-io/open-design#7161",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3471",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "unxed/f4#534",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "heygen-com/hyperframes#3395",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2428",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "unxed/f4#542",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "heygen-com/hyperframes#3403",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3144",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#2813",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "openglad/openglad#246",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "opena2a-org/agent-identity-management#384",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "unxed/f4#523",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kestra-io/kestra#18505",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "youknowone/pyre#1150",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "unxed/f4#786",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "Tencent/WeKnora#2768",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tinygrad/tinygrad#17699",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kestra-io/kestra#18382",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "fullsend-ai/fullsend#6604",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "openstreetmap/id-tagging-schema#2744",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4101",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4166",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4220",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4165",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4218",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4159",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4215",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "alibaba/nacos#15477",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "sinelaw/fresh#3031",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "eclipse-apoapsis/ort-server#4073",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "andreknieriem/open-headunit#854",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4150",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3378",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "apache/sedona#3269",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4149",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3374",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "kubescape/kubescape#3368",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "andreknieriem/open-headunit#852",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4142",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2345",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2375",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "nexu-io/open-design#7035",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "tsouza/cerberus#2333",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "nexu-io/open-design#7034",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    },
+    {
+      "case_key": "apache/sedona#3267",
+      "original_query_isolated": true,
+      "pr_files_passed_to_retrieval": false,
+      "pr_diff_passed_to_retrieval": false,
+      "post_merge_code_used_at_ingestion": false,
+      "leakage_status": "PASS"
+    }
+  ]
+}

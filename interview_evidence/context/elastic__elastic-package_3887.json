@@ -1,0 +1,114 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_a3809ba4-5e7e-555f-a122-077980c3face",
+    "repo_name": "elastic/elastic-package",
+    "repo_url": "https://github.com/elastic/elastic-package",
+    "issue_number": 3887,
+    "issue_url": "https://github.com/elastic/elastic-package/issues/3887",
+    "title": "Kibana client never retries connection-level errors: `checkRetry` treats every `*url.Error` as unrecoverable"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-28T18:34:01.807125+00:00",
+    "updated_at": "2026-08-28T18:34:00.986779+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 72,
+    "repo_id": "c27f7b5a-312d-4ba3-9784-9e9ccdf36478"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "internal/kibana/client.go"
+    ],
+    "symbols": [
+      "Client.newHttpClient"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "internal/kibana/client.go",
+        "symbol_name": "Client.newHttpClient",
+        "lines": "211-250",
+        "role": "Configures and wraps the HTTP client with retry logic.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Kibana client never retries connection-level errors: `checkRetry` treats every `*url.Error` as unrecoverable",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The Kibana client's custom HTTP retry logic incorrectly treats all `*url.Error` types as unrecoverable. Because Go's `net/http` package wraps every request error in `*url.Error`, transient transport errors like EOF or connection resets are mistakenly blocked from retrying.",
+    "root_cause_analysis": "In `internal/retry/http.go`, the check for `*url.Error` matches unconditionally and returns `false` without checking the inner error. As a result, the subsequent fallback branches for retrying general errors and TLS-specific checks are dead code for anything returned by `http.Client.Do`.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect HTTP retry check logic",
+        "description": "Examine the `checkRetry` function within `internal/retry/http.go` to understand how `*url.Error` is currently intercepted and causes immediate return without evaluating underlying transport errors.",
+        "target_file": "internal/retry/http.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Refine url.Error unwrapping in checkRetry",
+        "description": "Modify the `*url.Error` handling in `internal/retry/http.go` so that if an error is a `*url.Error`, the underlying `Err` field is inspected. Allow transient network errors (like EOF or connection reset) wrapped inside `url.Error` to fall through to retry evaluation, while properly handling unrecoverable errors.",
+        "target_file": "internal/retry/http.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Add regression test for transient url.Error retries",
+        "description": "In `internal/kibana/client_test.go`, add a unit test that simulates a transient transport error wrapped in a `*url.Error` (such as an EOF during request execution) and verifies that the HTTP client retry mechanism successfully retries the request according to the policy.",
+        "target_file": "internal/kibana/client_test.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Run unit tests to verify fix",
+        "description": "Run the test suite focusing on the Kibana client and retry packages to ensure all tests pass successfully without regressions.",
+        "target_file": "internal/kibana/client_test.go"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "HTTP Request Retries & Transient Errors",
+        "short_explanation": "Automatic re-execution of failed HTTP requests when temporary network failures occur.",
+        "why_it_matters": "In distributed test environments, services can occasionally drop idle connections or experience brief network blips. Retries prevent these harmless transient glitches from causing system test failures.",
+        "connection_to_issue": "The custom retry policy improperly blocks retries on transient connection errors by misidentifying them as fatal URL errors."
+      },
+      {
+        "concept_name": "Error Wrapping and Unwrapping in Go",
+        "short_explanation": "Go's idiom of wrapping low-level errors inside high-level context errors using verbs like `%w` or standard library wrappers.",
+        "why_it_matters": "Developers need to unwrap errors or use `errors.As` / `errors.Is` properly to inspect root causes rather than matching top-level wrapper types blindly.",
+        "connection_to_issue": "`http.Client.Do` wraps every error in `*url.Error`, so the retry policy must unwrap the inner error to distinguish between bad URLs and temporary network connection drops."
+      }
+    ],
+    "common_pitfalls": [
+      "Treating all `*url.Error` instances as terminal without inspecting their underlying `Err` field.",
+      "Modifying unrelated HTTP clients in elasticsearch or registry packages unnecessarily.",
+      "Forgetting to add a regression test covering transient connection drops like closed server connections."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

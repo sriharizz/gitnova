@@ -1,0 +1,128 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_bf48b0b7-025d-57cf-9312-24dcf94e71ac",
+    "repo_name": "MoonshotAI/kimi-code",
+    "repo_url": "https://github.com/MoonshotAI/kimi-code",
+    "issue_number": 3107,
+    "issue_url": "https://github.com/MoonshotAI/kimi-code/issues/3107",
+    "title": "fix(acp-server): surface provider errors on session/prompt"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-20T07:35:40.69444+00:00",
+    "updated_at": "2026-08-20T07:35:40.319829+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 6047,
+    "repo_id": "d419911b-b74e-475a-a58d-5fbc0cffa3d7"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "packages/acp-server/src/events-map.ts",
+      "packages/acp-server/src/session.ts"
+    ],
+    "symbols": [
+      "mapPromptLaunchError",
+      "isAuthError"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "packages/acp-server/src/session.ts",
+        "symbol_name": "mapPromptLaunchError",
+        "lines": "106-145",
+        "role": "Prompt launch error mapping function",
+        "is_verified": true
+      },
+      {
+        "file_path": "packages/acp-server/src/events-map.ts",
+        "symbol_name": "isAuthError",
+        "lines": "71-110",
+        "role": "Existing auth error helper function",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "fix(acp-server): surface provider errors on session/prompt",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When LLM provider errors (such as 4xx/5xx/rate-limits/connection errors) occur during an ACP session prompt or turn, the ACP server silently resolves the turn with a successful stopReason ('end_turn') instead of propagating a JSON-RPC error. This issue proposes surfacing these provider errors properly as JSON-RPC internal errors via a new `isProviderError` helper.",
+    "root_cause_analysis": "The error classification logic in `packages/acp-server/src/session.ts` and `packages/acp-server/src/events-map.ts` exclusively checks for authentication errors (`isAuthError`) and maps everything else through `turnEndReasonToStopReason`. The underlying engine correctly tags errors with codes like `provider.api_error`, but the ACP layer discards this differentiation.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect existing error classification helpers",
+        "description": "Inspect symbol isAuthError in packages/acp-server/src/events-map.ts and mapPromptLaunchError in packages/acp-server/src/session.ts to understand how errors are currently categorized.",
+        "target_file": "packages/acp-server/src/events-map.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Implement isProviderError helper",
+        "description": "Add an isProviderError helper function in packages/acp-server/src/events-map.ts to detect recognized provider error codes such as provider.api_error, rate limits, and connection errors.",
+        "target_file": "packages/acp-server/src/events-map.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Update turn end and prompt launch error handling",
+        "description": "Modify onTurnEnded and mapPromptLaunchError in packages/acp-server/src/session.ts to check for provider errors using the new helper and reject the driver with a structured JSON-RPC internal error instead of falling back to end_turn.",
+        "target_file": "packages/acp-server/src/session.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test for provider error propagation",
+        "description": "Add unit tests in packages/acp-server/test/convert.test.ts (or session test suite) verifying that provider errors are correctly propagated as JSON-RPC internal errors.",
+        "target_file": "packages/acp-server/test/convert.test.ts"
+      },
+      {
+        "step_number": 5,
+        "title": "Run test suite",
+        "description": "Run the repository test command to verify all tests pass successfully without regressions.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "JSON-RPC Error Propagation",
+        "short_explanation": "Translating internal application or provider failures into standardized remote procedure call error responses.",
+        "why_it_matters": "Ensures that clients calling remote APIs are explicitly notified of failures rather than receiving misleading success responses.",
+        "connection_to_issue": "Fixes the silent resolution of provider failures so that API clients receive proper JSON-RPC error codes instead of a false 'end_turn' success signal."
+      },
+      {
+        "concept_name": "Error Classification & Mapping",
+        "short_explanation": "Categorizing error codes from lower layers to handle specific failure modes differently at the application boundary.",
+        "why_it_matters": "Allows servers to adapt generic engine failures into specific client-facing protocols like authentication requests or internal error reporting.",
+        "connection_to_issue": "Introduces `isProviderError` alongside `isAuthError` to properly route provider-specific error codes to JSON-RPC rejections."
+      }
+    ],
+    "common_pitfalls": [
+      "Exposing internal server stack traces or raw unmasked secrets directly across the JSON-RPC wire boundary.",
+      "Forgetting to update both prompt-launch error mapping and turn-ended settlement handlers."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

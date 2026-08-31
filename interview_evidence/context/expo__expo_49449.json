@@ -1,0 +1,131 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_0345e223-8567-584a-be5e-9d00e2ab806b",
+    "repo_name": "expo/expo",
+    "repo_url": "https://github.com/expo/expo",
+    "issue_number": 49449,
+    "issue_url": "https://github.com/expo/expo/issues/49449",
+    "title": "[dom-components] Android release APK ships www.bundle source maps (cloneable MRE)"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-28T03:04:17.149453+00:00",
+    "updated_at": "2026-08-28T03:04:15.826308+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [
+      "android",
+      "app-framework",
+      "expo",
+      "framework",
+      "frontend",
+      "ios",
+      "javascript",
+      "mobile",
+      "native",
+      "native-apps",
+      "react",
+      "react-native",
+      "typescript",
+      "universal",
+      "web",
+      "web-framework"
+    ],
+    "repo_description": "",
+    "repo_stars": 51330,
+    "repo_id": "9a6fe6c9-426f-409e-a4d3-d7d9aa7a30b8"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "packages/expo-dev-client/metro.config.js"
+    ],
+    "symbols": [
+      "config"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "packages/expo-dev-client/metro.config.js",
+        "symbol_name": "config",
+        "lines": "1-14",
+        "role": "Metro configuration example showing custom transformer and resolver settings",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[dom-components] Android release APK ships www.bundle source maps (cloneable MRE)",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When building a release Android app using Expo DOM components, Metro generates native Hermes sourcemaps which inadvertently cause Expo DOM embedding to generate and ship www.bundle source map files inside android_asset, bloating the final APK release. The issue can be resolved by respecting the includeSourceMaps configuration flag inside getFilesFromSerialAssets so that source map files are not persistently written when source maps are disabled or unrequested for store builds.",
+    "root_cause_analysis": "The root cause stems from exportEmbedAsync setting includeSourceMaps based on the native sourcemap URL for DOM exports. During Android release builds, sourcemapOutput is set for Hermes, causing Metro to emit maps. However, downstream in serialization and persistence (getFilesFromSerialAssets), the includeSourceMaps flag is ignored, leading to map persistence regardless of configuration.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect exportEmbedAsync and getFilesFromSerialAssets Control Flow",
+        "description": "Inspect exportEmbedAsync and getFilesFromSerialAssets to examine how the includeSourceMaps flag is currently passed and where source map files are unconditionally written to android_asset.",
+        "target_file": "packages/expo-dom/src/exportEmbedAsync.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Update getFilesFromSerialAssets to Respect includeSourceMaps",
+        "description": "Modify getFilesFromSerialAssets to conditionally filter out and skip persisting source map files when the includeSourceMaps parameter evaluates to false.",
+        "target_file": "packages/expo-dom/src/exportEmbedAsync.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Add Unit Tests for Source Map Exclusion",
+        "description": "Add or update unit tests for exportEmbedAsync and getFilesFromSerialAssets to verify that when includeSourceMaps is false, no .map or www.bundle source map files are emitted to assets.",
+        "target_file": "packages/expo-dom/src/__tests__/exportEmbedAsync-test.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Run Test Suite to Validate Fix",
+        "description": "Execute the repository test command to ensure the fix passes existing test suites and introduces no regressions.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Source Maps in Production Builds",
+        "short_explanation": "Source maps map minified production code back to original source code for debugging, but are typically excluded from production release packages to save space and protect source code privacy.",
+        "why_it_matters": "Shipping source maps in production mobile application binaries (like APKs) can massively inflate file sizes and expose internal source code.",
+        "connection_to_issue": "Expo DOM components currently leak www.bundle .map files into Android release APKs because sourcemap persistence is unconditionally triggered during Android release builds."
+      },
+      {
+        "concept_name": "Configuration Flag Propagation",
+        "short_explanation": "Ensuring that user-facing configuration options or build flags (like includeSourceMaps) are correctly passed down and honored through every layer of a build or serialization pipeline.",
+        "why_it_matters": "If intermediate pipeline functions ignore configuration parameters, user settings fail to take effect, leading to unexpected runtime or build behavior.",
+        "connection_to_issue": "The core bug occurs because getFilesFromSerialAssets receives the includeSourceMaps flag but fails to evaluate it before persisting bundle maps."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying native Android gradle files instead of fixing the JavaScript-side DOM export bundling and file persistence logic.",
+      "Forgetting to check how includeSourceMaps is passed through exportEmbedAsync and getFilesFromSerialAssets.",
+      "Neglecting to create a changelog newsfragment if required by contribution guidelines."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

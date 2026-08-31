@@ -1,0 +1,127 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_208ac6db-d072-5494-9ad9-054f29ab2f85",
+    "repo_name": "openstreetmap/openstreetmap-website",
+    "repo_url": "https://github.com/openstreetmap/openstreetmap-website",
+    "issue_number": 7285,
+    "issue_url": "https://github.com/openstreetmap/openstreetmap-website/issues/7285",
+    "title": "Let the user delete notifications"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-20T20:05:11.944236+00:00",
+    "updated_at": "2026-08-20T20:05:11.175312+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Ruby",
+    "repo_topics": [
+      "openstreetmap",
+      "rails-application",
+      "ruby"
+    ],
+    "repo_description": "",
+    "repo_stars": 2794,
+    "repo_id": "9b0ae054-f8a3-4579-a721-bd2ac52e68d8"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "app/controllers/notifications_controller.rb",
+      "app/controllers/messages_controller.rb"
+    ],
+    "symbols": [
+      "NotificationsController",
+      "MessagesController#destroy"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "app/controllers/notifications_controller.rb",
+        "symbol_name": "NotificationsController",
+        "lines": "1-29",
+        "role": "Controller displaying the user notifications list",
+        "is_verified": true
+      },
+      {
+        "file_path": "app/controllers/messages_controller.rb",
+        "symbol_name": "MessagesController#destroy",
+        "lines": "36-75",
+        "role": "Reference implementation for resource destruction and user authorization check",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Let the user delete notifications",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Ruby",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The notifications page currently lists every notification a user has ever received without providing a way to delete individual notifications or clear them in bulk. This issue requests adding the ability for users to delete individual or bulk notifications, similar to the existing private message inbox functionality.",
+    "root_cause_analysis": "The notifications feature was introduced in #7030 to list all historical notifications, but a deletion mechanism (similar to Message destruction in MessagesController#destroy) was not implemented.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect NotificationsController Control Flow",
+        "description": "Inspect NotificationsController in app/controllers/notifications_controller.rb and compare it against MessagesController in app/controllers/messages_controller.rb to understand authorization patterns and destroy action handling.",
+        "target_file": "app/controllers/notifications_controller.rb"
+      },
+      {
+        "step_number": 2,
+        "title": "Implement destroy Action in NotificationsController",
+        "description": "Add the destroy action to NotificationsController in app/controllers/notifications_controller.rb to find the notification belonging to current_user, destroy it, and redirect back to the notifications index with a success flash message.",
+        "target_file": "app/controllers/notifications_controller.rb"
+      },
+      {
+        "step_number": 3,
+        "title": "Update Routes and Notifications View",
+        "description": "Add resource or member route for destruction under notifications in config/routes.rb and add delete buttons/forms for each notification item in app/views/notifications/index.html.erb.",
+        "target_file": "config/routes.rb"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Test and Run Test Suite",
+        "description": "Add controller or system tests verifying that a user can successfully delete their notification and that unauthorized users cannot delete other users' notifications, then execute the test suite.",
+        "target_file": "test/controllers/notifications_controller_test.rb"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Resource Destruction in Ruby on Rails",
+        "short_explanation": "The pattern of finding a database record belonging to the current user and calling destroy or updating visibility flags.",
+        "why_it_matters": "Ensures users can only delete or modify their own data securely without affecting other users.",
+        "connection_to_issue": "Implementing notification deletion requires adding a destroy action that locates the notification belonging to the current_user and removes it or marks it deleted."
+      },
+      {
+        "concept_name": "Controller Action Authorization and Database Writable Checks",
+        "short_explanation": "Filters like before_action :check_database_writable and authorization checks to guard write operations.",
+        "why_it_matters": "Prevents unauthorized modifications and protects read-only database replicas from receiving write queries.",
+        "connection_to_issue": "Any new delete or destroy action added to NotificationsController must ensure database writability and proper authorization."
+      }
+    ],
+    "common_pitfalls": [
+      "Failing to scope the notification lookup by current_user, which could allow users to delete other users' notifications.",
+      "Forgetting to include database writable checks before executing delete operations.",
+      "Omitting proper flash messages and redirect handling after successful deletion."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

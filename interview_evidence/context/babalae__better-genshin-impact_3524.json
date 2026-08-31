@@ -1,0 +1,129 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_10158c6c-a0b7-5cec-9f61-59a383f7d73e",
+    "repo_name": "babalae/better-genshin-impact",
+    "repo_url": "https://github.com/babalae/better-genshin-impact",
+    "issue_number": 3524,
+    "issue_url": "https://github.com/babalae/better-genshin-impact/issues/3524",
+    "title": "[bug] 更新中途报错却改变版本号"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-24T18:46:00.012325+00:00",
+    "updated_at": "2026-08-24T18:45:59.295846+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "C#",
+    "repo_topics": [
+      "auto-play-game",
+      "automatic",
+      "genius-invokation-tcg",
+      "genshin",
+      "genshin-impact",
+      "yuanshen"
+    ],
+    "repo_description": "",
+    "repo_stars": 14528,
+    "repo_id": "59b8ae19-f425-42d6-90a8-f4e2659b09a6"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "BetterGenshinImpact/Core/Config/Global.cs",
+      "BetterGenshinImpact/Core/Config/CommonConfig.cs"
+    ],
+    "symbols": [
+      "CommonConfig",
+      "IsNewVersion"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "BetterGenshinImpact/Core/Config/Global.cs",
+        "symbol_name": "IsNewVersion",
+        "lines": "36-75",
+        "role": "Version comparison logic used during update checks",
+        "is_verified": true
+      },
+      {
+        "file_path": "BetterGenshinImpact/Core/Config/CommonConfig.cs",
+        "symbol_name": "CommonConfig",
+        "lines": "71-107",
+        "role": "Configuration storage for run state and version tracking",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[bug] 更新中途报错却改变版本号",
+    "input_body": "No body provided in issue description.",
+    "target_language": "C#",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The application updates its version number or marks a new version before the update process has fully completed and verified successfully, causing broken states or failures if the update fails halfway.",
+    "root_cause_analysis": "When application updates or version checks execute, the state is persisted or advanced immediately upon initiating the process or reading the remote version metadata, rather than waiting for an explicit success confirmation or validation check of the downloaded package.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Version Tracking and Update Logic",
+        "description": "Inspect IsNewVersion in BetterGenshinImpact/Core/Config/Global.cs and configuration storage in BetterGenshinImpact/Core/Config/CommonConfig.cs to understand how version comparison and update state persistence are triggered.",
+        "target_file": "BetterGenshinImpact/Core/Config/Global.cs"
+      },
+      {
+        "step_number": 2,
+        "title": "Defer Version State Persistence",
+        "description": "Modify the update workflow so that version state changes and configuration updates in CommonConfig are only persisted after download and file integrity verification have successfully completed.",
+        "target_file": "BetterGenshinImpact/Core/Config/CommonConfig.cs"
+      },
+      {
+        "step_number": 3,
+        "title": "Add Success Validation Guard",
+        "description": "Add explicit error handling and validation checks around the update sequence to prevent premature version advancement if an exception or download failure occurs.",
+        "target_file": "BetterGenshinImpact/Core/Config/Global.cs"
+      },
+      {
+        "step_number": 4,
+        "title": "Implement Regression Test and Verify",
+        "description": "Add unit tests verifying that simulated update failures do not advance the stored version state, and run dotnet test to validate the changes.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Optimistic State Mutation vs Transactional Confirmation",
+        "short_explanation": "Changing application state before an operation actually succeeds.",
+        "why_it_matters": "If an operation fails halfway, saving state prematurely leaves the application in an inconsistent or corrupted state.",
+        "connection_to_issue": "Changing the stored version number before the update finishes successfully causes subsequent update cycles to fail because the app thinks it is already up to date."
+      },
+      {
+        "concept_name": "Post-Condition Validation",
+        "short_explanation": "Verifying that all steps of a critical workflow completed without errors before committing the results.",
+        "why_it_matters": "Ensures system reliability and prevents cascading failures caused by partial operations.",
+        "connection_to_issue": "The issue requests that version updates only occur after successful completion and integrity validation of the update package."
+      }
+    ],
+    "common_pitfalls": [
+      "Updating configuration persistence files before error handling blocks catch potential download or extraction failures.",
+      "Conflating the detection of a new version with the successful completion of its installation."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

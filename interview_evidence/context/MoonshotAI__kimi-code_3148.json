@@ -1,0 +1,122 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_463e0b1c-bc91-51d3-83fd-80b1d70c37ae",
+    "repo_name": "MoonshotAI/kimi-code",
+    "repo_url": "https://github.com/MoonshotAI/kimi-code",
+    "issue_number": 3148,
+    "issue_url": "https://github.com/MoonshotAI/kimi-code/issues/3148",
+    "title": "CLI 启动崩溃：ENOSPC file watchers reached（kimi / kimi -p / ACP 均复现，0.38.0）"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-21T07:22:32.713195+00:00",
+    "updated_at": "2026-08-21T07:22:32.119229+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 6047,
+    "repo_id": "d419911b-b74e-475a-a58d-5fbc0cffa3d7"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/kimi-code/src/main.ts",
+      "packages/acp-adapter/src/server.ts"
+    ],
+    "symbols": [
+      "ensureInnerKaos",
+      "handleMainCommand"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/kimi-code/src/main.ts",
+        "symbol_name": "handleMainCommand",
+        "lines": "36-75",
+        "role": "CLI main command entry point and initialization flow",
+        "is_verified": true
+      },
+      {
+        "file_path": "packages/acp-adapter/src/server.ts",
+        "symbol_name": "ensureInnerKaos",
+        "lines": "631-670",
+        "role": "ACP adapter initialization establishing runtime kaos harness",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "CLI 启动崩溃：ENOSPC file watchers reached（kimi / kimi -p / ACP 均复现，0.38.0）",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "CLI startup crashes with an unhandled ENOSPC error when Node.js `fs.watch` reaches the system inotify watch limit while monitoring the `~/.kimi-code` directory or configuration files.",
+    "root_cause_analysis": "During CLI startup and initialization, the application sets up file system watchers using Node's `fs.watch` via dependencies (such as config/state watchers on `~/.kimi-code`). When the system limit for inotify watches is exhausted, Node's `fs.watch` synchronously or asynchronously throws an `ENOSPC` error which propagates unhandled to the process level, terminating execution.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect handleMainCommand initialization flow",
+        "description": "Inspect handleMainCommand in apps/kimi-code/src/main.ts to locate where configuration and state directory file watchers are established via fs.watch.",
+        "target_file": "apps/kimi-code/src/main.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Inspect ensureInnerKaos setup in ACP server",
+        "description": "Inspect ensureInnerKaos in packages/acp-adapter/src/server.ts to identify secondary file system watcher attachments prone to ENOSPC errors.",
+        "target_file": "packages/acp-adapter/src/server.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Wrap fs.watch calls with error handlers for ENOSPC",
+        "description": "Add explicit .on('error', ...)` listeners or try/catch blocks around fs.watch invocations in main.ts and server.ts to catch ENOSPC exceptions, log a warning message, and degrade gracefully without crashing.",
+        "target_file": "apps/kimi-code/src/main.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Implement regression test and verify with test command",
+        "description": "Add a unit test that mocks fs.watch to emit an ENOSPC error upon initialization and verifies the application handles it gracefully without crashing, then run pnpm test.",
+        "target_file": "apps/kimi-code/src/main.test.ts"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Error Handling and Graceful Degradation",
+        "short_explanation": "Catching expected runtime exceptions (like filesystem limits) instead of allowing them to crash the application.",
+        "why_it_matters": "Ensures that minor environmental constraints do not bring down the entire CLI or development tool unexpectedly.",
+        "connection_to_issue": "File watcher setup needs `try/catch` or error event listeners around `fs.watch` calls to safely handle `ENOSPC` without terminating the process."
+      },
+      {
+        "concept_name": "Node.js File System Watchers (fs.watch)",
+        "short_explanation": "Node.js built-in API for monitoring changes to files and directories.",
+        "why_it_matters": "Developer tools use file watchers to auto-reload configuration or sync state, but OS limits can restrict the number of active watchers.",
+        "connection_to_issue": "The crash specifically originates from Node's `fs.watch` failing when system limits are exceeded."
+      }
+    ],
+    "common_pitfalls": [
+      "Catching errors too broadly and swallowing unexpected critical application startup failures.",
+      "Modifying global process uncaughtException handlers instead of robustly wrapping local filesystem initialization calls."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

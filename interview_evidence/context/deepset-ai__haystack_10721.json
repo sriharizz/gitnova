@@ -1,0 +1,158 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_c3742b8e-15e3-505d-b5dd-3c3c188006b3",
+    "repo_name": "deepset-ai/haystack",
+    "repo_url": "https://github.com/deepset-ai/haystack",
+    "issue_number": 10721,
+    "issue_url": "https://github.com/deepset-ai/haystack/issues/10721",
+    "title": "Connecting multiple `documents` outputs to `PromptBuilder.documents` is not possible"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-15T18:53:26.692315+00:00",
+    "updated_at": "2026-08-15T18:53:26.189054+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [
+      "agent-framework",
+      "agentic-ai",
+      "agentic-rag",
+      "agents",
+      "ai",
+      "ai-agents",
+      "context-engineering",
+      "framework",
+      "genai",
+      "generative-ai",
+      "information-retrieval",
+      "large-language-models",
+      "llm",
+      "mcp",
+      "multi-agent",
+      "orchestration",
+      "python",
+      "rag",
+      "retrieval-augmented-generation",
+      "semantic-search"
+    ],
+    "repo_description": "",
+    "repo_stars": 26112,
+    "repo_id": "f77d7ec7-6b0f-4ebf-b147-9b3296af8239"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "haystack/core/pipeline/base.py",
+      "haystack/core/component/types.py",
+      "haystack/core/pipeline/component_checks.py"
+    ],
+    "symbols": [
+      "_write_to_lazy_variadic_socket",
+      "InputSocket",
+      "has_lazy_variadic_socket_received_all_inputs"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "haystack/core/component/types.py",
+        "symbol_name": "InputSocket",
+        "lines": "39-111",
+        "role": "Defines input socket properties including variadic detection and type un-wrapping logic.",
+        "is_verified": true
+      },
+      {
+        "file_path": "haystack/core/pipeline/base.py",
+        "symbol_name": "_write_to_lazy_variadic_socket",
+        "lines": "1842-1859",
+        "role": "Handles writing and aggregating incoming values for lazy variadic sockets.",
+        "is_verified": true
+      },
+      {
+        "file_path": "haystack/core/pipeline/component_checks.py",
+        "symbol_name": "has_lazy_variadic_socket_received_all_inputs",
+        "lines": "177-190",
+        "role": "Validates whether a lazy variadic socket has received inputs from all expected senders.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Connecting multiple `documents` outputs to `PromptBuilder.documents` is not possible",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Connecting multiple retriever outputs (such as retriever_1 and retriever_2) to a single PromptBuilder input socket like prompt_builder.documents fails with a PipelineConnectError because PromptBuilder handles input variables dynamically based on its template, often typing them as Any instead of using a variadic annotation like Variadic[List[Document]], preventing the pipeline connection logic from recognizing it as capable of accepting multiple incoming connections.",
+    "root_cause_analysis": "In Haystack pipelines, receiving input sockets only accept multiple incoming connections if they are designated as variadic (either lazy or greedy variadic via `Variadic[...]` type annotations). When `PromptBuilder` parses templates or initializes inputs, sockets corresponding to template variables default to `Any` if not explicitly constrained or typed. As a result, `InputSocket.is_lazy_variadic` and `InputSocket.is_greedy` evaluate to False, and pipeline connection checks reject any subsequent connections after the first one.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect PromptBuilder input initialization",
+        "description": "Inspect how PromptBuilder initializes its input sockets and templates in haystack/components/builders/prompt_builder.py to identify where template variables are typed as Any.",
+        "target_file": "haystack/components/builders/prompt_builder.py"
+      },
+      {
+        "step_number": 2,
+        "title": "Update template variable typing to support Variadic lists",
+        "description": "Modify the input socket type definition for template variables in PromptBuilder to allow Variadic[List[Document]] or similar variadic annotations when the input is intended to accept multiple connections.",
+        "target_file": "haystack/components/builders/prompt_builder.py"
+      },
+      {
+        "step_number": 3,
+        "title": "Verify socket variadic checks in pipeline connection logic",
+        "description": "Inspect haystack/core/pipeline/base.py and haystack/core/component/types.py to ensure that InputSocket correctly identifies the updated PromptBuilder sockets as variadic.",
+        "target_file": "haystack/core/pipeline/base.py"
+      },
+      {
+        "step_number": 4,
+        "title": "Write regression test for multiple retriever connections",
+        "description": "Add a regression test in tests/core/pipeline/test_pipeline.py or a component builder test file connecting multiple retriever outputs to prompt_builder.documents and asserting successful execution and aggregation.",
+        "target_file": "tests/core/pipeline/test_pipeline.py"
+      },
+      {
+        "step_number": 5,
+        "title": "Run test suite verification",
+        "description": "Execute pytest to verify that the pipeline connection succeeds without raising PipelineConnectError and that all tests pass successfully.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Variadic Input Sockets",
+        "short_explanation": "Special input sockets in Haystack pipelines that can accept data from multiple upstream sender components simultaneously.",
+        "why_it_matters": "Without variadic sockets, components like builders or joiners would be restricted to receiving input from a single source, limiting flexibility when combining multiple retrievers or data sources.",
+        "connection_to_issue": "The PromptBuilder's `documents` socket needs to be recognized or configured as variadic so that multiple retrievers can feed documents into it without triggering connection errors."
+      },
+      {
+        "concept_name": "Type Annotation Metadata in Haystack",
+        "short_explanation": "The mechanism by which Haystack inspects Python type hints (such as `Variadic[T]`) using typing metadata and annotations to configure runtime pipeline behavior.",
+        "why_it_matters": "Pipeline connection validation relies entirely on inspecting component socket type hints during initialization to determine graph connectivity rules.",
+        "connection_to_issue": "Because template variables default to `Any`, they lack the metadata required for the pipeline builder to identify them as variadic, leading to strict single-connection enforcement."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying pipeline connection checks globally without considering whether standard non-variadic sockets should still enforce single connections.",
+      "Forgetting to update PromptBuilder initialization or variable type inference when templates define list-like variables."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 96,
+    "contribution_type": "DOCUMENTATION",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

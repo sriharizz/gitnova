@@ -1,0 +1,2779 @@
+{
+  "summary": {
+    "total_cases": 91,
+    "bucket_a_count": 25,
+    "bucket_a_pct": 27.47,
+    "bucket_b_count": 51,
+    "bucket_b_pct": 56.04,
+    "bucket_c_count": 15,
+    "bucket_c_pct": 16.48,
+    "bucket_a_metrics": {
+      "recall_at_1": 0.008,
+      "recall_at_5": 0.008,
+      "recall_at_10": 0.008,
+      "mrr_at_10": 0.04,
+      "hit_at_10": 0.04,
+      "mean_gt_files": 4.8,
+      "median_gt_files": 3,
+      "mean_ret_files": 2.6
+    }
+  },
+  "cases": [
+    {
+      "case_key": "pallets/click#3571",
+      "repo_name": "pallets/click",
+      "issue_number": 3571,
+      "merged_pr_number": 3769,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "CHANGES.md",
+        "src/click/_termui_impl.py"
+      ],
+      "retrieved_files": [
+        "src/click/termui.py"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3338",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3338,
+      "merged_pr_number": 3339,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "rules/weak-namespace-token-access-v1/raw.rego",
+        "rules/weak-namespace-token-access-v1/rule.metadata.json"
+      ],
+      "retrieved_files": [
+        "core/cautils/rbac.go",
+        "core/cautils/datastructuresmethods.go"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3326",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3326,
+      "merged_pr_number": 3333,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 4,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/pkg/resultshandling/printer/v2/prettyprinter.go",
+        "core/pkg/resultshandling/printer/v2/prettyprinter/clusterscan.go",
+        "core/pkg/resultshandling/printer/v2/prettyprinter/reposcan.go",
+        "core/pkg/resultshandling/printer/v2/prettyprinter/utils.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/display.go"
+      ]
+    },
+    {
+      "case_key": "unxed/f4#531",
+      "repo_name": "unxed/f4",
+      "issue_number": 531,
+      "merged_pr_number": 571,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cmd/f4/framework_actions.go",
+        "cmd/f4/panels_frame.go"
+      ],
+      "retrieved_files": [
+        "action_registry.go",
+        "main.go"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3217",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3217,
+      "merged_pr_number": 3218,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/cautils/clustercontext.go",
+        "go.mod",
+        "go.sum"
+      ],
+      "retrieved_files": [
+        "core/cautils/customerloader.go"
+      ]
+    },
+    {
+      "case_key": "deadlock-mod-manager/deadlock-mod-manager#597",
+      "repo_name": "deadlock-mod-manager/deadlock-mod-manager",
+      "issue_number": 597,
+      "merged_pr_number": 605,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "apps/desktop/flatpak/dev.stormix.deadlock-mod-manager.cef.yml",
+        "apps/desktop/flatpak/dev.stormix.deadlock-mod-manager.yml"
+      ],
+      "retrieved_files": [
+        "apps/desktop/src/main.tsx"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3288",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3288,
+      "merged_pr_number": 3290,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/pkg/opaprocessor/PROCESS_FLOW.md",
+        "core/pkg/opaprocessor/processorhandler.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructures.go",
+        "core/cautils/datastructuresmethods.go"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4060",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4060,
+      "merged_pr_number": 4173,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 28,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/API_STABILITY.md",
+        "docs/VERSIONING.md",
+        "rc-player/compose/api/rc-player-compose.api",
+        "rc-player/compose/api/rc-player-compose.klib.api",
+        "rc-player/compose/build.gradle.kts",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcColorConversion.kt",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposePlayer.kt",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcPlayerTheme.kt",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcSystemTheme.kt",
+        "rc-player/compose/src/iosMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposeViewController.kt",
+        "rc-player/protocol/api/rc-player-protocol.api",
+        "rc-player/protocol/api/rc-player-protocol.klib.api",
+        "rc-player/protocol/build.gradle.kts",
+        "rc-player/runtime/api/rc-player-runtime.api",
+        "rc-player/runtime/api/rc-player-runtime.klib.api",
+        "rc-player/runtime/build.gradle.kts",
+        "rc-player/trace/api/rc-player-trace.api",
+        "rc-player/trace/api/rc-player-trace.klib.api",
+        "rc-player/trace/build.gradle.kts",
+        "rc-player/wasm/src/wasmJsMain/kotlin/ee/schimke/composeai/rcplayer/wasm/Main.kt",
+        "renders/rc-player-theme-types/README.md",
+        "renders/rc-player-theme-types/iconbutton-after.png",
+        "renders/rc-player-theme-types/iconbutton-before.png",
+        "renders/rc-player-theme-types/themed-card-dark.png",
+        "renders/rc-player-theme-types/themed-card-host-palette.png",
+        "renders/rc-player-theme-types/themed-card-light.png",
+        "renders/rc-player-theme-types/titlecard-after.png",
+        "renders/rc-player-theme-types/titlecard-before.png"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/fontBrowserPanel.ts",
+        "vscode-extension/src/downloadedFontsStore.ts"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4067",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4067,
+      "merged_pr_number": 4194,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 7,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/RELEASING.md",
+        "docs/design/RC_CMP_WASM_PLAYER.md",
+        "docs/design/RC_PLAYER_EMBED.md",
+        "rc-player/wasm/build.gradle.kts",
+        "rc-player/wasm/npm/README.md",
+        "rc-player/wasm/npm/package.json",
+        "rc-player/wasm/src/wasmJsMain/kotlin/ee/schimke/composeai/rcplayer/wasm/Main.kt"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/daemon/streamClient.ts",
+        "vscode-extension/src/initScript.ts"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2183",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2183,
+      "merged_pr_number": 2203,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 8,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "internal/chplan/scan_resource_bound.go",
+        "internal/qlcommon/attribute_lookup.go",
+        "internal/traceql/aggregate.go",
+        "internal/traceql/group_coalesce.go",
+        "internal/traceql/lower.go",
+        "internal/traceql/metrics_compare.go",
+        "internal/traceql/metrics_pipeline.go",
+        "internal/traceql/search_limit.go"
+      ],
+      "retrieved_files": [
+        "cmd/bench-report/e2e_chdb.go",
+        "cmd/bench-report/main_chdb.go"
+      ]
+    },
+    {
+      "case_key": "pallets/click#3740",
+      "repo_name": "pallets/click",
+      "issue_number": 3740,
+      "merged_pr_number": 3739,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.5,
+      "recall_at_5": 0.5,
+      "recall_at_10": 0.5,
+      "mrr_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "ground_truth_files": [
+        "CHANGES.md",
+        "src/click/_termui_impl.py"
+      ],
+      "retrieved_files": [
+        "src/click/_termui_impl.py"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3272",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3272,
+      "merged_pr_number": 3273,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 1.0,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "ground_truth_files": [
+        "core/cautils/portforwarder.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/portforwarder.go"
+      ]
+    },
+    {
+      "case_key": "alibaba/nacos#15720",
+      "repo_name": "alibaba/nacos",
+      "issue_number": 15720,
+      "merged_pr_number": 15721,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "VERIFIED",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 4,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "ai/src/main/java/com/alibaba/nacos/ai/controller/SkillAdminController.java",
+        "ai/src/main/java/com/alibaba/nacos/ai/service/skills/SkillOperationServiceImpl.java",
+        "ai/src/main/java/com/alibaba/nacos/ai/service/skills/SkillUploadRequest.java"
+      ],
+      "retrieved_files": [
+        "console-ui/src/pages/AI/NewMcpServer/NewMcpServer.js",
+        "console-ui/src/reducers/authority.js",
+        "console-ui/src/components/ShowCodeing/ShowServiceCodeing.js",
+        "console-ui/src/utils/request.js"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2273",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2273,
+      "merged_pr_number": 2278,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 7,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "compatibility/prometheus/query-corpus/fragments/006-native-histograms.yml",
+        "compatibility/prometheus/query-corpus/header.yml",
+        "docs/coverage.md",
+        "internal/promql/histogram_native_binop.go",
+        "internal/promql/histogram_native_float_fn.go",
+        "internal/promql/histogram_native_scalar_binop.go",
+        "internal/promql/histogram_quantile.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go",
+        "internal/chclient/columnar.go"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3276",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3276,
+      "merged_pr_number": 3277,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/pkg/resultshandling/results.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructures.go"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3280",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3280,
+      "merged_pr_number": 3281,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 5,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cmd/scan/control.go",
+        "cmd/scan/framework.go",
+        "cmd/scan/scan.go",
+        "cmd/scan/workload.go",
+        "docs/cli-reference.md"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructuresmethods.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2224",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2224,
+      "merged_pr_number": 2231,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 10,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "compatibility/parity-baseline.json",
+        "internal/chplan/row_shape.go",
+        "internal/promql/histogram_native_float_fn.go",
+        "internal/promql/histogram_native_label_replace.go",
+        "internal/promql/histogram_native_range_fn.go",
+        "internal/promql/histogram_native_resets.go",
+        "internal/promql/histogram_native_scalar_binop.go",
+        "internal/promql/histogram_quantile.go",
+        "internal/promql/histogram_quantile_window.go",
+        "internal/promql/lower.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3289",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3289,
+      "merged_pr_number": 3291,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "rules/modify-service-status-v1/raw.rego",
+        "rules/modify-service-status-v1/rule.metadata.json"
+      ],
+      "retrieved_files": [
+        "core/cautils/rbac.go"
+      ]
+    },
+    {
+      "case_key": "nexu-io/open-design#6927",
+      "repo_name": "nexu-io/open-design",
+      "issue_number": 6927,
+      "merged_pr_number": 6933,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "apps/daemon/src/runtimes/json-event-stream.ts"
+      ],
+      "retrieved_files": [
+        "apps/daemon/src/langfuse-bridge.ts"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2243",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2243,
+      "merged_pr_number": 2245,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 23,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "compatibility/parity-baseline/prometheus/07.json",
+        "compatibility/parity-baseline/prometheus/08.json",
+        "compatibility/parity-baseline/prometheus/0c.json",
+        "compatibility/parity-baseline/prometheus/0d.json",
+        "compatibility/parity-baseline/prometheus/0f.json",
+        "compatibility/parity-baseline/prometheus/1b.json",
+        "compatibility/parity-baseline/prometheus/2b.json",
+        "compatibility/parity-baseline/prometheus/2d.json",
+        "compatibility/parity-baseline/prometheus/30.json",
+        "compatibility/parity-baseline/prometheus/35.json",
+        "compatibility/parity-baseline/prometheus/39.json",
+        "compatibility/parity-baseline/prometheus/3a.json",
+        "compatibility/parity-baseline/prometheus/3f.json",
+        "compatibility/prometheus/query-corpus/fragments/006-native-histograms.yml",
+        "internal/promql/histogram_native_count.go",
+        "internal/promql/histogram_native_count_values.go",
+        "internal/promql/histogram_native_drop_aggregation.go",
+        "internal/promql/histogram_native_float_fn.go",
+        "internal/promql/histogram_native_label_replace.go",
+        "internal/promql/histogram_native_range_fn.go",
+        "internal/promql/histogram_native_scalar_binop.go",
+        "internal/promql/histogram_native_sum.go",
+        "internal/promql/histogram_quantile.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go",
+        "internal/chclient/columnar.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2182",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2182,
+      "merged_pr_number": 2201,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 11,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "internal/logql/binary.go",
+        "internal/logql/detected_level.go",
+        "internal/logql/drop_keep.go",
+        "internal/logql/duration.go",
+        "internal/logql/ip.go",
+        "internal/logql/lower.go",
+        "internal/logql/numbytes.go",
+        "internal/logql/pattern_filter.go",
+        "internal/logql/range_aggregation.go",
+        "internal/logql/variants.go",
+        "internal/logql/vector_aggregation.go"
+      ],
+      "retrieved_files": [
+        "cmd/bench-report/e2e_chdb.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2181",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2181,
+      "merged_pr_number": 2193,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 21,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "internal/chplan/fn.go",
+        "internal/chsql/fnspelling.go",
+        "internal/chsql/late_mat.go",
+        "internal/optimizer/constant_fold.go",
+        "internal/promql/absent.go",
+        "internal/promql/binary.go",
+        "internal/promql/date_fns.go",
+        "internal/promql/duplicate_labelset_guard.go",
+        "internal/promql/histogram_bucket.go",
+        "internal/promql/histogram_native_avg.go",
+        "internal/promql/histogram_native_count.go",
+        "internal/promql/histogram_native_rate.go",
+        "internal/promql/histogram_native_reset.go",
+        "internal/promql/histogram_native_resets.go",
+        "internal/promql/histogram_native_scalar_binop.go",
+        "internal/promql/histogram_native_sum.go",
+        "internal/promql/histogram_quantile.go",
+        "internal/promql/histogram_quantile_float.go",
+        "internal/promql/histogram_quantile_le.go",
+        "internal/promql/histogram_quantile_native_window.go",
+        "internal/promql/histogram_quantile_range.go"
+      ],
+      "retrieved_files": [
+        "cmd/bench-report/matrix_chdb.go",
+        "cmd/cerberus/main.go"
+      ]
+    },
+    {
+      "case_key": "nexu-io/open-design#6979",
+      "repo_name": "nexu-io/open-design",
+      "issue_number": 6979,
+      "merged_pr_number": 7044,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "apps/daemon/src/run-failure-classification.ts",
+        "apps/daemon/src/runtimes/claude-stream.ts",
+        "apps/daemon/src/server.ts"
+      ],
+      "retrieved_files": [
+        "apps/daemon/src/claude-diagnostics.ts"
+      ]
+    },
+    {
+      "case_key": "pallets/flask#6093",
+      "repo_name": "pallets/flask",
+      "issue_number": 6093,
+      "merged_pr_number": 6096,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "NO_STORED_CHUNKS",
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "src/flask/app.py"
+      ],
+      "retrieved_files": [
+        "src/flask/cli.py"
+      ]
+    },
+    {
+      "case_key": "tinygrad/tinygrad#6043",
+      "repo_name": "tinygrad/tinygrad",
+      "issue_number": 6043,
+      "merged_pr_number": 6047,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "NO_STORED_CHUNKS",
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "tinygrad/tensor.py"
+      ],
+      "retrieved_files": [
+        "docs/errorhandling.rst"
+      ]
+    },
+    {
+      "case_key": "facebook/docusaurus#10124",
+      "repo_name": "facebook/docusaurus",
+      "issue_number": 10124,
+      "merged_pr_number": 59,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "NO_STORED_CHUNKS",
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/guides-blog.md",
+        "website/sidebars.json"
+      ],
+      "retrieved_files": [
+        "packages/docusaurus-plugin-content-docs/src/index.ts"
+      ]
+    },
+    {
+      "case_key": "sharkdp/bat#2890",
+      "repo_name": "sharkdp/bat",
+      "issue_number": 2890,
+      "merged_pr_number": 3098,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "NO_STORED_CHUNKS",
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "README.md"
+      ],
+      "retrieved_files": [
+        "src/assets.rs"
+      ]
+    },
+    {
+      "case_key": "spf13/cobra#2140",
+      "repo_name": "spf13/cobra",
+      "issue_number": 2140,
+      "merged_pr_number": 2140,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "NO_STORED_CHUNKS",
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "flag_groups.go"
+      ],
+      "retrieved_files": [
+        "bash_completions.go"
+      ]
+    },
+    {
+      "case_key": "psf/requests#6705",
+      "repo_name": "psf/requests",
+      "issue_number": 6705,
+      "merged_pr_number": 6705,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "NO_STORED_CHUNKS",
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "HISTORY.md",
+        "src/requests/__version__.py"
+      ],
+      "retrieved_files": [
+        "requests/adapters.py"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2185",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2185,
+      "merged_pr_number": 2220,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 13,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/clickhouse-optimizations.md",
+        "docs/engine.md",
+        "docs/operations.md",
+        "docs/performance.md",
+        "docs/solver.md",
+        "internal/api/prom/handler.go",
+        "internal/chclient/client.go",
+        "internal/chclient/experimental.go",
+        "internal/chplan/aggregate.go",
+        "internal/chplan/canonical_attributes.go",
+        "internal/chplan/canonical_series_keys.go",
+        "internal/chplan/clone.go",
+        "internal/chplan/derived_shape.go"
+      ],
+      "retrieved_files": [
+        "cmd/bench-report/headline_chdb.go",
+        "cmd/cerberus/main.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2184",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2184,
+      "merged_pr_number": 2202,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 13,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "internal/api/tempo/handler.go",
+        "internal/api/tempo/metrics_query_range.go",
+        "internal/api/tempo/metrics_query_range_compare.go",
+        "internal/api/tempo/metrics_query_range_histogram.go",
+        "internal/api/tempo/root_lookup.go",
+        "internal/api/tempo/structural_two_phase.go",
+        "internal/chplan/fn.go",
+        "internal/chsql/builder.go",
+        "internal/chsql/fnspelling.go",
+        "internal/chsql/histogram_over_time.go",
+        "internal/chsql/metrics_compare.go",
+        "internal/chsql/range_lwr.go",
+        "internal/chsql/range_window.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go"
+      ]
+    },
+    {
+      "case_key": "facebook/docusaurus#12331",
+      "repo_name": "facebook/docusaurus",
+      "issue_number": 12331,
+      "merged_pr_number": 12335,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "packages/docusaurus-utils/src/markdownUtils.ts"
+      ],
+      "retrieved_files": [
+        "packages/docusaurus-mdx-loader/src/utils.ts"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2226",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2226,
+      "merged_pr_number": 2228,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "compatibility/parity-baseline.json",
+        "internal/promql/absent.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2225",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2225,
+      "merged_pr_number": 2232,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 10,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "compatibility/parity-baseline/prometheus/00.json",
+        "compatibility/parity-baseline/prometheus/03.json",
+        "compatibility/parity-baseline/prometheus/14.json",
+        "compatibility/parity-baseline/prometheus/17.json",
+        "compatibility/parity-baseline/prometheus/1f.json",
+        "compatibility/parity-baseline/prometheus/39.json",
+        "compatibility/prometheus/query-corpus/fragments/006-native-histograms.yml",
+        "internal/promql/histogram_native_over_time.go",
+        "internal/promql/histogram_native_range_fn.go",
+        "internal/promql/lower.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go",
+        "internal/chclient/columnar.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2223",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2223,
+      "merged_pr_number": 2227,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "compatibility/parity-baseline.json",
+        "internal/promql/histogram_native_drop_aggregation.go",
+        "internal/promql/lower.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go",
+        "internal/chclient/columnar.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2221",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2221,
+      "merged_pr_number": 2222,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 3,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "internal/promql/histogram_native_label_replace.go",
+        "internal/promql/label_fns.go",
+        "internal/promql/lower.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go",
+        "internal/chclient/columnar.go",
+        "cmd/cerberus/main.go"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4066",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4066,
+      "merged_pr_number": 4178,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 15,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "rc-player/compose/api/rc-player-compose.api",
+        "rc-player/compose/api/rc-player-compose.klib.api",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposePlayer.kt",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcTypefaceLoader.kt",
+        "rc-player/compose/src/iosMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposeViewController.kt",
+        "rc-player/wasm/src/wasmJsMain/kotlin/ee/schimke/composeai/rcplayer/wasm/Main.kt",
+        "renders/rc-player-typeface-loader/README.md",
+        "renders/rc-player-typeface-loader/default-alias-after.png",
+        "renders/rc-player-typeface-loader/default-alias-before.png",
+        "renders/rc-player-typeface-loader/named-wdth151-after.png",
+        "renders/rc-player-typeface-loader/named-wdth151-before.png",
+        "renders/rc-player-typeface-loader/named-wdth25-after.png",
+        "renders/rc-player-typeface-loader/named-wdth25-before.png",
+        "renders/rc-player-typeface-loader/unresolvable-after.png",
+        "renders/rc-player-typeface-loader/unresolvable-before.png"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/initScript.ts",
+        "vscode-extension/src/gradleService.ts"
+      ]
+    },
+    {
+      "case_key": "alibaba/nacos#15695",
+      "repo_name": "alibaba/nacos",
+      "issue_number": 15695,
+      "merged_pr_number": 15729,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "VERIFIED",
+      "ground_truth_file_count": 26,
+      "retrieved_file_count": 8,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "console-ui-next/src/components/config/ConfigTagsInput.tsx",
+        "console-ui-next/src/components/config/config-tags.ts",
+        "console-ui-next/src/locales/en-US.json",
+        "console-ui-next/src/locales/zh-CN.json",
+        "console-ui-next/src/pages/configdetail/index.tsx",
+        "console-ui-next/src/pages/configeditor/index.tsx",
+        "console-ui-next/src/pages/historyDetail/index.tsx",
+        "console/src/main/resources/static/next/css/main.css",
+        "console/src/main/resources/static/next/js/AppLayout.js",
+        "console/src/main/resources/static/next/js/ImportAiResourceDialog.js",
+        "console/src/main/resources/static/next/js/McpToolSelector.js",
+        "console/src/main/resources/static/next/js/ResourceFileHeader.js",
+        "console/src/main/resources/static/next/js/VisibilityAuthorizationDialog.js",
+        "console/src/main/resources/static/next/js/agentDetail.js",
+        "console/src/main/resources/static/next/js/agentManagement.js",
+        "console/src/main/resources/static/next/js/agentSpecDetail.js",
+        "console/src/main/resources/static/next/js/agentSpecManagement.js",
+        "console/src/main/resources/static/next/js/badge.js",
+        "console/src/main/resources/static/next/js/button.js",
+        "console/src/main/resources/static/next/js/card.js",
+        "console/src/main/resources/static/next/js/checkbox.js",
+        "console/src/main/resources/static/next/js/client.js",
+        "console/src/main/resources/static/next/js/clusterManagement.js",
+        "console/src/main/resources/static/next/js/combo-input.js",
+        "console/src/main/resources/static/next/js/config.js",
+        "console/src/main/resources/static/next/js/configRollback.js"
+      ],
+      "retrieved_files": [
+        "console-ui/src/layouts/MainLayout.js",
+        "console-ui/src/config.js",
+        "console-ui/src/pages/AI/NewMcpServer/NewMcpServer.js",
+        "console-ui/src/locales/en-US.js",
+        "console-ui/src/locales/zh-CN.js",
+        "console-ui/src/lib.js",
+        "console-ui/src/layouts/Header.js",
+        "console-ui/src/components/ShowCodeing/ShowServiceCodeing.js"
+      ]
+    },
+    {
+      "case_key": "eclipse-apoapsis/ort-server#5716",
+      "repo_name": "eclipse-apoapsis/ort-server",
+      "issue_number": 5716,
+      "merged_pr_number": 5728,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 7,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "ui/src/@types/@tanstack/react-table.d.ts",
+        "ui/src/components/data-table/data-table-filter.tsx",
+        "ui/src/components/data-table/filter-infinite-multi-select-utils.ts",
+        "ui/src/components/data-table/filter-infinite-multi-select.tsx",
+        "ui/src/components/data-table/filter-multi-select.tsx",
+        "ui/src/components/searchable-infinite-list.tsx",
+        "ui/src/routes/organizations/$orgId/products/$productId/repositories/$repoId/runs/$runIndex/license-findings/-components/license-findings-view.tsx"
+      ],
+      "retrieved_files": [
+        "ui/src/schemas/index.ts"
+      ]
+    },
+    {
+      "case_key": "alibaba/nacos#15705",
+      "repo_name": "alibaba/nacos",
+      "issue_number": 15705,
+      "merged_pr_number": 15706,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "VERIFIED",
+      "ground_truth_file_count": 9,
+      "retrieved_file_count": 7,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "ai/src/main/java/com/alibaba/nacos/ai/service/agentspecs/AgentSpecOperationServiceImpl.java",
+        "ai/src/main/java/com/alibaba/nacos/ai/service/prompt/PromptOperationServiceImpl.java",
+        "ai/src/main/java/com/alibaba/nacos/ai/service/skills/SkillOperationServiceImpl.java",
+        "ai/src/main/java/com/alibaba/nacos/ai/utils/AiResourceVersionStorageJsonUtil.java",
+        "console/src/main/resources/static/next/js/vendor-react.js",
+        "specs/en/ai/agentspec-spec.md",
+        "specs/en/ai/skill-spec.md",
+        "specs/zh-cn/ai/agentspec-spec.md",
+        "specs/zh-cn/ai/skill-spec.md"
+      ],
+      "retrieved_files": [
+        "console-ui/src/reducers/authority.js",
+        "console-ui/src/pages/AI/NewMcpServer/NewMcpServer.js",
+        "console-ui/src/locales/en-US.js",
+        "console-ui/src/pages/AuthorityControl/PermissionsManagement/PermissionsManagement.js",
+        "console-ui/src/locales/zh-CN.js",
+        "console-ui/src/index.js",
+        "console-ui/src/theme/index.js"
+      ]
+    },
+    {
+      "case_key": "sinelaw/fresh#3006",
+      "repo_name": "sinelaw/fresh",
+      "issue_number": 3006,
+      "merged_pr_number": 3016,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "crates/fresh-editor/src/app/chrome/splits.rs",
+        "crates/fresh-editor/src/app/click_geometry.rs"
+      ],
+      "retrieved_files": [
+        "crates/fresh-editor/src/app/action_events.rs"
+      ]
+    },
+    {
+      "case_key": "sinelaw/fresh#2988",
+      "repo_name": "sinelaw/fresh",
+      "issue_number": 2988,
+      "merged_pr_number": 3044,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 5,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.2,
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.2,
+      "mrr_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "ground_truth_files": [
+        "CHANGELOG.md",
+        "crates/fresh-editor/src/app/active_focus.rs",
+        "crates/fresh-editor/src/app/file_explorer.rs",
+        "crates/fresh-editor/src/app/file_open_orchestrators.rs",
+        "crates/fresh-editor/src/app/window/mod.rs"
+      ],
+      "retrieved_files": [
+        "crates/fresh-editor/src/app/file_explorer.rs",
+        "crates/fresh-editor/src/app/async_messages.rs"
+      ]
+    },
+    {
+      "case_key": "multica-ai/multica#7255",
+      "repo_name": "multica-ai/multica",
+      "issue_number": 7255,
+      "merged_pr_number": 7271,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "Makefile"
+      ],
+      "retrieved_files": [
+        "server/pkg/agent/cursor_invocation_windows.go"
+      ]
+    },
+    {
+      "case_key": "alibaba/nacos#15718",
+      "repo_name": "alibaba/nacos",
+      "issue_number": 15718,
+      "merged_pr_number": 15719,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "VERIFIED",
+      "ground_truth_file_count": 7,
+      "retrieved_file_count": 7,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "plugin-default-impl/nacos-default-auth-plugin/pom.xml",
+        "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/EmbeddedRolePersistServiceImpl.java",
+        "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/EmbeddedUserPersistServiceImpl.java",
+        "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/ExternalRolePersistServiceImpl.java",
+        "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/ExternalUserPersistServiceImpl.java",
+        "specs/en/auth/default-auth-plugin-spec.md",
+        "specs/zh-cn/auth/default-auth-plugin-spec.md"
+      ],
+      "retrieved_files": [
+        "console-ui/src/pages/AuthorityControl/RolesManagement/RolesManagement.js",
+        "console-ui/src/reducers/authority.js",
+        "console-ui/src/pages/AuthorityControl/RolesManagement/NewRole.js",
+        "console-ui/src/pages/AuthorityControl/PermissionsManagement/NewPermissions.js",
+        "console-ui/src/locales/zh-CN.js",
+        "console-ui/src/pages/AuthorityControl/PermissionsManagement/PermissionsManagement.js",
+        "console-ui/src/locales/en-US.js"
+      ]
+    },
+    {
+      "case_key": "sinelaw/fresh#3011",
+      "repo_name": "sinelaw/fresh",
+      "issue_number": 3011,
+      "merged_pr_number": 3043,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 24,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "CHANGELOG.md",
+        "crates/fresh-editor/plugins/code-tour.ts",
+        "crates/fresh-editor/plugins/schemas/theme.schema.json",
+        "crates/fresh-editor/plugins/theme_editor.i18n.json",
+        "crates/fresh-editor/src/primitives/reference_highlighter.rs",
+        "crates/fresh-editor/src/state.rs",
+        "crates/fresh-editor/src/view/color_support.rs",
+        "crates/fresh-editor/src/view/overlay.rs",
+        "crates/fresh-editor/src/view/reference_highlight_overlay.rs",
+        "crates/fresh-editor/src/view/theme/types.rs",
+        "crates/fresh-editor/src/view/ui/split_rendering/char_style.rs",
+        "crates/fresh-editor/src/view/ui/split_rendering/mod.rs",
+        "crates/fresh-editor/src/view/ui/split_rendering/orchestration/contexts.rs",
+        "crates/fresh-editor/src/view/ui/split_rendering/orchestration/overlays.rs",
+        "crates/fresh-editor/src/view/ui/split_rendering/orchestration/render_buffer.rs",
+        "crates/fresh-editor/themes/dark.json",
+        "crates/fresh-editor/themes/dracula.json",
+        "crates/fresh-editor/themes/high-contrast.json",
+        "crates/fresh-editor/themes/light.json",
+        "crates/fresh-editor/themes/nord.json",
+        "crates/fresh-editor/themes/nostalgia.json",
+        "crates/fresh-editor/themes/solarized-dark.json",
+        "crates/fresh-editor/themes/terminal.json",
+        "docs/features/editing.md"
+      ],
+      "retrieved_files": [
+        "crates/fresh-editor/src/app/clipboard.rs",
+        "crates/fresh-editor/src/app/action_dispatch.rs"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#2796",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 2796,
+      "merged_pr_number": 2797,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/pkg/resourcehandler/k8sresources.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructures.go",
+        "core/cautils/operatorscaninfo.go"
+      ]
+    },
+    {
+      "case_key": "nexu-io/open-design#7161",
+      "repo_name": "nexu-io/open-design",
+      "issue_number": 7161,
+      "merged_pr_number": 7205,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "apps/daemon/src/runtimes/defs/antigravity.ts"
+      ],
+      "retrieved_files": [
+        "apps/daemon/src/connectionTest.ts"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3471",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3471,
+      "merged_pr_number": 3483,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/metrics/metrics.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructures.go"
+      ]
+    },
+    {
+      "case_key": "unxed/f4#534",
+      "repo_name": "unxed/f4",
+      "issue_number": 534,
+      "merged_pr_number": 560,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 5,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.2,
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.2,
+      "mrr_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "ground_truth_files": [
+        "cmd/f4/action_registry.go",
+        "cmd/f4/commands.go",
+        "cmd/f4/lang/en.lng",
+        "cmd/f4/main.go",
+        "cmd/f4/panels_frame.go"
+      ],
+      "retrieved_files": [
+        "action_registry.go"
+      ]
+    },
+    {
+      "case_key": "heygen-com/hyperframes#3395",
+      "repo_name": "heygen-com/hyperframes",
+      "issue_number": 3395,
+      "merged_pr_number": 3506,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "packages/engine/src/utils/ffprobe.ts",
+        "packages/producer/src/services/render/artifactTransaction.ts",
+        "packages/producer/src/services/renderOrchestrator.ts"
+      ],
+      "retrieved_files": [
+        "packages/core/src/mediaGradeAnalyzer.ts"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2428",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2428,
+      "merged_pr_number": 2427,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 6,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "internal/api/prom/handler.go",
+        "internal/chplan/histogram_merge_bound.go",
+        "internal/chsql/histogram_merge_bound.go",
+        "internal/perf/fanout/lint.go",
+        "internal/promql/histogram_merge_bound.go",
+        "internal/promql/histogram_quantile_native_window.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go",
+        "internal/chclient/columnar.go"
+      ]
+    },
+    {
+      "case_key": "unxed/f4#542",
+      "repo_name": "unxed/f4",
+      "issue_number": 542,
+      "merged_pr_number": 560,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 5,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.2,
+      "recall_at_5": 0.2,
+      "recall_at_10": 0.2,
+      "mrr_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "ground_truth_files": [
+        "cmd/f4/action_registry.go",
+        "cmd/f4/commands.go",
+        "cmd/f4/lang/en.lng",
+        "cmd/f4/main.go",
+        "cmd/f4/panels_frame.go"
+      ],
+      "retrieved_files": [
+        "cmd/f4/main.go"
+      ]
+    },
+    {
+      "case_key": "heygen-com/hyperframes#3403",
+      "repo_name": "heygen-com/hyperframes",
+      "issue_number": 3403,
+      "merged_pr_number": 3404,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "packages/lint/src/rules/composition.ts"
+      ],
+      "retrieved_files": [
+        "packages/core/src/index.ts"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3144",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3144,
+      "merged_pr_number": 3150,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/pkg/opaprocessor/processorhandler.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructures.go"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#2813",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 2813,
+      "merged_pr_number": 2935,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "core/pkg/resourcehandler/filesloader.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructures.go"
+      ]
+    },
+    {
+      "case_key": "openglad/openglad#246",
+      "repo_name": "openglad/openglad",
+      "issue_number": 246,
+      "merged_pr_number": 254,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 28,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "CMakeLists.txt",
+        "docs/ARCHITECTURE.md",
+        "docs/GAMEPLAY_FIXES_FROM_CLASSIC.md",
+        "docs/modding/api-reference.md",
+        "docs/modding/og-api.d.lua",
+        "include/openglad/gameplay/event.h",
+        "include/openglad/gameplay/net_transport.h",
+        "include/openglad/gameplay/replay.h",
+        "include/openglad/gameplay/sim_emit.h",
+        "include/openglad/gameplay/sim_event_log.h",
+        "include/openglad/gameplay/sim_input_handler.h",
+        "include/openglad/gameplay/walker.h",
+        "include/openglad/interface/cheat_handler.h",
+        "include/openglad/interface/render/view.h",
+        "include/openglad/interface/screen.h",
+        "include/openglad/platform/local_transport_shadow.h",
+        "packs/core/families/living-03-mage.lua",
+        "packs/core/families/living-05-cleric.lua",
+        "packs/core/families/living-17-archmage.lua",
+        "packs/core/lib/treasure_consumables.lua",
+        "packs/core/lib/treasure_navigation.lua",
+        "packs/core/lib/treasure_valuables.lua",
+        "scripts/coverage/README.md",
+        "scripts/coverage/recorder_processes.txt",
+        "scripts/parity/_apply_mutation.py",
+        "scripts/parity/check_mutation_pins.py",
+        "scripts/parity/lint_scenario_facts.py",
+        "scripts/parity/run_mutation_canary.sh"
+      ],
+      "retrieved_files": [
+        "src/gameplay/game_server.cpp",
+        "src/gameplay/game_client.cpp"
+      ]
+    },
+    {
+      "case_key": "opena2a-org/agent-identity-management#384",
+      "repo_name": "opena2a-org/agent-identity-management",
+      "issue_number": 384,
+      "merged_pr_number": 404,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "sdk/python/aim_sdk/client.py",
+        "sdk/python/aim_sdk/console.py",
+        "sdk/python/aim_sdk/decision.py"
+      ],
+      "retrieved_files": [
+        "apps/backend/internal/application/agent_service.go",
+        "apps/backend/internal/application/a2a_service.go"
+      ]
+    },
+    {
+      "case_key": "unxed/f4#523",
+      "repo_name": "unxed/f4",
+      "issue_number": 523,
+      "merged_pr_number": 551,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cmd/f4/file_panel.go",
+        "cmd/f4/panels_frame.go",
+        "plugins/archive/provider.go"
+      ],
+      "retrieved_files": [
+        "cmd/f4/image_pipeline.go",
+        "cmd/f4/mapped_file.go"
+      ]
+    },
+    {
+      "case_key": "kestra-io/kestra#18505",
+      "repo_name": "kestra-io/kestra",
+      "issue_number": 18505,
+      "merged_pr_number": 18604,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "webserver/src/main/java/io/kestra/webserver/controllers/api/ExecutionController.java"
+      ],
+      "retrieved_files": [
+        "executor/src/main/java/io/kestra/executor/FlowTriggerService.java",
+        "scheduler/src/main/java/io/kestra/scheduler/TriggerEventHandler.java"
+      ]
+    },
+    {
+      "case_key": "youknowone/pyre#1150",
+      "repo_name": "youknowone/pyre",
+      "issue_number": 1150,
+      "merged_pr_number": 1445,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "pyre/pyre-interpreter/src/baseobjspace.rs",
+        "pyre/pyre-interpreter/src/builtins.rs",
+        "pyre/pyre-interpreter/src/cpyext/number.rs"
+      ],
+      "retrieved_files": [
+        "pyre/pyre-interpreter/src/module/_typing/_typing_app.py"
+      ]
+    },
+    {
+      "case_key": "unxed/f4#786",
+      "repo_name": "unxed/f4",
+      "issue_number": 786,
+      "merged_pr_number": 790,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cmd/f4/styles/classic.ini"
+      ],
+      "retrieved_files": [
+        "embedded.go"
+      ]
+    },
+    {
+      "case_key": "Tencent/WeKnora#2768",
+      "repo_name": "Tencent/WeKnora",
+      "issue_number": 2768,
+      "merged_pr_number": 2770,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docreader/parser/markdown_parser.py"
+      ],
+      "retrieved_files": [
+        "internal/datasource/connector/feishu/core/markdown.go"
+      ]
+    },
+    {
+      "case_key": "tinygrad/tinygrad#17699",
+      "repo_name": "tinygrad/tinygrad",
+      "issue_number": 17699,
+      "merged_pr_number": 17712,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "tinygrad/runtime/ops_amd.py"
+      ],
+      "retrieved_files": [
+        "tinygrad/engine/realize.py",
+        "tinygrad/device.py"
+      ]
+    },
+    {
+      "case_key": "kestra-io/kestra#18382",
+      "repo_name": "kestra-io/kestra",
+      "issue_number": 18382,
+      "merged_pr_number": 18665,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "ui/src/components/admin/triggers/AddTriggerModal.spec.ts",
+        "ui/src/components/admin/triggers/AddTriggerModal.vue"
+      ],
+      "retrieved_files": [
+        "executor/src/main/java/io/kestra/executor/FlowTriggerService.java"
+      ]
+    },
+    {
+      "case_key": "fullsend-ai/fullsend#6604",
+      "repo_name": "fullsend-ai/fullsend",
+      "issue_number": 6604,
+      "merged_pr_number": 6639,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "hack/gitlab-runner-vm/executor/prepare.sh"
+      ],
+      "retrieved_files": [
+        "internal/cli/forge_client.go"
+      ]
+    },
+    {
+      "case_key": "openstreetmap/id-tagging-schema#2744",
+      "repo_name": "openstreetmap/id-tagging-schema",
+      "issue_number": 2744,
+      "merged_pr_number": 2788,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "VERIFIED",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "data/deprecated.json"
+      ],
+      "retrieved_files": [
+        "eslint.config.js",
+        "vitest.config.js"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4101",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4101,
+      "merged_pr_number": 4094,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 8,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "api/preview-annotations/src/commonMain/kotlin/ee/schimke/composeai/preview/CatalogComponent.kt",
+        "api/preview-annotations/src/commonMain/kotlin/ee/schimke/composeai/preview/OverrideVariant.kt",
+        "api/preview-data-api/src/main/kotlin/ee/schimke/composeai/cli/PreviewData.kt",
+        "design-map/README.md",
+        "design-map/design-map.mjs",
+        "design-map/emit-design-map.mjs",
+        "gradle-plugin/preview-discovery/src/main/kotlin/ee/schimke/composeai/discovery/PreviewData.kt",
+        "gradle-plugin/preview-discovery/src/main/kotlin/ee/schimke/composeai/discovery/PreviewDiscovery.kt"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/gradleService.ts",
+        "vscode-extension/src/extension.ts"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4166",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4166,
+      "merged_pr_number": 4171,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 9,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/design/evidence/rc-derived-colours/README.md",
+        "docs/design/evidence/rc-derived-colours/buttons-cmp-200dp.png",
+        "docs/design/evidence/rc-derived-colours/buttons-cmp-320dp.png",
+        "docs/design/evidence/rc-derived-colours/disabled-label-cmp.png",
+        "docs/design/evidence/rc-derived-colours/icon-large-embedded.png",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposePlayer.kt",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposeSupport.kt",
+        "rc-player/runtime/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/runtime/RcPlayerState.kt",
+        "third_party/rc-embedded-player/src/main/kotlin/androidx/compose/remote/player/compose/embedded/RcPlayerDrawing.kt"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/extension.ts"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4220",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4220,
+      "merged_pr_number": 4236,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 7,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeBundleDaemon.kt",
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeCatalogLiveHost.kt",
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/SkikoNativePairing.kt",
+        "renders/serve-skiko-native-pairing/README.md",
+        "renders/serve-skiko-native-pairing/catalog.after-lane-down.png",
+        "renders/serve-skiko-native-pairing/catalog.after-lane-repaired.png",
+        "renders/serve-skiko-native-pairing/catalog.before.png"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/gradleService.ts"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4165",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4165,
+      "merged_pr_number": 4171,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 9,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/design/evidence/rc-derived-colours/README.md",
+        "docs/design/evidence/rc-derived-colours/buttons-cmp-200dp.png",
+        "docs/design/evidence/rc-derived-colours/buttons-cmp-320dp.png",
+        "docs/design/evidence/rc-derived-colours/disabled-label-cmp.png",
+        "docs/design/evidence/rc-derived-colours/icon-large-embedded.png",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposePlayer.kt",
+        "rc-player/compose/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/compose/RcComposeSupport.kt",
+        "rc-player/runtime/src/commonMain/kotlin/ee/schimke/composeai/rcplayer/runtime/RcPlayerState.kt",
+        "third_party/rc-embedded-player/src/main/kotlin/androidx/compose/remote/player/compose/embedded/RcPlayerDrawing.kt"
+      ],
+      "retrieved_files": [
+        "cli/serve-web/src/main.ts"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4218",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4218,
+      "merged_pr_number": 4270,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 27,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cli/serve-web/src/viewer.ts",
+        "cli/serve-web/src/viewer/themeChoice.ts",
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeWeb.kt",
+        "cli/src/main/resources/ee/schimke/composeai/cli/serve/assets/viewer.js",
+        "docs/public-preview-server.md",
+        "renders/spec-default-theme/README.md",
+        "renders/spec-default-theme/after.light.png",
+        "renders/spec-default-theme/before.light.png",
+        "vscode-extension/preview-harness/fixtures/pages/serve-component-browser-component.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-component-browser-remote-compose.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-axes-folded.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-catalog-knobs.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-catalog-palette.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-cross-product.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-exploded.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-focus.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-gestures.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-history-local.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-history.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-inspect.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-motion.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-nav-collapsed.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-path.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-pinned-lanes.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-published-typography.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-rc-players.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-revisions-open.html"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/composePreviewMode.ts"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4159",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4159,
+      "merged_pr_number": 4293,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 6,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "daemon/android/src/main/kotlin/ee/schimke/composeai/daemon/RobolectricHost.kt",
+        "docs/evidence/live-held-session-clock/README.md",
+        "docs/evidence/live-held-session-clock/postdelayed-after.png",
+        "docs/evidence/live-held-session-clock/postdelayed-before.png",
+        "docs/evidence/live-held-session-clock/ripple-filmstrip-250ms.png",
+        "docs/evidence/live-held-session-clock/ripple-filmstrip-50ms.png"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/daemon/daemonScheduler.ts"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4215",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4215,
+      "merged_pr_number": 4240,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 19,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "build.gradle.kts",
+        "data/motion/core/build.gradle.kts",
+        "data/motion/core/src/main/kotlin/ee/schimke/composeai/motion/ApngEncoder.kt",
+        "data/motion/core/src/main/kotlin/ee/schimke/composeai/motion/InteractionScript.kt",
+        "docs/design/DESIGN_CATALOGS.md",
+        "docs/images/interaction-preview-wear-switch-filmstrip.png",
+        "docs/images/interaction-preview-wear-switch-still.png",
+        "docs/images/interaction-preview-wear-switch.apng",
+        "renderers/android/build.gradle.kts",
+        "renderers/android/src/main/kotlin/ee/schimke/composeai/renderer/AndroidInteractionRenderer.kt",
+        "renderers/android/src/main/kotlin/ee/schimke/composeai/renderer/RenderManifest.kt",
+        "renderers/desktop/build.gradle.kts",
+        "renderers/desktop/src/main/kotlin/ee/schimke/composeai/renderer/DesktopInteractionRenderer.kt",
+        "renderers/desktop/src/main/kotlin/ee/schimke/composeai/renderer/DesktopLottieRenderer.kt",
+        "renderers/desktop/src/main/kotlin/ee/schimke/composeai/renderer/DesktopMotionCapture.kt",
+        "samples/design-catalog-wear-m3/src/main/kotlin/com/example/designcatalogwearm3/CatalogPreviews.kt",
+        "settings.gradle.kts",
+        "site/reference/index.md",
+        "site/reference/motion.md"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/extension.ts",
+        "vscode-extension/src/gradleService.ts"
+      ]
+    },
+    {
+      "case_key": "alibaba/nacos#15477",
+      "repo_name": "alibaba/nacos",
+      "issue_number": 15477,
+      "merged_pr_number": 15784,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "VERIFIED",
+      "ground_truth_file_count": 9,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "naming/src/main/java/com/alibaba/nacos/naming/core/v2/metadata/ServiceMetadataProcessor.java",
+        "naming/src/main/java/com/alibaba/nacos/naming/core/v2/service/impl/PersistentClientOperationServiceImpl.java",
+        "naming/src/main/java/com/alibaba/nacos/naming/healthcheck/interceptor/ServiceMetadataReadyInterceptor.java",
+        "naming/src/main/resources/META-INF/services/com.alibaba.nacos.naming.healthcheck.interceptor.AbstractHealthCheckInterceptor",
+        "specs/en/naming/naming-health-protection-spec.md",
+        "specs/en/naming/naming-persistent-cp-consistency-spec.md",
+        "specs/zh-cn/naming/naming-health-protection-spec.md",
+        "specs/zh-cn/naming/naming-persistent-cp-consistency-spec.md",
+        "sys/src/main/java/com/alibaba/nacos/sys/utils/ApplicationUtils.java"
+      ],
+      "retrieved_files": [
+        "console-ui/src/pages/AI/NewMcpServer/NewMcpServer.js",
+        "console-ui/src/components/ShowCodeing/ShowServiceCodeing.js"
+      ]
+    },
+    {
+      "case_key": "sinelaw/fresh#3031",
+      "repo_name": "sinelaw/fresh",
+      "issue_number": 3031,
+      "merged_pr_number": 3035,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 8,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "crates/fresh-editor/src/app/event_apply.rs",
+        "crates/fresh-editor/src/app/lsp_actions.rs",
+        "crates/fresh-editor/src/app/split_actions.rs",
+        "crates/fresh-editor/src/app/window/mod.rs",
+        "crates/fresh-editor/src/app/workspace.rs",
+        "crates/fresh-editor/src/view/folding.rs",
+        "crates/fresh-editor/src/view/ui/split_rendering/mod.rs",
+        "crates/fresh-editor/src/view/ui/split_rendering/orchestration/render_line/mod.rs"
+      ],
+      "retrieved_files": [
+        "crates/fresh-editor/src/config.rs"
+      ]
+    },
+    {
+      "case_key": "eclipse-apoapsis/ort-server#4073",
+      "repo_name": "eclipse-apoapsis/ort-server",
+      "issue_number": 4073,
+      "merged_pr_number": 4072,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 4,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "ui/src/components/siblings.tsx",
+        "ui/src/routes/organizations/$orgId/products/$productId/repositories/$repoId/runs/$runIndex/-components/run-details-bar.tsx"
+      ],
+      "retrieved_files": [
+        "ui/src/lib/constants.ts",
+        "ui/src/hooks/use-infinite-list.ts",
+        "ui/src/hooks/use-infrastructure-services.ts",
+        "ui/src/hooks/use-secrets.ts"
+      ]
+    },
+    {
+      "case_key": "andreknieriem/open-headunit#854",
+      "repo_name": "andreknieriem/open-headunit",
+      "issue_number": 854,
+      "merged_pr_number": 861,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 30,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "app/src/main/java/com/andrerinas/openheadunit/AppComponent.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapMessageHandlerType.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapMessageIncoming.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapRead.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapReadMultipleMessages.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapReadRecoveryPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapReadSingleMessage.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapService.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapSslContext.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapTransport.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapVideo.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AuditRecoveryPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AuditReportPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/ByteArrayWithLimit.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/CodecConfigScanner.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/FocusCycleLever.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/FragmentedMessageAudit.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/KeyframeCycleEscalationPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/LinkGapMonitor.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/NativeGroupBandPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/P2pChannelPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/P2pOperatingChannelPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/ProjectionWatchdogPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/VideoFaultInjector.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/VideoFaultReporter.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/VideoFragmentAssembler.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/WarmRelaunchKeyframePolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/WirelessServerRestartPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/protocol/messages/ServiceDiscoveryResponse.kt"
+      ],
+      "retrieved_files": [
+        "app/src/main/assets/leaflet/leaflet.js"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4150",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4150,
+      "merged_pr_number": 4153,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 8,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeBugReport.kt",
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeIssueReport.kt",
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeWeb.kt",
+        "cli/src/main/resources/ee/schimke/composeai/cli/serve/assets/serve.css",
+        "vscode-extension/preview-harness/fixtures/pages/serve-reference-compare.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-report-bug.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer-catalog-knobs.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-viewer.html"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/doctorReport.ts"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3378",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3378,
+      "merged_pr_number": 3379,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 4,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cmd/diff/diff.go",
+        "core/core/diff.go",
+        "core/meta/datastructures/v1/diff.go",
+        "core/pkg/resultshandling/diff/ci_printer.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructuresmethods.go"
+      ]
+    },
+    {
+      "case_key": "apache/sedona#3269",
+      "repo_name": "apache/sedona",
+      "issue_number": 3269,
+      "merged_pr_number": 3270,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/setup/release-notes.md",
+        "python/sedona/spark/geopandas/base.py",
+        "python/sedona/spark/geopandas/geoseries.py"
+      ],
+      "retrieved_files": [
+        "python/sedona/spark/core/SpatialRDD/spatial_rdd.py"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4149",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4149,
+      "merged_pr_number": 4152,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeCatalogLiveHost.kt"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/extension.ts"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3374",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3374,
+      "merged_pr_number": 3375,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 7,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cmd/mcpserver/advanced_tools.go",
+        "cmd/mcpserver/mcpserver.go",
+        "core/meta/datastructures/v1/fix.go",
+        "core/pkg/fixhandler/fixhandler.go",
+        "core/pkg/fixhandler/prioritizationhandler.go",
+        "core/pkg/opaprocessor/processorhandlerutils.go",
+        "core/pkg/opaprocessor/utils.go"
+      ],
+      "retrieved_files": [
+        "core/cautils/operatorscaninfo.go",
+        "core/cautils/portforwarder.go"
+      ]
+    },
+    {
+      "case_key": "kubescape/kubescape#3368",
+      "repo_name": "kubescape/kubescape",
+      "issue_number": 3368,
+      "merged_pr_number": 189,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "go.mod",
+        "go.sum"
+      ],
+      "retrieved_files": [
+        "core/cautils/datastructures.go"
+      ]
+    },
+    {
+      "case_key": "andreknieriem/open-headunit#852",
+      "repo_name": "andreknieriem/open-headunit",
+      "issue_number": 852,
+      "merged_pr_number": 861,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 30,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "app/src/main/java/com/andrerinas/openheadunit/AppComponent.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapMessageHandlerType.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapMessageIncoming.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapRead.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapReadMultipleMessages.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapReadRecoveryPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapReadSingleMessage.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapService.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapSslContext.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapTransport.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AapVideo.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AuditRecoveryPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/AuditReportPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/ByteArrayWithLimit.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/CodecConfigScanner.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/FocusCycleLever.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/FragmentedMessageAudit.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/KeyframeCycleEscalationPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/LinkGapMonitor.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/NativeGroupBandPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/P2pChannelPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/P2pOperatingChannelPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/ProjectionWatchdogPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/VideoFaultInjector.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/VideoFaultReporter.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/VideoFragmentAssembler.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/WarmRelaunchKeyframePolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/WirelessServerRestartPolicy.kt",
+        "app/src/main/java/com/andrerinas/openheadunit/aap/protocol/messages/ServiceDiscoveryResponse.kt"
+      ],
+      "retrieved_files": [
+        "app/src/main/assets/leaflet/leaflet.js"
+      ]
+    },
+    {
+      "case_key": "yschimke/compose-ai-tools#4142",
+      "repo_name": "yschimke/compose-ai-tools",
+      "issue_number": 4142,
+      "merged_pr_number": 4156,
+      "primary_bucket": "BUCKET_C",
+      "diagnostic_flags": [
+        "MEGA_PR_GT_COUNT_GT_10"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 17,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "cli/serve-web/src/chrome.ts",
+        "cli/serve-web/src/chrome/pageTheme.ts",
+        "cli/serve-web/src/chrome/previewImages.ts",
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeHttpServer.kt",
+        "cli/src/main/kotlin/ee/schimke/composeai/cli/serve/ServeWeb.kt",
+        "cli/src/main/resources/ee/schimke/composeai/cli/serve/assets/serve-chrome.js",
+        "cli/src/main/resources/ee/schimke/composeai/cli/serve/assets/serve.css",
+        "vscode-extension/preview-harness/fixtures/pages/serve-component-browser-catalog.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-component-browser-component.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-component-browser-home.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-design-page-index.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-design-page.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-doc-lottie.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-doc-remotecompose.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-docs-upload.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-format-compare.html",
+        "vscode-extension/preview-harness/fixtures/pages/serve-home-index.html"
+      ],
+      "retrieved_files": [
+        "vscode-extension/src/extension.ts",
+        "vscode-extension/src/gradleService.ts"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2345",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2345,
+      "merged_pr_number": 2444,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 1,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "internal/promql/instant_fns.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2375",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2375,
+      "merged_pr_number": 2421,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 4,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.25,
+      "recall_at_5": 0.25,
+      "recall_at_10": 0.25,
+      "mrr_at_10": 1.0,
+      "hit_at_10": 1.0,
+      "ground_truth_files": [
+        "Justfile",
+        "cmd/perf-profile/main_chdb.go",
+        "cmd/perf-profile/main_nochdb.go",
+        "cmd/perf-profile/report.go"
+      ],
+      "retrieved_files": [
+        "cmd/perf-profile/main_chdb.go"
+      ]
+    },
+    {
+      "case_key": "nexu-io/open-design#7035",
+      "repo_name": "nexu-io/open-design",
+      "issue_number": 7035,
+      "merged_pr_number": 7038,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 6,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "apps/web/src/App.tsx",
+        "apps/web/src/components/ChatComposer.tsx",
+        "apps/web/src/components/HomeHero.tsx",
+        "apps/web/src/state/config.ts",
+        "apps/web/src/types.ts",
+        "apps/web/src/utils/notifications.ts"
+      ],
+      "retrieved_files": [
+        "apps/daemon/src/app-config.ts"
+      ]
+    },
+    {
+      "case_key": "tsouza/cerberus#2333",
+      "repo_name": "tsouza/cerberus",
+      "issue_number": 2333,
+      "merged_pr_number": 2335,
+      "primary_bucket": "BUCKET_A",
+      "diagnostic_flags": [
+        "INDEXED_AND_FINE_GRAINED"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 10,
+      "retrieved_file_count": 2,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "docs/coverage.md",
+        "internal/api/prom/handler.go",
+        "internal/chclient/cursor.go",
+        "internal/chplan/row_shape.go",
+        "internal/chplan/vector_set_op.go",
+        "internal/chsql/vector_set_op.go",
+        "internal/optimizer/flatten_vector_set_op.go",
+        "internal/promql/histogram_native_mixed_or.go",
+        "internal/promql/histogram_shape_guard.go",
+        "internal/promql/lower.go"
+      ],
+      "retrieved_files": [
+        "internal/chclient/client.go",
+        "internal/chclient/columnar.go"
+      ]
+    },
+    {
+      "case_key": "nexu-io/open-design#7034",
+      "repo_name": "nexu-io/open-design",
+      "issue_number": 7034,
+      "merged_pr_number": 7037,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 3,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "apps/web/src/components/HomeHero.tsx",
+        "apps/web/src/components/HomeView.tsx",
+        "apps/web/src/styles/home/home-hero.css"
+      ],
+      "retrieved_files": [
+        "apps/daemon/src/library-sync.ts"
+      ]
+    },
+    {
+      "case_key": "apache/sedona#3267",
+      "repo_name": "apache/sedona",
+      "issue_number": 3267,
+      "merged_pr_number": 3268,
+      "primary_bucket": "BUCKET_B",
+      "diagnostic_flags": [
+        "SINGLE_OR_GENERIC_CITATION"
+      ],
+      "historical_snapshot_status": "PARTIAL",
+      "ground_truth_file_count": 2,
+      "retrieved_file_count": 1,
+      "recall_at_1": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr_at_10": 0.0,
+      "hit_at_10": 0.0,
+      "ground_truth_files": [
+        "common/src/main/java/org/apache/sedona/common/geometrySerde/GeometrySerializer.java",
+        "docs/setup/release-notes.md"
+      ],
+      "retrieved_files": [
+        "python/sedona/spark/core/jvm/translate.py"
+      ]
+    }
+  ]
+}

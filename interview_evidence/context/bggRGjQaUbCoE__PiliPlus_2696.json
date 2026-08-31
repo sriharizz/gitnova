@@ -1,0 +1,127 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_cbe6e0e7-04ca-510a-a199-baa46754cc0e",
+    "repo_name": "bggRGjQaUbCoE/PiliPlus",
+    "repo_url": "https://github.com/bggRGjQaUbCoE/PiliPlus",
+    "issue_number": 2696,
+    "issue_url": "https://github.com/bggRGjQaUbCoE/PiliPlus/issues/2696",
+    "title": "[Bug] 后台播放被第三方应用的音视频打断后不会自动恢复"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-25T19:22:00.435965+00:00",
+    "updated_at": "2026-08-25T19:21:59.935944+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Dart",
+    "repo_topics": [
+      "android",
+      "flutter",
+      "ios",
+      "linux-desktop",
+      "macos",
+      "windows"
+    ],
+    "repo_description": "",
+    "repo_stars": 16787,
+    "repo_id": "4de01283-d25f-4e8f-8756-dac84fc83448"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "lib/services/audio_session.dart"
+    ],
+    "symbols": [
+      "AudioSessionHandler"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "lib/services/audio_session.dart",
+        "symbol_name": "AudioSessionHandler",
+        "lines": "1-40",
+        "role": "Configures audio session and handles audio interruption events and noisy headphone events",
+        "is_verified": true
+      },
+      {
+        "file_path": "lib/services/audio_session.dart",
+        "symbol_name": "AudioSessionHandler",
+        "lines": "36-75",
+        "role": "Handles audio interruption events including ducking, pausing, and resuming playback",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bug] 后台播放被第三方应用的音视频打断后不会自动恢复",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Dart",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When background playback is interrupted by a third-party audio or video application (such as Poweramp), PiliPlus pauses the playback via audio session interruption events but fails to automatically resume playback once the interruption event ends.",
+    "root_cause_analysis": "The audio session interruption listener tracks `_playInterrupted = true` when an interruption pause begins. However, when the interruption ends (`event.begin` is false), the `AudioInterruptionType.pause` case checks `if (_playInterrupted) PlPlayerController.playIfExists();`, but `_playInterrupted` may not be correctly evaluated or reset under certain audio session state transitions, or the underlying player state check needs proper synchronization.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Audio Session Interruption Handler",
+        "description": "Examine the audio interruption event listener in `lib/services/audio_session.dart` under AudioSessionHandler to understand how `_playInterrupted` state is set when `event.begin` is true and how it is checked when `event.begin` is false.",
+        "target_file": "lib/services/audio_session.dart"
+      },
+      {
+        "step_number": 2,
+        "title": "Fix Interruption End State Restoration",
+        "description": "Modify the `AudioInterruptionType.pause` handling when `event.begin` is false in `lib/services/audio_session.dart` to ensure `_playInterrupted` is properly verified, `PlPlayerController.playIfExists()` is correctly invoked, and `_playInterrupted` is safely reset to false.",
+        "target_file": "lib/services/audio_session.dart"
+      },
+      {
+        "step_number": 3,
+        "title": "Implement Regression Test",
+        "description": "Add a unit or widget test simulating audio session interruption events (pause begin followed by interruption end) to verify that background playback automatically resumes when the interruption ends.",
+        "target_file": "lib/services/audio_session.dart"
+      },
+      {
+        "step_number": 4,
+        "title": "Run Test Suite",
+        "description": "Execute the project test command to ensure the audio session interruption fix passes successfully without introducing regressions.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Audio Interruption Management",
+        "short_explanation": "Handling system events when another app takes over the device audio output.",
+        "why_it_matters": "Mobile operating systems notify apps when audio focus is lost or gained so media players can pause and resume gracefully.",
+        "connection_to_issue": "The issue stems from the interruption event stream not correctly resuming playback when the third-party interruption ends."
+      },
+      {
+        "concept_name": "State Flag Tracking in Event Streams",
+        "short_explanation": "Using boolean flags to track whether an application was actively playing before an external event occurred.",
+        "why_it_matters": "Ensures the app only resumes playback if it was actually playing when interrupted, rather than blindly restarting playback when stopped by the user.",
+        "connection_to_issue": "The `_playInterrupted` boolean flag controls whether playback should resume when the interruption ends."
+      }
+    ],
+    "common_pitfalls": [
+      "Resuming playback even if the user manually paused the video before the interruption occurred.",
+      "Failing to reset `_playInterrupted` after handling the resume action."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

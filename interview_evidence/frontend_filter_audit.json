@@ -1,0 +1,45 @@
+{
+  "architecture_type": "Single-Page Application (React 19 + Vite 7 + Tailwind CSS 3.4)",
+  "api_layer": "Axios HTTP Client with REST query parameters (`frontend/src/lib/api.js`)",
+  "filter_flow": "User Selection -> URL Query Params -> FastAPI `/recommendations` -> Supabase SQL Query -> Match Score Ranking -> JSON Response -> Client-Side Verification Net",
+  "available_filters": {
+    "languages": [
+      "Python",
+      "TypeScript",
+      "JavaScript",
+      "Go",
+      "Rust",
+      "Java",
+      "C++",
+      "C#"
+    ],
+    "difficulty_tiers": [
+      "All Tiers",
+      "Beginner",
+      "Intermediate",
+      "Advanced"
+    ],
+    "domains": [
+      "Web Development",
+      "AI / Machine Learning",
+      "Systems / CLI",
+      "Data Engineering",
+      "Cloud / DevOps",
+      "Mobile",
+      "Security"
+    ],
+    "contribution_types": [
+      "BUG_FIX",
+      "DOCUMENTATION",
+      "TEST",
+      "SMALL_FEATURE",
+      "REFACTORING"
+    ]
+  },
+  "dynamic_verification": {
+    "hardcoded_status": "NO HARDCODED ISSUES. The frontend dynamically renders arrays returned by `fetchRecommendations`.",
+    "server_side_filtering": "Yes. FastAPI applies strict language matching, availability status checks, and difficulty gating before returning candidates.",
+    "client_side_safety_net": "Yes. `IssueFeedPage.jsx` includes a secondary difficulty filter (`matchesDifficulty`) and dynamic search bar (`matchesSearch`).",
+    "ranking_algorithm": "Personalized match score computed in backend (+40 tech stack, +20 domain match, +30 suitability score, +10 maintainer signals)."
+  }
+}

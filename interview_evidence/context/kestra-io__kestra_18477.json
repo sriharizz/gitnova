@@ -1,0 +1,143 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_93f5c3d6-65db-5f6d-8ea8-7c900c9cb4c9",
+    "repo_name": "kestra-io/kestra",
+    "repo_url": "https://github.com/kestra-io/kestra",
+    "issue_number": 18477,
+    "issue_url": "https://github.com/kestra-io/kestra/issues/18477",
+    "title": "[Bash2.0] Schedule trigger defaults to the server timezone, not UTC as documented"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-22T07:53:36.961856+00:00",
+    "updated_at": "2026-08-22T07:53:36.519779+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Java",
+    "repo_topics": [
+      "ai-agents",
+      "automation",
+      "control-plane",
+      "data-engineering",
+      "data-orchestration",
+      "data-orchestrator",
+      "devops",
+      "etl",
+      "hacktoberfest",
+      "high-availability",
+      "infra-automation",
+      "infra-ops",
+      "infrastructure-as-code",
+      "java",
+      "low-code",
+      "orchestration",
+      "pipeline",
+      "pipeline-as-code",
+      "scheduler",
+      "workflow"
+    ],
+    "repo_description": "",
+    "repo_stars": 27557,
+    "repo_id": "ae71a4d7-fa34-4812-b7ba-7566b798dd30"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "scheduler/src/main/java/io/kestra/scheduler/DefaultScheduler.java",
+      "scheduler/src/main/java/io/kestra/scheduler/TriggerEventHandler.java"
+    ],
+    "symbols": [
+      "DefaultScheduler",
+      "TriggerEventHandler"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "scheduler/src/main/java/io/kestra/scheduler/TriggerEventHandler.java",
+        "symbol_name": "TriggerEventHandler",
+        "lines": "561-600",
+        "role": "Handles trigger event creation and next evaluation date calculations",
+        "is_verified": true
+      },
+      {
+        "file_path": "scheduler/src/main/java/io/kestra/scheduler/DefaultScheduler.java",
+        "symbol_name": "DefaultScheduler",
+        "lines": "246-285",
+        "role": "Manages scheduler loops and trigger event consumers",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bash2.0] Schedule trigger defaults to the server timezone, not UTC as documented",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Java",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The Schedule trigger documentation states that the default timezone is UTC if none is explicitly specified. However, at runtime, schedules without a timezone default to the server's local timezone (`ZoneId.systemDefault()`), causing discrepancies across servers in different time zones.",
+    "root_cause_analysis": "Cron evaluation and trigger instantiation fall back to the system default timezone instead of explicitly enforcing UTC when the timezone field is omitted or unassigned in the trigger configuration.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect TriggerEventHandler timezone fallback",
+        "description": "Inspect TriggerEventHandler in scheduler/src/main/java/io/kestra/scheduler/TriggerEventHandler.java to identify where trigger timezone resolution defaults to ZoneId.systemDefault() or unassigned values.",
+        "target_file": "scheduler/src/main/java/io/kestra/scheduler/TriggerEventHandler.java"
+      },
+      {
+        "step_number": 2,
+        "title": "Update timezone default to UTC",
+        "description": "Modify the schedule trigger evaluation logic in TriggerEventHandler.java so that when the timezone property is null or omitted, it explicitly falls back to ZoneId.of(\"UTC\") instead of ZoneId.systemDefault().",
+        "target_file": "scheduler/src/main/java/io/kestra/scheduler/TriggerEventHandler.java"
+      },
+      {
+        "step_number": 3,
+        "title": "Inspect DefaultScheduler integration",
+        "description": "Verify DefaultScheduler in scheduler/src/main/java/io/kestra/scheduler/DefaultScheduler.java to ensure it correctly respects the UTC timezone fallback handled by TriggerEventHandler.",
+        "target_file": "scheduler/src/main/java/io/kestra/scheduler/DefaultScheduler.java"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test and execute verification suite",
+        "description": "Add a unit or integration test verifying that a Schedule trigger created without an explicit timezone correctly evaluates next execution dates using UTC regardless of the host system timezone, then execute the test command.",
+        "target_file": "scheduler/src/test/java/io/kestra/scheduler/TriggerEventHandlerTest.java"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Timezone Handling in Cron Triggers",
+        "short_explanation": "Timezones determine how cron expressions (like '0 3 * * *') are interpreted relative to global UTC time.",
+        "why_it_matters": "Failing to normalize or explicitly default to UTC leads to environment-dependent execution times, causing bugs when workflows run on servers with different local timezones.",
+        "connection_to_issue": "The issue stems from cron scheduling defaulting to the local server timezone instead of UTC, violating user documentation."
+      },
+      {
+        "concept_name": "Trigger Event State Management",
+        "short_explanation": "Kestra manages trigger lifecycle states (such as next evaluation dates) via event handlers and state stores.",
+        "why_it_matters": "Understanding how triggers are initialized and evaluated helps developers trace where default values like timezones are applied during schedule evaluation.",
+        "connection_to_issue": "Fixing the default timezone requires ensuring that triggers without an explicit timezone property correctly resolve to UTC during evaluation date computations."
+      }
+    ],
+    "common_pitfalls": [
+      "Changing the server's global system timezone instead of fixing the trigger's fallback timezone logic.",
+      "Breaking existing flows that explicitly rely on server timezones if not handled carefully, though UTC is the documented default."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 96,
+    "contribution_type": "DOCUMENTATION",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

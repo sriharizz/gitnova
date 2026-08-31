@@ -1,0 +1,87 @@
+{
+  "package_name": "GitNova Technical Interview Evidence Pack",
+  "generation_timestamp": "2026-08-31T13:27:50.638293+00:00",
+  "production_stats": {
+    "total_issues": 1473,
+    "published_issues": 121,
+    "active_repositories": 153,
+    "languages": 14
+  },
+  "artifacts": [
+    {
+      "filename": "production_statistics.json",
+      "purpose": "Raw database aggregations and counts",
+      "records": 1
+    },
+    {
+      "filename": "production_statistics.md",
+      "purpose": "Human-readable production database summary",
+      "records": 1
+    },
+    {
+      "filename": "live_issues_full.jsonl",
+      "purpose": "Canonical machine-readable export of all 119 live published dossiers",
+      "records": 121
+    },
+    {
+      "filename": "live_issues_full.csv",
+      "purpose": "Flattened spreadsheet export of all published issues",
+      "records": 121
+    },
+    {
+      "filename": "gitnova_interview_issue_master.csv",
+      "purpose": "Clean master CSV for external inspection and reviewers",
+      "records": 121
+    },
+    {
+      "filename": "frontend_filter_audit.md",
+      "purpose": "Proves frontend is dynamically driven by backend/Supabase",
+      "records": 1
+    },
+    {
+      "filename": "preference_test_matrix.md",
+      "purpose": "Read-only test results across 7 preference combinations",
+      "records": 7
+    },
+    {
+      "filename": "production_scale.md",
+      "purpose": "Explains data engineering patterns across 1,457 issues",
+      "records": 1
+    },
+    {
+      "filename": "github_actions_audit.md",
+      "purpose": "Documents daily ingestion, rolling eval, and reindex workflows",
+      "records": 3
+    },
+    {
+      "filename": "rag_evaluation_summary.md",
+      "purpose": "Documents Recall@K and MRR metrics on golden PR benchmark",
+      "records": 1
+    },
+    {
+      "filename": "qlora_evaluation_summary.md",
+      "purpose": "Documents QLoRA experiment (79.41% Macro-F1 on held-out test set)",
+      "records": 1
+    },
+    {
+      "filename": "claims_and_limitations.md",
+      "purpose": "Defines what is verified vs experimental vs out-of-scope",
+      "records": 1
+    },
+    {
+      "filename": "open_source_contribution_explainer.md",
+      "purpose": "Explains the 10-stage contribution lifecycle",
+      "records": 1
+    },
+    {
+      "filename": "recommended_demo_issues.md",
+      "purpose": "Shortlist of 8 diverse issues optimized for live demos",
+      "records": 8
+    },
+    {
+      "filename": "INTERVIEW_RUNBOOK.md",
+      "purpose": "Step-by-step interview presentation and click guide",
+      "records": 1
+    }
+  ]
+}

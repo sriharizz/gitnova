@@ -1,0 +1,131 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_6fa7097a-85d7-5db4-8bc0-0dd325d81bce",
+    "repo_name": "fullsend-ai/fullsend",
+    "repo_url": "https://github.com/fullsend-ai/fullsend",
+    "issue_number": 6712,
+    "issue_url": "https://github.com/fullsend-ai/fullsend/issues/6712",
+    "title": "Scribe: auto-apply ready-for-triage label on created issues"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-28T02:53:27.285481+00:00",
+    "updated_at": "2026-08-28T02:53:26.457691+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 105,
+    "repo_id": "e1f13e9c-d40b-461c-9175-76cefa67a89b"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "internal/dispatch/router.go",
+      "internal/config/config.go",
+      "internal/appsetup/appsetup.go"
+    ],
+    "symbols": [
+      "DispatchConfig",
+      "routeLabel",
+      "Setup"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "internal/dispatch/router.go",
+        "symbol_name": "routeLabel",
+        "lines": "106-145",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "internal/config/config.go",
+        "symbol_name": "DispatchConfig",
+        "lines": "141-180",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "internal/appsetup/appsetup.go",
+        "symbol_name": "Setup",
+        "lines": "106-145",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Scribe: auto-apply ready-for-triage label on created issues",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Scribe creates new GitHub issues as part of its agent role, but the issues currently lack the mandatory `ready-for-triage` label, requiring manual intervention to enter the triage pipeline. This issue requires updating Scribe's issue creation logic to automatically apply the `ready-for-triage` label using Scribe's own GitHub App identity.",
+    "root_cause_analysis": "Scribe's issue creation routine currently invokes GitHub API calls to create issues without including the `ready-for-triage` label argument or configuration in the creation request payload, and needs to be extended to supply this label.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect routeLabel and dispatch configuration",
+        "description": "Inspect symbol routeLabel in internal/dispatch/router.go and DispatchConfig in internal/config/config.go to understand how labels and issues are currently handled during dispatch and creation.",
+        "target_file": "internal/dispatch/router.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Update issue creation payload to include ready-for-triage",
+        "description": "Modify the issue creation routine to automatically append the 'ready-for-triage' label in the creation request payload using Scribe's GitHub App identity.",
+        "target_file": "internal/dispatch/router.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Write regression test for automatic label application",
+        "description": "Add a unit test in internal/dispatch/router_test.go verifying that newly created issues include the mandatory 'ready-for-triage' label in their creation parameters.",
+        "target_file": "internal/dispatch/router_test.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Run test suite for verification",
+        "description": "Execute the package tests to ensure the new label is correctly applied and no existing routing or issue creation behavior is broken.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "GitHub App Identity and Authentication",
+        "short_explanation": "A mechanism allowing automated bots or agents to act with their own dedicated installation token and permissions rather than relying on human or generic tokens.",
+        "why_it_matters": "Using dedicated app identities ensures proper audit trails, granular permission scoping, and prevents permission escalation bugs.",
+        "connection_to_issue": "Scribe must apply the `ready-for-triage` label using its own newly minted `scribe` app identity instead of the triage agent's permissions."
+      },
+      {
+        "concept_name": "Automated Issue Triage Pipelines",
+        "short_explanation": "Workflows triggered by specific labels or event states that automate the distribution and handling of incoming work items.",
+        "why_it_matters": "Properly labeling newly created issues ensures they instantly route into the correct automated queue without manual operator intervention.",
+        "connection_to_issue": "Applying the `ready-for-triage` label automatically upon Scribe issue creation allows the triage pipeline to immediately process the issue."
+      }
+    ],
+    "common_pitfalls": [
+      "Using the triage agent's app identity or token instead of Scribe's dedicated `scribe` role identity.",
+      "Forgetting to handle API errors if the label does not exist or if the app lacks label-writing permissions on the repository."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_0cfc0c84-0269-55aa-9d59-3366c3d95cf1",
+    "repo_name": "openai/codex",
+    "repo_url": "https://github.com/openai/codex",
+    "issue_number": 41254,
+    "issue_url": "https://github.com/openai/codex/issues/41254",
+    "title": "[Codex Desktop][macOS][Voice] Delivered turns remain in failed Retry queue"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-28T04:09:02.401065+00:00",
+    "updated_at": "2026-08-28T04:09:00.037137+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Rust",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 104019,
+    "repo_id": "6ab5f734-bfd5-402d-9a7a-e492396664be"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "codex-rs/analytics/src/client.rs",
+      "codex-rs/app-server/src/bespoke_event_handling.rs"
+    ],
+    "symbols": [
+      "block_736",
+      "block_3886"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "codex-rs/analytics/src/client.rs",
+        "symbol_name": "block_736",
+        "lines": "736-775",
+        "role": "Turn completion and error handling logic mapping event statuses",
+        "is_verified": true
+      },
+      {
+        "file_path": "codex-rs/app-server/src/bespoke_event_handling.rs",
+        "symbol_name": "block_3886",
+        "lines": "3886-3925",
+        "role": "App server handling of turn completion and failed turn status representation",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Codex Desktop][macOS][Voice] Delivered turns remain in failed Retry queue",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Rust",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Voice turns in the Codex desktop app successfully deliver substantive text to the active chat context, but erroneously remain in the composer/queue as failed items featuring retry actions and exclamation indicators.",
+    "root_cause_analysis": "Incoming voice or turn delivery events fail to update or clear their queue/composer state correctly upon successful processing, causing successfully delivered items to retain a persistent error or failure flag.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect turn completion and event status handling",
+        "description": "Inspect the turn completion and error handling logic mapping event statuses in codex-rs/analytics/src/client.rs around block_736 and codex-rs/app-server/src/bespoke_event_handling.rs around block_3886.",
+        "target_file": "codex-rs/app-server/src/bespoke_event_handling.rs"
+      },
+      {
+        "step_number": 2,
+        "title": "Update voice turn event delivery state handling",
+        "description": "Modify the event handler in codex-rs/app-server/src/bespoke_event_handling.rs to ensure successfully delivered voice turns clear their queue or composer state instead of retaining a failed/retry status flag.",
+        "target_file": "codex-rs/app-server/src/bespoke_event_handling.rs"
+      },
+      {
+        "step_number": 3,
+        "title": "Refine client status mapping logic",
+        "description": "Adjust the event status mapping in codex-rs/analytics/src/client.rs around block_736 to properly distinguish successful transcript delivery from error states.",
+        "target_file": "codex-rs/analytics/src/client.rs"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test coverage",
+        "description": "Implement a regression test verifying that successfully processed voice turns are cleanly removed from the composer/queue without showing retry indicators or failure states.",
+        "target_file": "codex-rs/analytics/src/analytics_client_tests.rs"
+      },
+      {
+        "step_number": 5,
+        "title": "Run test suite verification",
+        "description": "Execute cargo test to verify all analytics and app-server integration tests pass successfully without regressions.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Turn Lifecycle Status Synchronization",
+        "short_explanation": "Ensuring that the status of a user turn tracked in application state matches its actual execution result in the backend.",
+        "why_it_matters": "Mismatches between actual delivery and UI representation cause confusing false errors and redundant retries.",
+        "connection_to_issue": "Voice turns successfully deliver text to the chat context but remain stuck in a failed state because their completion status propagation fails to clear the pending queue item."
+      },
+      {
+        "concept_name": "Error Flag Propagation",
+        "short_explanation": "The mechanism by which error objects or failure flags are attached to asynchronous event notifications.",
+        "why_it_matters": "Incorrectly attaching or failing to clear error flags results in UI components falsely treating successful operations as failures.",
+        "connection_to_issue": "Voice turn delivery events may be incorrectly initialized with or retaining error structures even when execution completes successfully."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying unrelated analytics tracking events instead of app-server turn state handling.",
+      "Ignoring edge cases where partial transcripts or interruptions occur alongside successful voice inputs."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

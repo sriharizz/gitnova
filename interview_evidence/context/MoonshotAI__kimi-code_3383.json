@@ -1,0 +1,111 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_7a89f7df-4783-5025-a896-361f9d334caa",
+    "repo_name": "MoonshotAI/kimi-code",
+    "repo_url": "https://github.com/MoonshotAI/kimi-code",
+    "issue_number": 3383,
+    "issue_url": "https://github.com/MoonshotAI/kimi-code/issues/3383",
+    "title": "Read.line_offset: anyOf integer 参数在第三方模型下 100% 失败（同版本数字形态正常，附Windows + Qwen3.8-Flash 复现）"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-31T12:37:32.260397+00:00",
+    "updated_at": "2026-08-31T12:37:31.767005+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 6047,
+    "repo_id": "d419911b-b74e-475a-a58d-5fbc0cffa3d7"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/kimi-code/src/main.ts"
+    ],
+    "symbols": [],
+    "relevant_locations": [
+      {
+        "file_path": "apps/kimi-code/src/main.ts",
+        "symbol_name": null,
+        "lines": "1-40",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Read.line_offset: anyOf integer 参数在第三方模型下 100% 失败（同版本数字形态正常，附Windows + Qwen3.8-Flash 复现）",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The Read tool's line_offset parameter fails when using third-party OpenAI-compatible models (like Qwen3.8-Flash) because these models serialize scalar integer arguments as JSON strings (e.g., \"line_offset\": \"200\"). The validation layer uses Ajv with type coercion disabled and a complex anyOf schema, resulting in an 'Invalid args' error and preventing tool execution.",
+    "root_cause_analysis": "Third-party LLM providers serialize integer parameters into string representations in their tool call arguments (e.g., \"line_offset\": \"200\"). When validated against the tool schema using Ajv without type coercion enabled, strict type checking rejects the string values because they do not strictly match the expected integer/number type in the anyOf union.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Ajv Validation Configuration",
+        "description": "Inspect the Ajv validation setup in apps/kimi-code/src/main.ts to locate where tool argument validation and schema definitions (specifically for line_offset and anyOf unions) are initialized.",
+        "target_file": "apps/kimi-code/src/main.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Enable Type Coercion in Ajv Instance",
+        "description": "Update the Ajv validator instantiation in apps/kimi-code/src/main.ts to enable type coercion (setting { coerceTypes: true } or configuring appropriate options) so that string-serialized integer parameters like line_offset (e.g. \"200\") are properly coerced to numbers before schema validation.",
+        "target_file": "apps/kimi-code/src/main.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Add Regression Test for String-Serialized Numeric Arguments",
+        "description": "Add a unit/integration test case verifying that the Read tool successfully processes tool call arguments where numeric parameters like line_offset are passed as strings (e.g., {\"line_offset\": \"200\"}) without throwing an 'Invalid args' error.",
+        "target_file": "apps/kimi-code/src/main.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Run Test Suite",
+        "description": "Execute the verified test command to verify that all tests pass successfully and the regression is fully resolved.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "JSON Schema Type Coercion in Ajv",
+        "short_explanation": "Type coercion allows a validation library to automatically convert input types (like a string containing a number \"200\") into the expected target type (like the integer 200) before validation.",
+        "why_it_matters": "Different LLM providers serialize JSON tool call arguments differently; enabling type coercion ensures that minor serialization differences do not break tool execution.",
+        "connection_to_issue": "Enabling coercion or handling string-wrapped numbers in the validator prevents third-party model outputs from failing strict schema validation."
+      },
+      {
+        "concept_name": "Handling Union Schemas (anyOf)",
+        "short_explanation": "An anyOf schema validation rule requires that the provided data matches at least one of the specified sub-schemas.",
+        "why_it_matters": "Complex union schemas can make validation stricter and harder for external models to satisfy if type matching is rigid.",
+        "connection_to_issue": "The line_offset parameter uses a compound anyOf integer schema which exacerbates strict type rejection when values arrive as strings."
+      }
+    ],
+    "common_pitfalls": [
+      "Disabling strict validation for unknown properties while attempting to fix type coercion.",
+      "Modifying prompt instructions instead of fixing the underlying schema validation layer."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

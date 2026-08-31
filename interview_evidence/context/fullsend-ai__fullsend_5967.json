@@ -1,0 +1,128 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_042b0809-1685-57f0-93b9-1cfae3265002",
+    "repo_name": "fullsend-ai/fullsend",
+    "repo_url": "https://github.com/fullsend-ai/fullsend",
+    "issue_number": 5967,
+    "issue_url": "https://github.com/fullsend-ai/fullsend/issues/5967",
+    "title": "Filter pull_request_review events in fullsend.yaml shim to changes_requested state"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-25T20:15:26.157089+00:00",
+    "updated_at": "2026-08-25T20:15:24.564626+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 105,
+    "repo_id": "e1f13e9c-d40b-461c-9175-76cefa67a89b"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "internal/dispatch/router.go",
+      "internal/harnessdispatch/auth.go"
+    ],
+    "symbols": [
+      "HarnessRouter.Route",
+      "IsAuthorized"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "internal/dispatch/router.go",
+        "symbol_name": "HarnessRouter.Route",
+        "lines": "1-40",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "internal/harnessdispatch/auth.go",
+        "symbol_name": "IsAuthorized",
+        "lines": "1-37",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Filter pull_request_review events in fullsend.yaml shim to changes_requested state",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The fullsend.yaml GitHub Actions shim workflow forwards all pull_request_review: types: [submitted] events to the dispatch workflow regardless of review state. This causes a high volume of redundant no-op runs when humans leave inline comments or reviews with states other than 'changes_requested'. This issue proposes filtering pull_request_review events at the workflow shim level so that only reviews with state 'changes_requested' trigger the fullsend.yaml shim run.",
+    "root_cause_analysis": "The GitHub Actions workflow template (.github/workflows/fullsend.yaml or scaffold template) listens broadly to `pull_request_review: types: [submitted]` without an event-state filter condition, causing GitHub to queue and dispatch jobs for every review submission regardless of its state.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect HarnessRouter and Event Routing Control Flow",
+        "description": "Examine HarnessRouter.Route in internal/dispatch/router.go and IsAuthorized in internal/harnessdispatch/auth.go to understand how pull_request_review events and their review states are evaluated.",
+        "target_file": "internal/dispatch/router.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Locate Workflow Shim Event Trigger Configuration",
+        "description": "Locate the fullsend.yaml GitHub Actions workflow file or template where pull_request_review triggers are defined under the types: [submitted] filter.",
+        "target_file": ".github/workflows/fullsend.yaml"
+      },
+      {
+        "step_number": 3,
+        "title": "Add Conditional Event Filtering for Review States",
+        "description": "Update the workflow trigger configuration or router check to ensure that only pull_request_review events with state 'changes_requested' proceed, avoiding redundant no-op runs.",
+        "target_file": ".github/workflows/fullsend.yaml"
+      },
+      {
+        "step_number": 4,
+        "title": "Add Regression Test Coverage",
+        "description": "Update router_test.go or auth_test.go in internal/dispatch/ and internal/harnessdispatch/ to assert that review payloads with states other than 'changes_requested' are correctly ignored or filtered out.",
+        "target_file": "internal/dispatch/router_test.go"
+      },
+      {
+        "step_number": 5,
+        "title": "Run Test Suite for Verification",
+        "description": "Execute the package test suite using the standard Go test command to verify that all existing and new routing tests pass successfully.",
+        "target_file": "internal/dispatch/router_test.go"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Workflow Event Filtering in GitHub Actions",
+        "short_explanation": "Using job `if` conditional guards in workflow YAML files to filter events before jobs are allocated runner resources.",
+        "why_it_matters": "Preventing unnecessary workflow runs saves CI compute minutes, avoids pending-queue limits, and reduces noise in build logs.",
+        "connection_to_issue": "Adding a review state filter condition to the workflow shim prevents non-actionable review states like 'COMMENTED' or 'APPROVED' from spawning costly no-op runner jobs."
+      },
+      {
+        "concept_name": "Event Normalization and Routing",
+        "short_explanation": "The architectural separation between coarse-grained workflow trigger shims and fine-grained event routing/authorization logic.",
+        "why_it_matters": "Keeping coarse filters at the CI trigger level prevents wasted orchestration overhead while backend routing logic handles precise business rules.",
+        "connection_to_issue": "While the backend router correctly ignores non-changes_requested reviews, filtering them earlier at the GitHub Actions workflow shim level prevents unnecessary runner job startups."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying backend Go dispatch code when the requested change is specifically scoped to the workflow scaffold YAML template.",
+      "Writing GitHub Actions expression syntax incorrectly, which can cause syntax errors or silent trigger bypasses."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

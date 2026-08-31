@@ -1,0 +1,113 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_45958129-358f-5780-9c95-339ed7bd1362",
+    "repo_name": "multica-ai/multica",
+    "repo_url": "https://github.com/multica-ai/multica",
+    "issue_number": 7727,
+    "issue_url": "https://github.com/multica-ai/multica/issues/7727",
+    "title": "Tasks for agents owned by a different user than the runtime owner are silently stuck in `queued` forever (no error anywhere)"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-29T21:47:58.322269+00:00",
+    "updated_at": "2026-08-29T21:47:57.779338+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 44040,
+    "repo_id": "31235045-d94b-41a9-8e9c-01c3c4eb7323"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "server/internal/attribution/attribution.go"
+    ],
+    "symbols": [
+      "TriggerKind"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "server/internal/attribution/attribution.go",
+        "symbol_name": "TriggerKind",
+        "lines": "1-40",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Tasks for agents owned by a different user than the runtime owner are silently stuck in `queued` forever (no error anywhere)",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Tasks assigned to agents whose owner does not match the daemon's runtime owner get silently stuck in the queued state forever because SQL query filters exclude them when agent owner ID and runtime owner ID diverge on private runtimes, resulting in silent drops with no user-facing errors or daemon logs.",
+    "root_cause_analysis": "The database query `ListQueuedClaimCandidatesByRuntime` filters out claim candidates using an authorization fence where private runtimes require `r.owner_id = a.owner_id`. When owners differ, no candidates match, causing the daemon to receive an empty claim set and silently drop execution without logging a rejection reason.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect attribution query and runtime owner authorization check",
+        "description": "Inspect server/internal/attribution/attribution.go around the database query ListQueuedClaimCandidatesByRuntime to understand how agent and runtime owner IDs are filtered and where tasks are silently dropped.",
+        "target_file": "server/internal/attribution/attribution.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Implement fail-fast error handling for owner mismatch",
+        "description": "Update the task claim and attribution workflow in server/internal/attribution/attribution.go to detect when an agent's owner does not match the private runtime's owner, explicitly marking the task with an authorization error rather than silently leaving it queued.",
+        "target_file": "server/internal/attribution/attribution.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Add regression test for owner mismatch behavior",
+        "description": "Add a new test case in server/internal/attribution/attribution_test.go or server/internal/attribution/delegated_subscriber_test.go that sets up an agent and private runtime with mismatched owner IDs and asserts that the task fails fast with the expected error message.",
+        "target_file": "server/internal/attribution/attribution_test.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Run unit and integration test suite",
+        "description": "Execute the verified test command to verify that all attribution and delegation tests pass successfully without regressions.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Authorization Fences in Database Queries",
+        "short_explanation": "A security or access-control check implemented directly inside a SQL query using conditions (like WHERE clauses) to restrict which rows can be accessed or claimed by a specific user or runtime.",
+        "why_it_matters": "Developers need to understand that if data fails an authorization fence in a query, it is simply omitted from result sets rather than throwing an explicit database error, which can cause operations to quietly stall.",
+        "connection_to_issue": "The query ListQueuedClaimCandidatesByRuntime uses an ownership condition that silently filters out tasks when an agent's owner does not match the private runtime's owner."
+      },
+      {
+        "concept_name": "Silent Failure vs. Explicit Error Handling",
+        "short_explanation": "The anti-pattern of discarding work or ignoring conditions without emitting logs, error states, or user-facing feedback when an invalid state or authorization mismatch occurs.",
+        "why_it_matters": "Silent failures leave developers and users completely blind to why a system is not working, masking configuration or permission mismatches as mysterious bugs.",
+        "connection_to_issue": "Mismatched agent and runtime owners cause tasks to be dropped or ignored by the daemon without recording any rejection reason or terminal task error."
+      }
+    ],
+    "common_pitfalls": [
+      "Assuming that tasks failing authorization will automatically generate a server-side error or log entry.",
+      "Modifying attribution or tracing packages when the root cause lies in database query filtering or daemon claim logic."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

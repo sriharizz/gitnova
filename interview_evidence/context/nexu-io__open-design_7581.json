@@ -1,0 +1,134 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_14f1264d-96f3-5ca9-b153-74cdbc08e387",
+    "repo_name": "nexu-io/open-design",
+    "repo_url": "https://github.com/nexu-io/open-design",
+    "issue_number": 7581,
+    "issue_url": "https://github.com/nexu-io/open-design/issues/7581",
+    "title": "[Bug]: Win11 无法安装"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-29T03:51:45.152845+00:00",
+    "updated_at": "2026-08-29T03:51:44.251939+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [
+      "agent-skills",
+      "ai-agents",
+      "ai-design",
+      "byok",
+      "claude-code-for-design",
+      "claude-design",
+      "codex-design",
+      "coding-agents",
+      "cursor-design",
+      "design-systems",
+      "design-tools",
+      "desktop-app",
+      "figma-alternative",
+      "generative-ai",
+      "hermes-agent",
+      "local-first",
+      "no-code",
+      "prototyping",
+      "ui-generator",
+      "vibe-coding"
+    ],
+    "repo_description": "",
+    "repo_stars": 83752,
+    "repo_id": "b643e094-0b45-45ef-a75f-d1f325a74b4e"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/daemon/src/agent-companion-setup.ts"
+    ],
+    "symbols": [
+      "stageVerifiedBundleInProfile"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/daemon/src/agent-companion-setup.ts",
+        "symbol_name": "stageVerifiedBundleInProfile",
+        "lines": "141-180",
+        "role": "Handles staging bundle files in profile directories and managing relative paths on Windows.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bug]: Win11 无法安装",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "On Windows platforms, when installing OpenDesign or staging packaged resources, absolute paths or space-containing paths in Windows can cause setup scripts or command execution steps to fail when passing unescaped or split paths to underlying helper tools or package managers.",
+    "root_cause_analysis": "Path resolution in `stageVerifiedBundleInProfile` or subprocess environment creation can pass absolute paths containing spaces to Windows shell or package manager execution utilities without proper quoting or by using unescaped absolute paths instead of safe relative specifications.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect staging control flow",
+        "description": "Inspect stageVerifiedBundleInProfile in apps/daemon/src/agent-companion-setup.ts to locate where absolute packaged app paths or bundle files are passed to subprocess or file staging utilities.",
+        "target_file": "apps/daemon/src/agent-companion-setup.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Ensure safe quoting and path handling",
+        "description": "Update path resolution and command execution parameters within stageVerifiedBundleInProfile to properly quote or handle absolute paths containing spaces on Windows platforms.",
+        "target_file": "apps/daemon/src/agent-companion-setup.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Add regression test for paths with spaces",
+        "description": "Add a unit or integration test simulating Windows absolute paths with spaces (e.g. containing 'OpenDesign') to verify that stageVerifiedBundleInProfile correctly stages bundles without path-splitting or command execution failures.",
+        "target_file": "apps/daemon/src/agent-companion-setup.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Run test suite verification",
+        "description": "Run the repository test suite to confirm that all tests pass successfully with the updated path handling logic.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Windows Path Handling and Spaces",
+        "short_explanation": "Operating systems like Windows often use spaces in directory names (e.g. 'Program Files' or custom app folders), which can break command-line arguments if spaces are interpreted as argument separators.",
+        "why_it_matters": "Developers must ensure that file paths passed to child processes or shells are properly quoted or kept relative to avoid command parsing failures.",
+        "connection_to_issue": "The comment in `stageVerifiedBundleInProfile` explicitly notes that keeping specs relative avoids Windows shell forwarder splitting absolute paths at spaces."
+      },
+      {
+        "concept_name": "Subprocess Invocation and Shell Quoting",
+        "short_explanation": "Executing external commands via Node.js `child_process` requires careful handling of arguments, environment variables, and command options (like `windowsVerbatimArguments`).",
+        "why_it_matters": "Incorrect argument formatting leads to unexpected command termination or syntax errors during app installation.",
+        "connection_to_issue": "Fixing installation issues on Windows involves ensuring package manager and script invocations correctly handle paths with spaces."
+      }
+    ],
+    "common_pitfalls": [
+      "Hardcoding Unix-style path separators or failing to normalize paths using `path.join`.",
+      "Passing raw absolute paths containing spaces directly to shell execution functions without proper escaping."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

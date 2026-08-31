@@ -1,0 +1,144 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_ac42db12-7515-57f0-ae55-9a0eb306573c",
+    "repo_name": "microcks/microcks",
+    "repo_url": "https://github.com/microcks/microcks",
+    "issue_number": 2226,
+    "issue_url": "https://github.com/microcks/microcks/issues/2226",
+    "title": "Replace arbitrary delays with deterministic readiness for async tests"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-19T07:23:07.230781+00:00",
+    "updated_at": "2026-08-19T18:54:59.249497+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Java",
+    "repo_topics": [
+      "api",
+      "api-testing",
+      "asyncapi",
+      "asyncapi-specification",
+      "cncf",
+      "cncf-project",
+      "event-driven",
+      "graphql",
+      "kubernetes",
+      "mock",
+      "mock-server",
+      "mocking",
+      "openapi",
+      "openapi-tooling",
+      "openapi3",
+      "openapi31",
+      "postman-collection",
+      "swagger",
+      "swagger2",
+      "testing"
+    ],
+    "repo_description": "",
+    "repo_stars": 2007,
+    "repo_id": "545bfc08-4b16-4634-b698-5124bda44cd1"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "webapp/src/main/webapp/src/app/services/tests.service.ts",
+      "webapp/src/main/webapp/src/app/models/test.model.ts"
+    ],
+    "symbols": [
+      "TestCaseResult",
+      "TestsService"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "webapp/src/main/webapp/src/app/models/test.model.ts",
+        "symbol_name": "TestCaseResult",
+        "lines": "75-80",
+        "role": "Frontend model representing the test case result where the new phase field and TestCasePhase enum must be added.",
+        "is_verified": true
+      },
+      {
+        "file_path": "webapp/src/main/webapp/src/app/services/tests.service.ts",
+        "symbol_name": "TestsService",
+        "lines": "36-66",
+        "role": "Frontend service that retrieves test results from the backend API.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Replace arbitrary delays with deterministic readiness for async tests",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Java",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Currently, client libraries testing asynchronous APIs with Microcks must wait for an arbitrary delay (sleep) before publishing messages to ensure the broker consumer is ready. This issue aims to replace this non-deterministic delay with a deterministic polling mechanism by exposing the lifecycle phase of each asynchronous test case (e.g., CONNECTING, WAITING_FOR_MESSAGE, DONE) via the Microcks API.",
+    "root_cause_analysis": "The root cause is that the TestCaseResult model (defined in webapp/src/main/webapp/src/app/models/test.model.ts and its backend Java equivalent) lacks a field to track the intermediate lifecycle state of the consumer subscription. The async minion does not have a mechanism or API endpoint to report when a broker consumer has successfully connected and is ready to receive messages, forcing clients to rely on arbitrary sleep delays.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Frontend Models and Services",
+        "description": "Inspect `webapp/src/main/webapp/src/app/models/test.model.ts` to locate the `TestCaseResult` interface/class, and check `webapp/src/main/webapp/src/app/services/tests.service.ts` to see how test results are fetched and handled.",
+        "target_file": "webapp/src/main/webapp/src/app/models/test.model.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Define TestCasePhase Enum and Update TestCaseResult",
+        "description": "Define a new `TestCasePhase` enum with values `CONNECTING`, `WAITING_FOR_MESSAGE`, and `DONE` in `webapp/src/main/webapp/src/app/models/test.model.ts`. Add an optional `phase` field of type `TestCasePhase` to the `TestCaseResult` model.",
+        "target_file": "webapp/src/main/webapp/src/app/models/test.model.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Update Backend Java Models and API Endpoints",
+        "description": "Locate the backend Java equivalent of `TestCaseResult` (typically in the core or domain module) and add the `TestCasePhase` enum and `phase` field. Update the API controller/service responsible for updating and retrieving test case results to allow the async minion to report the phase.",
+        "target_file": "microcks-core/src/main/java/io/github/microcks/domain/TestCaseResult.java"
+      },
+      {
+        "step_number": 4,
+        "title": "Verify and Test the Changes",
+        "description": "Add integration tests in the testsuite (e.g., `testsuite/api-tests.js`) to verify that the phase transitions correctly from CONNECTING to WAITING_FOR_MESSAGE and finally to DONE, and run the maven build/test command to verify.",
+        "target_file": "testsuite/api-tests.js"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Deterministic Readiness in Asynchronous Testing",
+        "short_explanation": "Instead of waiting for an arbitrary amount of time (like a sleep or delay) and hoping a background consumer is ready, deterministic readiness uses explicit state signaling (such as a 'WAITING_FOR_MESSAGE' phase) to notify the test runner exactly when it is safe to proceed.",
+        "why_it_matters": "Using arbitrary delays makes tests flaky, slow, and environment-dependent. Deterministic readiness ensures tests run as fast as possible and eliminates race conditions in CI/CD pipelines.",
+        "connection_to_issue": "This concept is the core goal of the issue: introducing a TestCasePhase enum to signal when the async minion's broker consumer is ready, allowing clients to publish messages immediately without sleeping."
+      },
+      {
+        "concept_name": "Backward-Compatible API Design",
+        "short_explanation": "Designing API changes so that newer servers can still communicate with older clients, and newer clients can gracefully fall back when communicating with older servers.",
+        "why_it_matters": "In distributed systems, you cannot upgrade all components (server, minion, client libraries) simultaneously. Backward compatibility prevents system failures during rolling updates.",
+        "connection_to_issue": "The new phase field must be optional/nullable so that older clients do not break when receiving it, and newer clients must fall back to legacy delays if the server does not return a phase."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying existing fields like elapsedTime, success, or inProgress which would break backward compatibility for existing clients.",
+      "Failing to make the phase field optional or nullable, causing parsing errors in older client libraries or frontend versions.",
+      "Allowing a failure in reporting the phase from the async minion to fail the entire running test; phase reporting should be best-effort."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "TEST",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

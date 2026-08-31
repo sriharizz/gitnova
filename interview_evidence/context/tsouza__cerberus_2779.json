@@ -1,0 +1,138 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_fe41c979-b551-5a22-8e63-3e9237e2e88d",
+    "repo_name": "tsouza/cerberus",
+    "repo_url": "https://github.com/tsouza/cerberus",
+    "issue_number": 2779,
+    "issue_url": "https://github.com/tsouza/cerberus/issues/2779",
+    "title": "Stamp max_bytes_before_external_join as a join spill guardrail (chopt join_spill)"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-30T22:36:45.599148+00:00",
+    "updated_at": "2026-08-30T22:36:45.273103+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Go",
+    "repo_topics": [
+      "clickhouse",
+      "golang",
+      "grafana",
+      "logql",
+      "loki",
+      "metrics-logs-traces",
+      "observability",
+      "open-source",
+      "opentelemetry",
+      "otel",
+      "prometheus",
+      "promql",
+      "query-engine",
+      "tempo",
+      "traceql"
+    ],
+    "repo_description": "",
+    "repo_stars": 52,
+    "repo_id": "64ab412f-eb07-4a74-9b4b-be488a99f919"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "internal/chclient/breaker.go",
+      "internal/chclient/client.go"
+    ],
+    "symbols": [
+      "MaxQueryMemoryBytes"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "internal/chclient/client.go",
+        "symbol_name": "MaxQueryMemoryBytes",
+        "lines": "1296-1335",
+        "role": "Provides MaxQueryMemoryBytes to size memory-related query settings relative to the client-wide cap.",
+        "is_verified": true
+      },
+      {
+        "file_path": "internal/chclient/breaker.go",
+        "symbol_name": "",
+        "lines": "351-390",
+        "role": "Handles code-241 memory rejections and circuit breaker exceptions.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Stamp max_bytes_before_external_join as a join spill guardrail (chopt join_spill)",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Go",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Cerberus currently stamps max_bytes_before_external_group_by and max_bytes_before_external_sort on data-plane queries, but lacks a corresponding spill setting for joins. This causes heavy join queries to hit memory limits and trigger destructive code-241 OOM aborts instead of spilling to disk. The fix introduces the `join_spill` chopt feature to register and stamp `max_bytes_before_external_join = cap/2` on join-bearing queries.",
+    "root_cause_analysis": "ClickHouse requires explicit memory thresholds to trigger external spilling for hash joins. Because Cerberus previously only configured external memory limits for GROUP BY and ORDER BY operations, large hash builds in join plans exceeded memory ceilings without an intermediate spill mechanism, resulting in hard server-side OOM aborts.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect spill settings configuration",
+        "description": "Inspect internal/engine/spill.go to understand how applySpillSettings applies max_bytes_before_external_group_by and max_bytes_before_external_sort relative to MaxQueryMemoryBytes.",
+        "target_file": "internal/engine/spill.go"
+      },
+      {
+        "step_number": 2,
+        "title": "Implement join_spill chopt feature and join memory capping",
+        "description": "Add the join_spill chopt feature flag and update applySpillSettings to configure max_bytes_before_external_join = cap/2 alongside group_by and sort settings.",
+        "target_file": "internal/engine/spill.go"
+      },
+      {
+        "step_number": 3,
+        "title": "Verify query client integration",
+        "description": "Inspect internal/chclient/client.go to ensure MaxQueryMemoryBytes correctly passes the memory budget down to the engine spill configuration builder.",
+        "target_file": "internal/chclient/client.go"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression tests and execute verification suite",
+        "description": "Add test assertions in internal/chclient/drain_byte_budget_test.go verifying that join-bearing queries successfully stamp max_bytes_before_external_join when join_spill is enabled, then run go test ./...",
+        "target_file": "internal/chclient/drain_byte_budget_test.go"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Database Query Spill Settings",
+        "short_explanation": "Configuration flags that instruct a database engine to write intermediate data to disk when memory usage exceeds a specific threshold.",
+        "why_it_matters": "Without spill settings, memory-intensive operations like large joins or aggregations cause hard out-of-memory errors and crash or abort queries.",
+        "connection_to_issue": "This issue directly adds `max_bytes_before_external_join` to prevent costly join OOMs by enabling disk spilling."
+      },
+      {
+        "concept_name": "Client-Side Query Plan Stamping",
+        "short_explanation": "The practice of injecting server configuration settings into database client requests based on the shape and requirements of the query plan.",
+        "why_it_matters": "It ensures that specific query types receive tuned runtime limits (like memory caps and spill triggers) dynamically before execution.",
+        "connection_to_issue": "Cerberus uses query plan stamping to attach settings rules like group_by/sort spill caps, and this fix extends that exact pattern to join operations."
+      }
+    ],
+    "common_pitfalls": [
+      "Forgetting to tie the join spill setting to the client's MaxQueryMemoryBytes cap / 2 arithmetic.",
+      "Hardcoding memory values instead of deriving them dynamically from the client-wide configuration.",
+      "Introducing per-query branching instead of following the established boot-resolved settings rules pattern."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

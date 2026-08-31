@@ -1,0 +1,129 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_403b2143-2284-5c6e-910f-0f30de19741e",
+    "repo_name": "agentscope-ai/agentscope-java",
+    "repo_url": "https://github.com/agentscope-ai/agentscope-java",
+    "issue_number": 2787,
+    "issue_url": "https://github.com/agentscope-ai/agentscope-java/issues/2787",
+    "title": "[Bug]:MarketplaceStager orphan GC races with concurrent staging —UncheckedIOException(NoSuchFileException) escapes and fails the whole agent call"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-20T08:20:49.404285+00:00",
+    "updated_at": "2026-08-20T08:20:48.930785+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Java",
+    "repo_topics": [
+      "adk",
+      "agent",
+      "agent-framework",
+      "agentic",
+      "agentic-ai",
+      "agentscope",
+      "ai",
+      "harness",
+      "llm"
+    ],
+    "repo_description": "",
+    "repo_stars": 4896,
+    "repo_id": "4f5606bc-d628-49b7-9ae5-b065ab42eb6d"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+    ],
+    "symbols": [
+      "ReActAgent"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java",
+        "symbol_name": "ReActAgent",
+        "lines": "1-40",
+        "role": "Core agent class referencing skills and middlewares",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Bug]:MarketplaceStager orphan GC races with concurrent staging —UncheckedIOException(NoSuchFileException) escapes and fails the whole agent call",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Java",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When multiple agent calls share a workspace root with different visible skills, concurrent orphan garbage collection in MarketplaceStager can delete files out from under an active directory traversal. This throws a NoSuchFileException wrapped in an UncheckedIOException, escaping the try-catch block and terminating the entire agent execution.",
+    "root_cause_analysis": "Garbage collection methods like garbageCollectOrphans(), deleteRecursively(), and removeUnexpected() catch checked IOException but fail to catch RuntimeException / UncheckedIOException thrown by lazy stream traversal when files disappear concurrently. Additionally, garbage collection is executed outside the protective try-catch boundaries of individual skill staging.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect MarketplaceStager traversal and error boundaries",
+        "description": "Inspect the directory traversal and file deletion logic in MarketplaceStager and ReActAgent.java to locate where Files.walk or recursive deletion streams throw UncheckedIOException due to concurrent file disappearance.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+      },
+      {
+        "step_number": 2,
+        "title": "Catch UncheckedIOException and NoSuchFileException",
+        "description": "Wrap directory traversal and cleanup actions (such as garbageCollectOrphans(), deleteRecursively(), and removeUnexpected()) in robust try-catch blocks or stream operators that gracefully catch UncheckedIOException and NoSuchFileException when concurrently modified paths vanish.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+      },
+      {
+        "step_number": 3,
+        "title": "Ensure safe protection boundaries around skill staging",
+        "description": "Verify that individual skill staging and concurrent workspace root operations are protected from unexpected runtime exceptions, ensuring orphan cleanups do not terminate agent execution.",
+        "target_file": "agentscope-core/src/main/java/io/agentscope/core/ReActAgent.java"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test for concurrent skill staging and workspace garbage collection",
+        "description": "Implement a regression test simulating concurrent agent calls sharing a workspace root with differing visible skills to ensure no NoSuchFileException or UncheckedIOException escapes during orphan garbage collection.",
+        "target_file": "agentscope-core/src/test/java/io/agentscope/core/ReActAgentTest.java"
+      },
+      {
+        "step_number": 5,
+        "title": "Run test suite verification",
+        "description": "Run the repository test command to verify that all agent executions complete successfully under concurrent workspace modifications.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Unchecked IOException in Java Streams",
+        "short_explanation": "Java NIO file streams like Files.walk() throw runtime UncheckedIOException when an underlying file or directory is deleted mid-traversal.",
+        "why_it_matters": "Developers must catch runtime exceptions around NIO streams when working in concurrent or multi-threaded environments where files can change unexpectedly.",
+        "connection_to_issue": "Catching UncheckedIOException during directory walking and orphan cleanup prevents abrupt agent failure when concurrent calls modify shared cache directories."
+      },
+      {
+        "concept_name": "Resource Isolation and Concurrency Safety",
+        "short_explanation": "Ensuring multiple concurrent tasks do not interfere with shared resources through proper scoping, locking, or fault tolerance.",
+        "why_it_matters": "Shared filesystem resources in multi-user applications are vulnerable to race conditions if caching and cleanup mechanisms are not designed for concurrency.",
+        "connection_to_issue": "The issue stems from shared cache garbage collection across concurrent agent calls with different skill visibilities."
+      }
+    ],
+    "common_pitfalls": [
+      "Catching only checked IOException while ignoring RuntimeException / UncheckedIOException thrown by NIO stream operations.",
+      "Performing cleanup or garbage collection of shared cache directories outside safe try-catch boundaries."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

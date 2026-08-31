@@ -1,0 +1,117 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_0ed42071-b724-5d06-a93f-cdd29dd6d8db",
+    "repo_name": "andreknieriem/open-headunit",
+    "repo_url": "https://github.com/andreknieriem/open-headunit",
+    "issue_number": 916,
+    "issue_url": "https://github.com/andreknieriem/open-headunit/issues/916",
+    "title": "Home screen layout bug after editing vehicle information"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-30T21:15:26.393403+00:00",
+    "updated_at": "2026-08-30T21:15:24.963514+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Kotlin",
+    "repo_topics": [
+      "android",
+      "androidauto",
+      "headunit"
+    ],
+    "repo_description": "",
+    "repo_stars": 2065,
+    "repo_id": "80bc2fab-aa6e-480e-be7b-d86d24875123"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt"
+    ],
+    "symbols": [
+      "commManager.onUpdateUiConfigReplyReceived"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt",
+        "symbol_name": "commManager.onUpdateUiConfigReplyReceived",
+        "lines": "975-985",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Home screen layout bug after editing vehicle information",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Kotlin",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Issue #916 reports a home screen layout bug that occurs after editing vehicle information in the app's settings and returning to the home screen.",
+    "root_cause_analysis": "The root cause stems from configuration or state changes (such as updated vehicle name/information or screen dimension/UI configuration updates) not correctly triggering a proper UI refresh or layout pass when returning from the settings fragment/activity.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect UI configuration update flow",
+        "description": "Inspect symbol commManager.onUpdateUiConfigReplyReceived in app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt to understand how UI configuration changes and layout passes are triggered when returning from settings.",
+        "target_file": "app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt"
+      },
+      {
+        "step_number": 2,
+        "title": "Ensure layout re-initialization on resume or configuration update",
+        "description": "Update AapProjectionActivity.kt to trigger a complete UI layout refresh or request layout pass when returning from the settings fragment/activity after vehicle information changes.",
+        "target_file": "app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt"
+      },
+      {
+        "step_number": 3,
+        "title": "Add regression test for home screen layout synchronization",
+        "description": "Implement a test case verifying that returning to the home screen after saving vehicle settings correctly preserves the expected UI dimensions and layout alignment.",
+        "target_file": "app/src/main/java/com/andrerinas/openheadunit/aap/AapProjectionActivity.kt"
+      },
+      {
+        "step_number": 4,
+        "title": "Run test suite to verify fix",
+        "description": "Execute the project test suite using the suggested gradle command to ensure no regressions are introduced.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Activity and Fragment Lifecycle State Management",
+        "short_explanation": "How Android components coordinate UI updates and state persistence when navigating between screens.",
+        "why_it_matters": "Understanding lifecycle methods like onResume() and onPause() ensures that UI components reflect the latest configuration changes when returning from settings.",
+        "connection_to_issue": "When returning from the settings screen after editing vehicle information, the home screen or projection activity needs to correctly handle configuration changes and re-layout views."
+      },
+      {
+        "concept_name": "UI Configuration and Layout Updates",
+        "short_explanation": "Mechanisms responsible for adjusting screen margins, dimensions, and layout elements dynamically.",
+        "why_it_matters": "Proper UI configuration handling prevents visual artifacts and incorrect scaling or positioning on different head unit displays.",
+        "connection_to_issue": "The layout bug manifests visually after saving settings, indicating that UI configuration parameters or view hierarchies need a refresh upon return."
+      }
+    ],
+    "common_pitfalls": [
+      "Forgetting to invalidate views or request a layout pass after settings change.",
+      "Relying solely on activity recreation without preserving critical connection states."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

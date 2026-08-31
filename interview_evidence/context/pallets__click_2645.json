@@ -1,0 +1,100 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_3cb3e940-bb8e-42eb-b050-086f41cfd6ca",
+    "repo_name": "pallets/click",
+    "repo_url": "https://github.com/pallets/click",
+    "issue_number": 2645,
+    "issue_url": "https://github.com/pallets/click/issues/2645",
+    "title": "tests: add test coverage for float and int param type coercion error messages"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "davidism",
+    "created_at": "2026-08-14T10:00:00+00:00",
+    "updated_at": "2026-08-14T05:49:34.19743+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Python",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 16000,
+    "repo_id": "4aa118aa-e112-4340-8f0f-089947842bcc"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf_ast",
+    "primary_files": [
+      "src/click/types.py"
+    ],
+    "symbols": [
+      "IntParamType"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "src/click/types.py",
+        "symbol_name": "IntParamType",
+        "lines": "100-140",
+        "role": "CLI Parameter Type",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "tests: add test coverage for float and int param type coercion error messages",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Python",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "Add pytest test coverage asserting that invalid int/float CLI options produce clear, human-readable error messages.",
+    "root_cause_analysis": "Click handles parameter type conversion in types.py but lacks explicit unit test assertions for specific malformed input messages.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect Click types in src/click/types.py",
+        "description": "Examine IntParamType and FloatParamType conversion logic.",
+        "target_file": "src/click/types.py"
+      },
+      {
+        "step_number": 2,
+        "title": "Add test case in tests/test_basic.py",
+        "description": "Add parameterized test asserting that invalid float inputs produce expected error message.",
+        "target_file": "tests/test_basic.py"
+      },
+      {
+        "step_number": 3,
+        "title": "Run pytest suite",
+        "description": "Execute pytest tests/test_basic.py to confirm all assertions pass.",
+        "target_file": "tests/test_basic.py"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Click Parameter Types & Error Formatting",
+        "short_explanation": "Click parameter types convert raw CLI string arguments into Python types and raise BadParameter on conversion errors.",
+        "why_it_matters": "Clear error messages prevent user confusion when entering invalid command-line inputs.",
+        "connection_to_issue": "Tests are needed in tests/test_basic.py to verify BadParameter error strings for int and float types."
+      }
+    ],
+    "common_pitfalls": [
+      "Verify error messages match across both Python 3.10 and 3.12 formatting."
+    ],
+    "llm_provider": "google",
+    "llm_model": "gemini-3.6-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "TEST",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

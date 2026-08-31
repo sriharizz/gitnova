@@ -1,0 +1,137 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_8a680073-eec0-55e3-9a8e-d14455949375",
+    "repo_name": "paradedb/paradedb",
+    "repo_url": "https://github.com/paradedb/paradedb",
+    "issue_number": 6108,
+    "issue_url": "https://github.com/paradedb/paradedb/issues/6108",
+    "title": "Sequential scan fallback returns no rows for NUMERIC key fields"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-26T20:59:14.47074+00:00",
+    "updated_at": "2026-08-26T20:59:14.012681+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "Rust",
+    "repo_topics": [
+      "aggregations",
+      "analytics",
+      "bm25",
+      "database",
+      "elasticsearch",
+      "full-text-search",
+      "htap",
+      "hybrid-search",
+      "olap",
+      "postgresql",
+      "real-time-analytics",
+      "similarity-search",
+      "sparse-vector",
+      "sql"
+    ],
+    "repo_description": "",
+    "repo_stars": 9128,
+    "repo_id": "a28c80cb-0321-4a88-8978-9b9bc00022da"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "pg_search/src/query/pdb_query.rs",
+      "pg_search/src/postgres/utils.rs"
+    ],
+    "symbols": [
+      "range",
+      "scalar_datum_to_tantivy_value"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "pg_search/src/postgres/utils.rs",
+        "symbol_name": "scalar_datum_to_tantivy_value",
+        "lines": "876-915",
+        "role": "Relevant Code",
+        "is_verified": true
+      },
+      {
+        "file_path": "pg_search/src/query/pdb_query.rs",
+        "symbol_name": "range",
+        "lines": "1541-1580",
+        "role": "Relevant Code",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "Sequential scan fallback returns no rows for NUMERIC key fields",
+    "input_body": "No body provided in issue description.",
+    "target_language": "Rust",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "When executing a sequential-scan fallback query on a PostgreSQL `NUMERIC` key field in ParadeDB, zero rows are returned because the fallback reads index keys using physical storage representations (like `Numeric64` or `NumericBytes`) while heap keys are parsed naively as raw dataums without applying the index schema conversion.",
+    "root_cause_analysis": "During sequential scan fallback evaluation, the keyset collection logic mismatch between index storage formats (`Numeric64` and `NumericBytes`) and raw heap datums (`NUMERICOID` standard conversion) results in incompatible internal representations (e.g., comparing an `I64` or `Bytes` representation against a string or untransformed datum), causing exact value lookups in `KeySet` to fail.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect scalar_datum_to_tantivy_value in pg_search/src/postgres/utils.rs",
+        "description": "Examine how scalar_datum_to_tantivy_value handles NUMERICOID datums and whether it has access to index schema formatting options such as Numeric64 or NumericBytes.",
+        "target_file": "pg_search/src/postgres/utils.rs"
+      },
+      {
+        "step_number": 2,
+        "title": "Analyze sequential-scan fallback keyset collection in pg_search/src/query/pdb_query.rs",
+        "description": "Inspect how collect_keyset retrieves index keys and how heap keys are evaluated during sequential-scan fallback, identifying the mismatch between physical index representations and raw heap datums.",
+        "target_file": "pg_search/src/query/pdb_query.rs"
+      },
+      {
+        "step_number": 3,
+        "title": "Apply schema-aware conversion for NUMERIC keys",
+        "description": "Update the heap key conversion logic or fallback evaluation in pg_search/src/query/pdb_query.rs to utilize the correct index schema-aware conversion matching the index format version (e.g. Numeric64 or NumericBytes).",
+        "target_file": "pg_search/src/query/pdb_query.rs"
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test and run test command",
+        "description": "Add an integration or unit test verifying that queries filtering on PostgreSQL NUMERIC key fields with sequential-scan fallback successfully return matching rows, and run cargo test to verify.",
+        "target_file": "pg_search/src/query/pdb_query.rs"
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Schema-Aware Datum Conversion",
+        "short_explanation": "Converting raw PostgreSQL database values (datums) into indexed search types using the specific schema rules defined for that index field.",
+        "why_it_matters": "Different index configurations store numeric data differently (e.g., fixed-precision integers or byte arrays), so reading or comparing values requires matching the exact schema encoding rules rather than using default type conversions.",
+        "connection_to_issue": "The fallback mechanism currently fails because it compares heap values converted with default rules against index values stored with schema-specific numeric representations."
+      },
+      {
+        "concept_name": "Sequential Scan Fallback",
+        "short_explanation": "A fallback execution path where PostgreSQL evaluates search operators (like `@@@`) via sequential table scans when index scans are disabled or unavailable.",
+        "why_it_matters": "Ensures correctness and query execution even when specialized index access methods are bypassed by query planners or user settings.",
+        "connection_to_issue": "The bug specifically manifests under sequential scan fallbacks when filtering rows containing `NUMERIC` key fields."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying standard type coercion globally instead of handling the specific index field type during keyset collection.",
+      "Forgetting to support both fixed-precision (`Numeric64`) and arbitrary-precision (`NumericBytes`) numeric storage formats."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

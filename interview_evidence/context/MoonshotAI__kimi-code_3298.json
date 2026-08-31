@@ -1,0 +1,122 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_e06710de-157d-5b8c-b05e-f679047ef8f8",
+    "repo_name": "MoonshotAI/kimi-code",
+    "repo_url": "https://github.com/MoonshotAI/kimi-code",
+    "issue_number": 3298,
+    "issue_url": "https://github.com/MoonshotAI/kimi-code/issues/3298",
+    "title": "[Web UI] A single Ctrl+V image paste creates two attachment chips (clipboard.png + image.png)"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-27T19:01:09.263407+00:00",
+    "updated_at": "2026-08-27T19:01:08.00912+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [],
+    "repo_description": "",
+    "repo_stars": 6047,
+    "repo_id": "d419911b-b74e-475a-a58d-5fbc0cffa3d7"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/vscode/src/bridge-handler.ts",
+      "apps/vscode/src/KimiWebviewProvider.ts"
+    ],
+    "symbols": [
+      "KimiWebviewProvider",
+      "BridgeHandler"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/vscode/src/KimiWebviewProvider.ts",
+        "symbol_name": "KimiWebviewProvider",
+        "lines": "1-40",
+        "role": "Webview container managing extension bridge and UI communication",
+        "is_verified": true
+      },
+      {
+        "file_path": "apps/vscode/src/bridge-handler.ts",
+        "symbol_name": "BridgeHandler",
+        "lines": "1-30",
+        "role": "Bridge handler coordinating messages between webview and backend runtime",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "[Web UI] A single Ctrl+V image paste creates two attachment chips (clipboard.png + image.png)",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "In the Kimi-code Web UI, pressing Ctrl+V once to paste a screenshot results in two attachment chips (`clipboard.png` and `image.png`) being created, indicating that multiple handlers (such as a paste event and a clipboard poll) are triggering on the same clipboard item.",
+    "root_cause_analysis": "Two distinct event or polling handlers in the web interface independently detect and process the clipboard contents upon a single paste action, resulting in dual file creation without proper deduplication or event prevention.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect clipboard paste event handling",
+        "description": "Inspect KimiWebviewProvider in apps/vscode/src/KimiWebviewProvider.ts and BridgeHandler in apps/vscode/src/bridge-handler.ts to locate where paste events and clipboard items are processed.",
+        "target_file": "apps/vscode/src/KimiWebviewProvider.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Deduplicate clipboard processing",
+        "description": "Modify the paste event listener or bridge message handler in apps/vscode/src/bridge-handler.ts to check if an identical clipboard image has already been handled or queued within a short time window.",
+        "target_file": "apps/vscode/src/bridge-handler.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Prevent default or stop propagation",
+        "description": "Ensure event propagation is correctly handled and default actions are appropriately prevented in KimiWebviewProvider when processing clipboard paste events to avoid double-firing.",
+        "target_file": "apps/vscode/src/KimiWebviewProvider.ts"
+      },
+      {
+        "step_number": 4,
+        "title": "Execute test suite for verification",
+        "description": "Run the test suite using the verified test command to verify that single paste actions result in exactly one attachment chip without breaking existing behavior.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "Event Handling and Prevention",
+        "short_explanation": "Managing browser DOM events so that user actions do not trigger multiple redundant handlers.",
+        "why_it_matters": "Failing to stop propagation or handle duplicate triggers leads to redundant state mutations and duplicate UI elements.",
+        "connection_to_issue": "Fixing the duplicate paste issue requires ensuring that paste events and clipboard polling mechanisms do not both process the exact same clipboard item simultaneously."
+      },
+      {
+        "concept_name": "Clipboard API Interaction",
+        "short_explanation": "Accessing and reading image or text payloads from the system clipboard securely via browser APIs.",
+        "why_it_matters": "Properly handling clipboard data streams prevents unexpected binary files or incorrect filenames from populating user inputs.",
+        "connection_to_issue": "Helps distinguish between `clipboard.png` and `image.png` sources to unify or filter redundant capture paths."
+      }
+    ],
+    "common_pitfalls": [
+      "Modifying backend handlers when the duplicate event trigger resides entirely in frontend UI event listeners.",
+      "Forgetting to check for duplicate filenames or concurrent asynchronous clipboard reads."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

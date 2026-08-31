@@ -1,0 +1,140 @@
+{
+  "issue": {
+    "dataset_id": "gitnova_pub_27d2b691-de60-5578-8ded-de6b7341c5aa",
+    "repo_name": "nexu-io/open-design",
+    "repo_url": "https://github.com/nexu-io/open-design",
+    "issue_number": 7608,
+    "issue_url": "https://github.com/nexu-io/open-design/issues/7608",
+    "title": "pi-ai 0.84.3: provider catalog data shipped as JavaScript inside .json files breaks CJS consumers"
+  },
+  "raw_metadata": {
+    "body": "",
+    "labels": [],
+    "author": "community_contributor",
+    "created_at": "2026-08-30T22:13:22.329565+00:00",
+    "updated_at": "2026-08-30T22:13:21.401001+00:00",
+    "comments_count": 0
+  },
+  "repository": {
+    "repo_language": "TypeScript",
+    "repo_topics": [
+      "agent-skills",
+      "ai-agents",
+      "ai-design",
+      "byok",
+      "claude-code-for-design",
+      "claude-design",
+      "codex-design",
+      "coding-agents",
+      "cursor-design",
+      "design-systems",
+      "design-tools",
+      "desktop-app",
+      "figma-alternative",
+      "generative-ai",
+      "hermes-agent",
+      "local-first",
+      "no-code",
+      "prototyping",
+      "ui-generator",
+      "vibe-coding"
+    ],
+    "repo_description": "",
+    "repo_stars": 83752,
+    "repo_id": "b643e094-0b45-45ef-a75f-d1f325a74b4e"
+  },
+  "retrieval": {
+    "status": "PERSISTED_LOCATIONS",
+    "method": "hybrid_rrf",
+    "primary_files": [
+      "apps/daemon/src/cli.ts"
+    ],
+    "symbols": [
+      "publishToMarketplaceJson"
+    ],
+    "relevant_locations": [
+      {
+        "file_path": "apps/daemon/src/cli.ts",
+        "symbol_name": "publishToMarketplaceJson",
+        "lines": "5426-5465",
+        "role": "Illustrates standard JSON file reading and writing practices using `JSON.parse` and `JSON.stringify`.",
+        "is_verified": true
+      }
+    ]
+  },
+  "llm_context": {
+    "context_type": "PERSISTED_OUTPUT_AND_GROUNDING",
+    "input_title": "pi-ai 0.84.3: provider catalog data shipped as JavaScript inside .json files breaks CJS consumers",
+    "input_body": "No body provided in issue description.",
+    "target_language": "TypeScript",
+    "prompt_stage": "Gemini 2-Phase Investigation & Grounded Planning"
+  },
+  "generated_output": {
+    "summary": "The package dependency `@earendil-works/pi-ai@0.84.3` incorrectly ships JavaScript module code inside files ending with a `.json` extension. When plain CommonJS (CJS) Node.js require chains attempt to load these catalog files, Node runs `JSON.parse` on them, throwing a `SyntaxError` due to encountering JavaScript statements like `var` and `export`.",
+    "root_cause_analysis": "In-process ESM or bundler setups (like Vite or `tsx`) transpile or handle these files correctly, but plain Node CJS module resolution strictly enforces `JSON.parse()` for `.json` files. The upstream build or generation script writes JavaScript module code out to files with `.json` extensions instead of serializing pure JSON or assigning `.js` extensions.",
+    "step_by_step_plan": [
+      {
+        "step_number": 1,
+        "title": "Inspect dependency loading behavior",
+        "description": "Inspect how `@earendil-works/pi-ai@0.84.3` provider catalog files are loaded in CommonJS contexts and verify where the `SyntaxError` occurs during `JSON.parse` execution.",
+        "target_file": "apps/daemon/src/connectionTest.ts"
+      },
+      {
+        "step_number": 2,
+        "title": "Review JSON file handling standards",
+        "description": "Review standard JSON file reading and writing practices using `JSON.parse` and `JSON.stringify` to ensure proper parsing expectations.",
+        "target_file": "apps/daemon/src/cli.ts"
+      },
+      {
+        "step_number": 3,
+        "title": "Implement robust file loading or patching strategy",
+        "description": "Implement a custom loader, patch, or wrapper around the affected `@earendil-works/pi-ai` module files or upstream consumption so that files with JavaScript statements are executed or read appropriately instead of enforcing strict `JSON.parse`.",
+        "target_file": null
+      },
+      {
+        "step_number": 4,
+        "title": "Add regression test for provider catalog loading",
+        "description": "Add a dedicated regression test in apps/daemon/src/connectionTest.ts or equivalent test suite verifying that provider catalog modules from `@earendil-works/pi-ai` load successfully without throwing a `SyntaxError`.",
+        "target_file": "apps/daemon/src/connectionTest.ts"
+      },
+      {
+        "step_number": 5,
+        "title": "Run test suite for verification",
+        "description": "Run the repository test command to verify that all modules load correctly and no `SyntaxError` occurs during CJS require chains.",
+        "target_file": null
+      }
+    ],
+    "structured_concepts": [
+      {
+        "concept_name": "CommonJS vs ESM Module Resolution in Node.js",
+        "short_explanation": "Node.js handles CommonJS (`require`) and ES Modules (`import`) differently, including how file extensions are mapped to specific internal module loaders.",
+        "why_it_matters": "Developers need to know that file extensions dictate how Node.js parses and executes files at runtime.",
+        "connection_to_issue": "The issue stems from Node's CJS loader rigidly assuming any `.json` file must be parsed via `JSON.parse`, failing when JavaScript syntax is encountered."
+      },
+      {
+        "concept_name": "File Extension Semantics and Serialization",
+        "short_explanation": "The filename extension (such as `.json`, `.js`, or `.cjs`) acts as a contract telling runtime loaders how to process the file contents.",
+        "why_it_matters": "Mismatched extensions and file contents lead to hard-to-debug runtime syntax errors.",
+        "connection_to_issue": "The generated provider catalog files contain JavaScript code (`var`, `export`) but are named with `.json` extensions, violating the loader contract."
+      }
+    ],
+    "common_pitfalls": [
+      "Assuming modern bundlers or TypeScript runners (like `tsx`) represent standard plain Node.js runtime behavior.",
+      "Editing local workarounds without understanding that the underlying package dependency needs proper generation or extension fixes."
+    ],
+    "llm_provider": "gemini",
+    "llm_model": "gemini-3.5-flash"
+  },
+  "grounding": {
+    "verification_status": "VERIFIED",
+    "citation_provenance": "AST Codebase Evidence",
+    "hallucination_risk": "0.0% (Deterministic Anti-Hallucination Firewall)"
+  },
+  "frontend_fields": {
+    "difficulty_tier": "BEGINNER",
+    "suitability_score": 92,
+    "contribution_type": "BUG_FIX",
+    "estimated_time": "~1-2 hours",
+    "availability_status": "LIKELY_AVAILABLE"
+  }
+}

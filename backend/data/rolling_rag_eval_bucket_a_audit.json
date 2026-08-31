@@ -1,0 +1,796 @@
+[
+  {
+    "case_key": "kubescape/kubescape#3338",
+    "repo_name": "kubescape/kubescape",
+    "issue_number": 3338,
+    "merged_pr_number": 3339,
+    "title": "Add rule: detect subjects that can obtain SA tokens in unprivileged namespaces",
+    "raw_chunk_ids_count": 17,
+    "raw_chunk_ids": [
+      "e9feab44a724950ba08768179616c8295085736b9842d0c17b3c32b0299905f0",
+      "09780dcdb45efcd8c6683db644feb6527abb766555158864793085aad2792c0f",
+      "6de09a2fb8068b4da94ba60b7215b1605b160e596c60c15e7aacb9e17d27546c",
+      "506450dd6b9825d8c1e3f058e7e07b187ec08ddc7cf85bf5c82bb8ed8b55ae0d",
+      "628c5d6fa4e96186696e53753e4d1cbc125d0bdfba78985f80e4f982dc866889"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "rules/weak-namespace-token-access-v1/raw.rego",
+      "rules/weak-namespace-token-access-v1/rule.metadata.json"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "40ee29c88d9e71327d8c68a51b23bed059278723"
+  },
+  {
+    "case_key": "unxed/f4#531",
+    "repo_name": "unxed/f4",
+    "issue_number": 531,
+    "merged_pr_number": 571,
+    "title": "Ctrl+W allow close uniq panel if in other panels Editor or Viewer",
+    "raw_chunk_ids_count": 5,
+    "raw_chunk_ids": [
+      "72ca6b7c0138b4ede8d1d0b6bf36245bc697df04bb54faa873e1e41a4434f1a8",
+      "7cab3c44b079867a2e621671108577fec3037a43d3d607298ef6ce6da6cbd6b8",
+      "0f7b975abe6113788884271171f6905270e5ea0889330f7e3a025ed92343f16e",
+      "b1b635fda5bdec12099425bd53ced5a751ff7c8f899e18411a567f07911c75e2",
+      "9d3180839d8914a7180964af258c35dcbed58357ef49591033844df77f7b07ab"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "cmd/f4/framework_actions.go",
+      "cmd/f4/panels_frame.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "b3734d450ec9d250d5748880e3d953bb4bc0a0b8"
+  },
+  {
+    "case_key": "kubescape/kubescape#3288",
+    "repo_name": "kubescape/kubescape",
+    "issue_number": 3288,
+    "merged_pr_number": 3290,
+    "title": "Tracking: Contribution opportunities in the OPA/Rego misconfiguration engine",
+    "raw_chunk_ids_count": 15,
+    "raw_chunk_ids": [
+      "67583d83756ff7f7c61fceb72aea26376986922309e933c808a76a2d51214826",
+      "572a83aa5295bef4ddcc38f8fb4e1c1afaf368e51eb4409c382b8254a4aadbac",
+      "4d466a742cc4945c5fa3ff35786b1719857cf04070dfe1628a8c0828fe98f87a",
+      "76869a7adacab1926bde36d1830934862c98c6929ce8e36457d790163bfa1d03",
+      "395d94d607b47dfd49b48ff60d1e0e08900beabd8727c85784877b507b57461e"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "core/pkg/opaprocessor/PROCESS_FLOW.md",
+      "core/pkg/opaprocessor/processorhandler.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "fcc1fd83fcc7b06b38fff70ef3004624076cf772"
+  },
+  {
+    "case_key": "yschimke/compose-ai-tools#4067",
+    "repo_name": "yschimke/compose-ai-tools",
+    "issue_number": 4067,
+    "merged_pr_number": 4194,
+    "title": "publish: distribute the Wasm player as a consumable bundle",
+    "raw_chunk_ids_count": 17,
+    "raw_chunk_ids": [
+      "84b53b9e7c3fcd0e179cee68a96f0046d72eb81584957fa8f9b3f99d5ea72e1c",
+      "e21315de5a98c17d6b2a18c73457d99c6808f62b935a66d7764eeb1b63502c0f",
+      "330f852eab1ac31fcdf037452fa35f8073cc0fe642e401f95168383a9281b763",
+      "0c15438c7512b6cb977dbf097b2dc40feb792d4bb198bc92aeed8e59ead444f1",
+      "4ab57cc6c80a36ea626e9e64a629b239d62c82d560d2138b9fb2bfed73438c96"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "docs/RELEASING.md",
+      "docs/design/RC_CMP_WASM_PLAYER.md",
+      "docs/design/RC_PLAYER_EMBED.md",
+      "rc-player/wasm/build.gradle.kts",
+      "rc-player/wasm/npm/README.md",
+      "rc-player/wasm/npm/package.json",
+      "rc-player/wasm/src/wasmJsMain/kotlin/ee/schimke/composeai/rcplayer/wasm/Main.kt"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "e0568a997ba11d1c73c3cdad27010de4cbbfe156"
+  },
+  {
+    "case_key": "tsouza/cerberus#2183",
+    "repo_name": "tsouza/cerberus",
+    "issue_number": 2183,
+    "merged_pr_number": 2203,
+    "title": "chplan/fn: convert traceql/qlcommon/optimizer FuncCall/AggFunc sites",
+    "raw_chunk_ids_count": 18,
+    "raw_chunk_ids": [
+      "b767b0276cbe1e184f3c00facb02d03ca5f554a198fac6bd758b8d1abe3a222b",
+      "868129ff1eaaba87a1ad0daca1d8b7414d2097491b33106b50299c70ab189e1a",
+      "1affa831c86b234fc15b995cd676ed23c53043b40511470c6c838c89f072bbde",
+      "6ce89e53b4fab7ec1e556f74741d5f61db542623ada6a88a8dc52bf2568e6ca6",
+      "75841d0d70bd1aa99a65007ca0a59ca816105a28c461fac89903869283116359"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "internal/chplan/scan_resource_bound.go",
+      "internal/qlcommon/attribute_lookup.go",
+      "internal/traceql/aggregate.go",
+      "internal/traceql/group_coalesce.go",
+      "internal/traceql/lower.go",
+      "internal/traceql/metrics_compare.go",
+      "internal/traceql/metrics_pipeline.go",
+      "internal/traceql/search_limit.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "22a1cb33cf5b7a14c0e2e9812d30103322799eb0"
+  },
+  {
+    "case_key": "alibaba/nacos#15720",
+    "repo_name": "alibaba/nacos",
+    "issue_number": 15720,
+    "merged_pr_number": 15721,
+    "title": "Support auto-publishing the first uploaded skill version",
+    "raw_chunk_ids_count": 8,
+    "raw_chunk_ids": [
+      "b257c72e2b7cf987a6cbeaefd40afbac42f07c126df3924296de39591e16756e",
+      "878043bde07fa1b0184b2820adb58a13b46880a3887f0225ffbb543e264f554a",
+      "8314e60c3d7c07555816d7fc72449f4ec9c272736811b82d3daf01be9b5b7bfd",
+      "fd6707c91f75f8f1d19ee9199247085f121345e11fb2d9535183c4dd1aa4daeb",
+      "55cfb46e19492389747f65ab97cd65383094655b3efdc6d092383c9081c73f9c"
+    ],
+    "resolved_chunks_count": 8,
+    "ordered_retrieved_files": [
+      "console-ui/src/pages/AI/NewMcpServer/NewMcpServer.js",
+      "console-ui/src/reducers/authority.js",
+      "console-ui/src/components/ShowCodeing/ShowServiceCodeing.js",
+      "console-ui/src/utils/request.js"
+    ],
+    "ground_truth_files": [
+      "ai/src/main/java/com/alibaba/nacos/ai/controller/SkillAdminController.java",
+      "ai/src/main/java/com/alibaba/nacos/ai/service/skills/SkillOperationServiceImpl.java",
+      "ai/src/main/java/com/alibaba/nacos/ai/service/skills/SkillUploadRequest.java"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "d45ce3b1d7d2765cf6f593b835fcc35de2ca1bce"
+  },
+  {
+    "case_key": "tsouza/cerberus#2273",
+    "repo_name": "tsouza/cerberus",
+    "issue_number": 2273,
+    "merged_pr_number": 2278,
+    "title": "promql: exp-histogram binop matching modifiers + ==/!= still unsupported after #2263",
+    "raw_chunk_ids_count": 17,
+    "raw_chunk_ids": [
+      "3781e219e314c57b0c1af126a81bcb1968c73d87cce79c099873b93d29c50960",
+      "d46c95ade162c07b477525943cefd789164f07f4a7557a7eaac2093e631e4e76",
+      "0d12f7a64b9284c5831b7b45b37296aedde7d52e4dc227dfe287492730c2ad9d",
+      "327096ada9217335bd565adc8bc18cd48daedf8c259882204d974f5af3b838b4",
+      "05b95aceb5bbfc62eff71ebae7a058dff3c1a9bb833dabb4c0addc61b154aa54"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "compatibility/prometheus/query-corpus/fragments/006-native-histograms.yml",
+      "compatibility/prometheus/query-corpus/header.yml",
+      "docs/coverage.md",
+      "internal/promql/histogram_native_binop.go",
+      "internal/promql/histogram_native_float_fn.go",
+      "internal/promql/histogram_native_scalar_binop.go",
+      "internal/promql/histogram_quantile.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "fc2ce8be17aa68d72b91c0291fd6dfd8726fde10"
+  },
+  {
+    "case_key": "tsouza/cerberus#2225",
+    "repo_name": "tsouza/cerberus",
+    "issue_number": 2225,
+    "merged_pr_number": 2232,
+    "title": "promql: sum_over_time and avg_over_time reject native-histogram ranges",
+    "raw_chunk_ids_count": 17,
+    "raw_chunk_ids": [
+      "75643daf74dd448d524f8def00e270458cdca34db103f809656b80b4017dd539",
+      "947a0b86046001c9640ec0db91cde52bd7d81fdcc32363e4a89323fad932c3a9",
+      "e564bab2ae3210d23e030f68ad6a835c8fcf638c0505a11a295276ff47143b84",
+      "b0217aeb1f5e38591b8966df40080e5133ba793f253a8fcfd23538a86bd3e558",
+      "a80a24dc83743e2139ba9966d41b8f056cf7a95674c7ac0f083f761b2dbfc249"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "compatibility/parity-baseline/prometheus/00.json",
+      "compatibility/parity-baseline/prometheus/03.json",
+      "compatibility/parity-baseline/prometheus/14.json",
+      "compatibility/parity-baseline/prometheus/17.json",
+      "compatibility/parity-baseline/prometheus/1f.json",
+      "compatibility/parity-baseline/prometheus/39.json",
+      "compatibility/prometheus/query-corpus/fragments/006-native-histograms.yml",
+      "internal/promql/histogram_native_over_time.go",
+      "internal/promql/histogram_native_range_fn.go",
+      "internal/promql/lower.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "ec75bbef7e70834e8283706647d9d86438a26a7d"
+  },
+  {
+    "case_key": "tsouza/cerberus#2223",
+    "repo_name": "tsouza/cerberus",
+    "issue_number": 2223,
+    "merged_pr_number": 2227,
+    "title": "promql: histogram-dropping aggregations reject native histograms instead of ignoring them",
+    "raw_chunk_ids_count": 17,
+    "raw_chunk_ids": [
+      "75643daf74dd448d524f8def00e270458cdca34db103f809656b80b4017dd539",
+      "b0217aeb1f5e38591b8966df40080e5133ba793f253a8fcfd23538a86bd3e558",
+      "c418895cc2d490e79988c780c6b90970424b3f7e6094c63109e7074ba0e611e6",
+      "947a0b86046001c9640ec0db91cde52bd7d81fdcc32363e4a89323fad932c3a9",
+      "50fa3c187299e7e4dee114f558ed94053a699cfb38408dd175631e8f6ac26a9e"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "compatibility/parity-baseline.json",
+      "internal/promql/histogram_native_drop_aggregation.go",
+      "internal/promql/lower.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "ec75bbef7e70834e8283706647d9d86438a26a7d"
+  },
+  {
+    "case_key": "tsouza/cerberus#2221",
+    "repo_name": "tsouza/cerberus",
+    "issue_number": 2221,
+    "merged_pr_number": 2222,
+    "title": "promql: float-only functions wrongly reject native-histogram samples",
+    "raw_chunk_ids_count": 18,
+    "raw_chunk_ids": [
+      "75643daf74dd448d524f8def00e270458cdca34db103f809656b80b4017dd539",
+      "b0217aeb1f5e38591b8966df40080e5133ba793f253a8fcfd23538a86bd3e558",
+      "c418895cc2d490e79988c780c6b90970424b3f7e6094c63109e7074ba0e611e6",
+      "bdbbb47577a93354331647b6c005f8c633bd75724329c7288a225f2adf0d7ede",
+      "947a0b86046001c9640ec0db91cde52bd7d81fdcc32363e4a89323fad932c3a9"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "internal/promql/histogram_native_label_replace.go",
+      "internal/promql/label_fns.go",
+      "internal/promql/lower.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "ec75bbef7e70834e8283706647d9d86438a26a7d"
+  },
+  {
+    "case_key": "alibaba/nacos#15705",
+    "repo_name": "alibaba/nacos",
+    "issue_number": 15705,
+    "merged_pr_number": 15706,
+    "title": "Skill draft update leaves deleted resource files in storage",
+    "raw_chunk_ids_count": 14,
+    "raw_chunk_ids": [
+      "5a86329b1af054339e79fb9abfb269bbc80e90eaacfac8dd8515d5507c326f0e",
+      "878043bde07fa1b0184b2820adb58a13b46880a3887f0225ffbb543e264f554a",
+      "fd6707c91f75f8f1d19ee9199247085f121345e11fb2d9535183c4dd1aa4daeb",
+      "8d596863458a608c88b01f8f5f9e6b45b7de221104dc58cc3c57a4ba616a7330",
+      "d5d5f6c9baa897c14aa2305108bf82738d0e61c8cd24a67d3b2fbe619049fe77"
+    ],
+    "resolved_chunks_count": 14,
+    "ordered_retrieved_files": [
+      "console-ui/src/reducers/authority.js",
+      "console-ui/src/pages/AI/NewMcpServer/NewMcpServer.js",
+      "console-ui/src/locales/en-US.js",
+      "console-ui/src/pages/AuthorityControl/PermissionsManagement/PermissionsManagement.js",
+      "console-ui/src/locales/zh-CN.js",
+      "console-ui/src/index.js",
+      "console-ui/src/theme/index.js"
+    ],
+    "ground_truth_files": [
+      "ai/src/main/java/com/alibaba/nacos/ai/service/agentspecs/AgentSpecOperationServiceImpl.java",
+      "ai/src/main/java/com/alibaba/nacos/ai/service/prompt/PromptOperationServiceImpl.java",
+      "ai/src/main/java/com/alibaba/nacos/ai/service/skills/SkillOperationServiceImpl.java",
+      "ai/src/main/java/com/alibaba/nacos/ai/utils/AiResourceVersionStorageJsonUtil.java",
+      "console/src/main/resources/static/next/js/vendor-react.js",
+      "specs/en/ai/agentspec-spec.md",
+      "specs/en/ai/skill-spec.md",
+      "specs/zh-cn/ai/agentspec-spec.md",
+      "specs/zh-cn/ai/skill-spec.md"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "d45ce3b1d7d2765cf6f593b835fcc35de2ca1bce"
+  },
+  {
+    "case_key": "sinelaw/fresh#2988",
+    "repo_name": "sinelaw/fresh",
+    "issue_number": 2988,
+    "merged_pr_number": 3044,
+    "title": "File explorer doesn't follow along when the code tour opens a step's file",
+    "raw_chunk_ids_count": 9,
+    "raw_chunk_ids": [
+      "a6a2c7b009ba5a701b7514642fffd00d549a450cf86423309f71133e9d20ae3c",
+      "096db7c1a8acf4be29f00a587f7be1a3551249c375f9011dfd16c2fa0aaf43d3",
+      "41d1a4f10ccecb57f396a950dba97aeddec1719c263f1ed6b6b236cff4c05d80",
+      "7ec638a333b28816d0bd674763c31b0d87a6935ecb54f3211b52ed970680cf83",
+      "48d55d658e328467ce2922e66b30476915df727b5f295ce65e4f81c58323f04d"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "CHANGELOG.md",
+      "crates/fresh-editor/src/app/active_focus.rs",
+      "crates/fresh-editor/src/app/file_explorer.rs",
+      "crates/fresh-editor/src/app/file_open_orchestrators.rs",
+      "crates/fresh-editor/src/app/window/mod.rs"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "5ef92034b0756ae052f7d68f16db480f8582cae6"
+  },
+  {
+    "case_key": "alibaba/nacos#15718",
+    "repo_name": "alibaba/nacos",
+    "issue_number": 15718,
+    "merged_pr_number": 15719,
+    "title": "Role search returns no result when the username filter contains an underscore",
+    "raw_chunk_ids_count": 16,
+    "raw_chunk_ids": [
+      "01ca451bfa8f66686b505c44c67effaff9da19a2af6dbb302a8812b9229754ad",
+      "0f8a619cf416950ebb0dfa6e5e0a761780b25f13aa33cce68755086adad7e7eb",
+      "ed098ac02effda32ff83e5ad84b34d5add34077642eb5c738cfd39255671a44a",
+      "e5b9efb59e197148117dd6c0a8333fdfa23c4cb68fe9d2eb1fba264e4f5dcd0b",
+      "fba21c462f660098a96ae802a3d7526b3d32cc44d15167c1bdc78a79bc4fb058"
+    ],
+    "resolved_chunks_count": 15,
+    "ordered_retrieved_files": [
+      "console-ui/src/pages/AuthorityControl/RolesManagement/RolesManagement.js",
+      "console-ui/src/reducers/authority.js",
+      "console-ui/src/pages/AuthorityControl/RolesManagement/NewRole.js",
+      "console-ui/src/pages/AuthorityControl/PermissionsManagement/NewPermissions.js",
+      "console-ui/src/locales/zh-CN.js",
+      "console-ui/src/pages/AuthorityControl/PermissionsManagement/PermissionsManagement.js",
+      "console-ui/src/locales/en-US.js"
+    ],
+    "ground_truth_files": [
+      "plugin-default-impl/nacos-default-auth-plugin/pom.xml",
+      "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/EmbeddedRolePersistServiceImpl.java",
+      "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/EmbeddedUserPersistServiceImpl.java",
+      "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/ExternalRolePersistServiceImpl.java",
+      "plugin-default-impl/nacos-default-auth-plugin/src/main/java/com/alibaba/nacos/plugin/auth/impl/persistence/ExternalUserPersistServiceImpl.java",
+      "specs/en/auth/default-auth-plugin-spec.md",
+      "specs/zh-cn/auth/default-auth-plugin-spec.md"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "d45ce3b1d7d2765cf6f593b835fcc35de2ca1bce"
+  },
+  {
+    "case_key": "kubescape/kubescape#2796",
+    "repo_name": "kubescape/kubescape",
+    "issue_number": 2796,
+    "merged_pr_number": 2797,
+    "title": "[bug] : Streaming collector drops host-sensor fallback branches, silently passing controls it never evaluated on clusters >2500 resources",
+    "raw_chunk_ids_count": 18,
+    "raw_chunk_ids": [
+      "8423f2b78e661f1bb7178dd74940496ebebe4418fb630738d0171b16816887b3",
+      "efc9162531242b321656c3517ca687fa14a15c5cb4538085aa76495e9431157f",
+      "0a5ebcb9847e0ccbc33c91d8432b33ac0ca71545c970c16c03c049ecd74201f3",
+      "535bfb02e67726a1eadcda46673a7533f14bcc580e13bdca1c18d201b6e7dc39",
+      "318036928a7bc35280d65352758de079964e113b67a4323089014e6f4746fdbe"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "core/pkg/resourcehandler/k8sresources.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "1527e546c560456628db6a999ff7f6fa99738085"
+  },
+  {
+    "case_key": "tsouza/cerberus#2428",
+    "repo_name": "tsouza/cerberus",
+    "issue_number": 2428,
+    "merged_pr_number": 2427,
+    "title": "engine/promql: exp-histogram binop merge (h1+h2) has no merged-bucket-width bound",
+    "raw_chunk_ids_count": 12,
+    "raw_chunk_ids": [
+      "a97e95bc096e26fb797280594630f25d9391396751a5b27436efcadfa6954e75",
+      "9d99876f2242dca847b8c4bebd1975254cba03544d9d4e02b2c0fb584c971e9d",
+      "8d326f5a4f0bb550fc3c729279d92ef5cbde522ad44f0e9674888358817b5223",
+      "32d932c6c6a9a3770d680a0183bf0712fdf839e53543cfa98a3a5edd7630363f",
+      "cbc386a21e060212a903a183bcac4f3e5efebc221004d72eda711a0c28321aa2"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "internal/api/prom/handler.go",
+      "internal/chplan/histogram_merge_bound.go",
+      "internal/chsql/histogram_merge_bound.go",
+      "internal/perf/fanout/lint.go",
+      "internal/promql/histogram_merge_bound.go",
+      "internal/promql/histogram_quantile_native_window.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "c0513475edd38d730207b10ad6e9f053cdde6619"
+  },
+  {
+    "case_key": "opena2a-org/agent-identity-management#384",
+    "repo_name": "opena2a-org/agent-identity-management",
+    "issue_number": 384,
+    "merged_pr_number": 404,
+    "title": "Server-supplied denial reason reaches the terminal unsanitised and unbounded",
+    "raw_chunk_ids_count": 15,
+    "raw_chunk_ids": [
+      "514cc9d0de0a13e7a7d650f269c834c2acfb61762ee2df0ec08ddeb1a179b5e4",
+      "2be974393b9b5eff944b259feba7fd71429658d1904d7889e5219d0128eeaf6f",
+      "6c1bfdeec891d7daff2a9f69babc1f4434ff9d5e2279800005bbe394dfdd4d9b",
+      "1d843b92093812b38592c1fc34df9b343a4dbbed7d6a5dcb1135f058aa3f19e1",
+      "2940e099f8a27b900874f3e530f30768cdcb25f4d440ee6e88de3ec755d89440"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "sdk/python/aim_sdk/client.py",
+      "sdk/python/aim_sdk/console.py",
+      "sdk/python/aim_sdk/decision.py"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "8c7c16ab4199ee7c9ef6e4aa86346d942a980107"
+  },
+  {
+    "case_key": "unxed/f4#523",
+    "repo_name": "unxed/f4",
+    "issue_number": 523,
+    "merged_pr_number": 551,
+    "title": "Падение f4 при работе с архивами",
+    "raw_chunk_ids_count": 10,
+    "raw_chunk_ids": [
+      "b9694be16fbe004d1e902ca2958cd4e6cb3f0a593b26000b98b3931d7240bf5b",
+      "47b851751ed7161a3ed6ebd3a4c0b19299198feaeb95138886682b0a39c6beb8",
+      "0f9811c587aa4efb04460a430ee29d789cc45fa3b93254a864e67cc46a7d40dc",
+      "99ec528f0ade8022dea98dcef77671b1901acad0533fa2704d263006615fe148",
+      "17d8af632eddea2890f75c3ab0aa847698a2935d56ac2d02b5026341972d6760"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "cmd/f4/file_panel.go",
+      "cmd/f4/panels_frame.go",
+      "plugins/archive/provider.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "0798e5eae941d2f024db5c62c1f5c235c05f0194"
+  },
+  {
+    "case_key": "kestra-io/kestra#18505",
+    "repo_name": "kestra-io/kestra",
+    "issue_number": 18505,
+    "merged_pr_number": 18604,
+    "title": "[Bash2.0] A disabled Webhook trigger still creates executions when its URL is called",
+    "raw_chunk_ids_count": 10,
+    "raw_chunk_ids": [
+      "ead503e1281aa6fd6b4a1d27bcccf4cbd16840bf81e6bf15bd52f029203c5e27",
+      "5323bbddf97909bf98ca01b6711d473fdb0cd93003c0b3c300339c90329c1d65",
+      "bca8b8a8b4e12e8db8ac5e31fe1c222ee1b4e7ed9e45acbfa10715a21818ada1",
+      "6c5dd3e0914bdf3941e64886a813aa5a9ba53a73c726538b5fb43167cee84238",
+      "b3b2fba361e771645c8b17386f83ba2f02990f4428b327abe45d4b549ab328c8"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "webserver/src/main/java/io/kestra/webserver/controllers/api/ExecutionController.java"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "b84b85212bee8cc08c43f36e241687792f7ebff6"
+  },
+  {
+    "case_key": "tinygrad/tinygrad#17699",
+    "repo_name": "tinygrad/tinygrad",
+    "issue_number": 17699,
+    "merged_pr_number": 17712,
+    "title": "USB+AMD signal waits busy-poll and starves other real-time processes",
+    "raw_chunk_ids_count": 14,
+    "raw_chunk_ids": [
+      "b34eaf5a28519aefb6c0e933d465e621bafb0c10d7215505d70145fe93bc353b",
+      "df0fe556c427c664a3dbf0fc16fffd02b84ac3a91f9a8932254c9ca9c50b0758",
+      "90d28b05f893cc579f59447e71889edace63f98a6cc1ecb095f6585a4ea29d77",
+      "310ed38c382fb0de32c14e5c3fd3b0395d52c051e282eb2a8c4b7711ef8427a9",
+      "28e1a4daaa805db428b4b3ac7ca23ff722e16d9ad2a09e0ffc92ef8d3112257a"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "tinygrad/runtime/ops_amd.py"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "7e561fcb9734fb0e47226840b170c557a4204342"
+  },
+  {
+    "case_key": "openstreetmap/id-tagging-schema#2744",
+    "repo_name": "openstreetmap/id-tagging-schema",
+    "issue_number": 2744,
+    "merged_pr_number": 2788,
+    "title": "Don't suggest changing footpath to path when foot=no is tagged",
+    "raw_chunk_ids_count": 3,
+    "raw_chunk_ids": [
+      "9da1731bccc5e3ed6a078587b04e9c0ba4a71299a68ade615256a7de9e6bbb2e",
+      "1cdf64f66ef82b829039c5ec0556bef254eb24d7cf35503ce97cbc233785d7df",
+      "beb5e3c2b438070a614b8235fbb64ae0ee7603e4b531067c9f49143e1194bc8f"
+    ],
+    "resolved_chunks_count": 3,
+    "ordered_retrieved_files": [
+      "eslint.config.js",
+      "vitest.config.js"
+    ],
+    "ground_truth_files": [
+      "data/deprecated.json"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "36f188be461760bd4917f3294375783be9f9a56d"
+  },
+  {
+    "case_key": "yschimke/compose-ai-tools#4101",
+    "repo_name": "yschimke/compose-ai-tools",
+    "issue_number": 4101,
+    "merged_pr_number": 4094,
+    "title": "`VS Code Extension E2E (interactive-*)` times out waiting for renders — a different scenario each run",
+    "raw_chunk_ids_count": 8,
+    "raw_chunk_ids": [
+      "cbfdfc9095441037d728d0bebdb2900f42b3a9436d6ffd886c82c756b6c4cbd0",
+      "1452eee1f9c6d5780c1b4331350c43ba6ce0be527f42ac3f5368dc5445d29e11",
+      "1ce865fbdfaffdcc823226582a979d875dfcd970d394670642e560ea7c12c7bb",
+      "80a0bb9f0df045350aae50fca63af853d10b55eaa961078ed2e315ce3b4e86f8",
+      "dead0f54f6068b803ba38c0b4df8ec8f8c7d8abddc7376bc8193337efe5b4929"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "api/preview-annotations/src/commonMain/kotlin/ee/schimke/composeai/preview/CatalogComponent.kt",
+      "api/preview-annotations/src/commonMain/kotlin/ee/schimke/composeai/preview/OverrideVariant.kt",
+      "api/preview-data-api/src/main/kotlin/ee/schimke/composeai/cli/PreviewData.kt",
+      "design-map/README.md",
+      "design-map/design-map.mjs",
+      "design-map/emit-design-map.mjs",
+      "gradle-plugin/preview-discovery/src/main/kotlin/ee/schimke/composeai/discovery/PreviewData.kt",
+      "gradle-plugin/preview-discovery/src/main/kotlin/ee/schimke/composeai/discovery/PreviewDiscovery.kt"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "9edb6719d7dac1f04008078121da0e4cae1e782a"
+  },
+  {
+    "case_key": "alibaba/nacos#15477",
+    "repo_name": "alibaba/nacos",
+    "issue_number": 15477,
+    "merged_pr_number": 15784,
+    "title": "[Bug]3.2.2版本集群模式下创建 SSE HTTP-to-MCP Server 时，持久化实例为不健康状态",
+    "raw_chunk_ids_count": 4,
+    "raw_chunk_ids": [
+      "4e23719ddc0129cf9fc2310bda23145f3fcc69536a103b965c06df767040f35d",
+      "112834216bc5c4415c96d2db1cc4c0c55bd46a4b31519bf0ed2eda8c7a512d29",
+      "c31abfb4fb23763fe8868ab888ba953a66420c37f56d03a7ff07fe441aad5496",
+      "e1df4fe62b8f6ea511e4aac4c62e30208da206ca2e9c4b2596c7410b5df76cb4"
+    ],
+    "resolved_chunks_count": 4,
+    "ordered_retrieved_files": [
+      "console-ui/src/pages/AI/NewMcpServer/NewMcpServer.js",
+      "console-ui/src/components/ShowCodeing/ShowServiceCodeing.js"
+    ],
+    "ground_truth_files": [
+      "naming/src/main/java/com/alibaba/nacos/naming/core/v2/metadata/ServiceMetadataProcessor.java",
+      "naming/src/main/java/com/alibaba/nacos/naming/core/v2/service/impl/PersistentClientOperationServiceImpl.java",
+      "naming/src/main/java/com/alibaba/nacos/naming/healthcheck/interceptor/ServiceMetadataReadyInterceptor.java",
+      "naming/src/main/resources/META-INF/services/com.alibaba.nacos.naming.healthcheck.interceptor.AbstractHealthCheckInterceptor",
+      "specs/en/naming/naming-health-protection-spec.md",
+      "specs/en/naming/naming-persistent-cp-consistency-spec.md",
+      "specs/zh-cn/naming/naming-health-protection-spec.md",
+      "specs/zh-cn/naming/naming-persistent-cp-consistency-spec.md",
+      "sys/src/main/java/com/alibaba/nacos/sys/utils/ApplicationUtils.java"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "d45ce3b1d7d2765cf6f593b835fcc35de2ca1bce"
+  },
+  {
+    "case_key": "eclipse-apoapsis/ort-server#4073",
+    "repo_name": "eclipse-apoapsis/ort-server",
+    "issue_number": 4073,
+    "merged_pr_number": 4072,
+    "title": "Create an upper bound for the limit of paged requests",
+    "raw_chunk_ids_count": 19,
+    "raw_chunk_ids": [
+      "a7245b1bfffdeb858a430573ce43212922121729e3047e47c2e9c9d1c5063415",
+      "bcb7f175c3358109b7c821b1238ba1584ed9d149fc42447699ed3dc3e9819694",
+      "23cf5fe4bda87694cca251f86a719f1bf42cea060ca632e2d4e4ce18ccbcaad4",
+      "11dd3f3ecc69711de4af4c7212ec68d2526eb0d86aa5fea35beceb82a2805d03",
+      "bf62d367af17695318a98d607442a4cff047cb1079638d60b21e37bc523d2242"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "ui/src/components/siblings.tsx",
+      "ui/src/routes/organizations/$orgId/products/$productId/repositories/$repoId/runs/$runIndex/-components/run-details-bar.tsx"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "2a0f936b72745277ab277845380a50d1a56ef087"
+  },
+  {
+    "case_key": "kubescape/kubescape#3374",
+    "repo_name": "kubescape/kubescape",
+    "issue_number": 3374,
+    "merged_pr_number": 3375,
+    "title": "Bidirectional JSON-RPC 2.0 Streaming Protocol for Kubescape MCP Server",
+    "raw_chunk_ids_count": 19,
+    "raw_chunk_ids": [
+      "525b2258a1efb4245d5430b9c6e430772a4eca682d34b9dca938717c75d64cf8",
+      "450d5501d251146153281df42165103e6bfb4235b9a4faed8f8a732ed3f393f4",
+      "c0c2d8868224e75820a1cd2ae98a55b78588dfe295b76859ed54564d3865218e",
+      "5c977bb1728971197ae601911f341cd9a6b502e5574d40f7960402bd578ffc8e",
+      "44ad89cf45703aa3d8f5eece201e327db1bf33f84af0eff8b8468a768b2f1749"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "cmd/mcpserver/advanced_tools.go",
+      "cmd/mcpserver/mcpserver.go",
+      "core/meta/datastructures/v1/fix.go",
+      "core/pkg/fixhandler/fixhandler.go",
+      "core/pkg/fixhandler/prioritizationhandler.go",
+      "core/pkg/opaprocessor/processorhandlerutils.go",
+      "core/pkg/opaprocessor/utils.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "1fb66595cdcf4a7f6917e3c23c196e3c1393d4fe"
+  },
+  {
+    "case_key": "tsouza/cerberus#2333",
+    "repo_name": "tsouza/cerberus",
+    "issue_number": 2333,
+    "merged_pr_number": 2335,
+    "title": "promql: mixed float/histogram 'or' rejects a windowed or derived float side",
+    "raw_chunk_ids_count": 16,
+    "raw_chunk_ids": [
+      "72ec24b2c3e5c63a4351bb43d0baf0930ac9b422eb1e5b301ee10a7365529987",
+      "addf2558957028799c7c0315328cfdfe1ef4d82eb04066ae4dab923afc7c28c6",
+      "a783a89e7dbb3f4831bdb56c9edebf3e66536d2dae928e25a2ef06df0bfc99b5",
+      "34d97013438077124b851feed41119c1e63fe8b252ac6bc1daf5c71b9093182f",
+      "420aba4036e541e68b6258e9a46d9915194fcda54c07336f33ecf5e4433bd2d7"
+    ],
+    "resolved_chunks_count": 0,
+    "ordered_retrieved_files": [],
+    "ground_truth_files": [
+      "docs/coverage.md",
+      "internal/api/prom/handler.go",
+      "internal/chclient/cursor.go",
+      "internal/chplan/row_shape.go",
+      "internal/chplan/vector_set_op.go",
+      "internal/chsql/vector_set_op.go",
+      "internal/optimizer/flatten_vector_set_op.go",
+      "internal/promql/histogram_native_mixed_or.go",
+      "internal/promql/histogram_shape_guard.go",
+      "internal/promql/lower.go"
+    ],
+    "matches_found": [],
+    "recall_at_1": 0.0,
+    "recall_at_5": 0.0,
+    "recall_at_10": 0.0,
+    "mrr_at_10": 0.0,
+    "hit_at_10": 0.0,
+    "snapshot_commit": "604b2b27b1df7dde19fbe8732e1a516f0ab5a596"
+  }
+]
