@@ -614,6 +614,225 @@ async def get_user_preferences(user_id: str = Query("default_user", description=
     )
 
 
+# ── Domain Taxonomy & Recommendation Intelligence ───────────────────────────
+
+import re
+from collections import defaultdict
+from typing import Set
+
+DOMAIN_TAXONOMY: Dict[str, Set[str]] = {
+    "web": {
+        "web", "backend", "frontend", "fullstack", "api", "rest", "graphql", "http", "https",
+        "server", "client", "fastapi", "flask", "django", "express", "expressjs", "spring",
+        "spring-boot", "actix", "gin", "fiber", "router", "endpoint", "middleware", "auth",
+        "authentication", "session", "jwt", "oauth", "html", "css", "react", "vue", "angular",
+        "docusaurus", "nextjs", "vite", "websocket", "cors", "microservice", "grpc", "openapi",
+        "swagger", "asgi", "wsgi", "tornado", "aiohttp", "starlette", "requests", "httpx", "urllib"
+    },
+    "ai_ml": {
+        "ai", "artificial-intelligence", "machine-learning", "deep-learning", "ml", "nlp",
+        "natural-language-processing", "llm", "large-language-models", "neural-network",
+        "computer-vision", "transformers", "pytorch", "tensorflow", "keras", "scikit-learn",
+        "sklearn", "haystack", "langchain", "llama", "huggingface", "model", "models",
+        "training", "inference", "embedding", "embeddings", "vector", "vector-database",
+        "diffusion", "rag", "retrieval-augmented-generation", "agent", "agents",
+        "reinforcement-learning", "genai", "generative-ai", "tinygrad", "onnx", "jax",
+        "speech", "voice", "audio", "whisper", "vision", "dataset", "datasets"
+    },
+    "data": {
+        "data", "analytics", "dataframe", "dataframes", "pandas", "numpy", "polars", "scipy",
+        "visualization", "matplotlib", "seaborn", "plotly", "etl", "pipeline", "pipelines",
+        "parquet", "arrow", "sql", "duckdb", "bigquery", "database", "databases", "query",
+        "queries", "aggregation", "metric", "metrics", "dashboard", "dashboards", "statistics",
+        "olap", "warehouse", "lakehouse", "spark", "sedona", "kestra", "kafka", "flink",
+        "timeseries", "time-series", "bi", "data-science", "data-engineering", "table", "csv"
+    },
+    "devtools": {
+        "cli", "devtools", "developer-tools", "tools", "automation", "linter", "linting",
+        "formatter", "formatting", "compiler", "parser", "ast", "testing", "test", "tests",
+        "ci", "cd", "ci-cd", "workflow", "workflows", "git", "github", "cobra", "click",
+        "argparse", "subprocess", "utility", "utilities", "scripting", "benchmark", "benchmarks",
+        "profiler", "profiling", "scaffolding", "generator", "sdk", "kubescape", "security",
+        "docker", "kubernetes", "k8s", "container", "containers", "orchestration", "terminal",
+        "shell", "powershell", "bash", "zsh", "build", "bundler", "package-manager", "sysadmin"
+    }
+}
+
+LANGUAGE_NORMALIZATION: Dict[str, Set[str]] = {
+    "python": {"python", "py"},
+    "typescript": {"typescript", "javascript", "ts", "js"},
+    "javascript": {"typescript", "javascript", "ts", "js"},
+    "typescript / javascript": {"typescript", "javascript", "ts", "js"},
+    "java": {"java"},
+    "go": {"go", "golang"},
+    "golang": {"go", "golang"},
+    "rust": {"rust", "rs"},
+    "c++": {"c++", "cpp", "c"},
+    "c#": {"c#", "csharp", "dotnet"},
+}
+
+
+def resolve_target_languages(raw_languages: Optional[str]) -> Set[str]:
+    if not raw_languages:
+        return set()
+    target_langs = set()
+    for raw in raw_languages.split(","):
+        clean = raw.strip().lower()
+        if not clean:
+            continue
+        if clean in LANGUAGE_NORMALIZATION:
+            target_langs.update(LANGUAGE_NORMALIZATION[clean])
+        else:
+            matched = False
+            for k, mapped in LANGUAGE_NORMALIZATION.items():
+                if k in clean or clean in k:
+                    target_langs.update(mapped)
+                    matched = True
+            if not matched:
+                target_langs.add(clean)
+    return target_langs
+
+
+def resolve_target_domains(raw_domains: Optional[str]) -> Set[str]:
+    if not raw_domains:
+        return set()
+    target_domains = set()
+    for raw in raw_domains.split(","):
+        clean = raw.strip().lower().replace("/", " ").replace("-", " ")
+        if not clean:
+            continue
+        if any(k in clean for k in ["ai", "machine learning", "deep learning", "ml", "nlp", "llm"]):
+            target_domains.add("ai_ml")
+        elif any(k in clean for k in ["data", "analytic", "dataframe", "sql", "warehouse", "dataset"]):
+            target_domains.add("data")
+        elif any(k in clean for k in ["web", "backend", "frontend", "fullstack", "api", "server", "http"]):
+            target_domains.add("web")
+        elif any(k in clean for k in ["tool", "dev", "cli", "automation", "workflow", "utility", "test"]):
+            target_domains.add("devtools")
+    return target_domains
+
+
+def compute_personalized_score(
+    iss: IssueOut,
+    target_langs: Set[str],
+    target_domains: Set[str],
+    target_diff: str
+) -> float:
+    """
+    Computes deterministic, explainable personalized ranking score.
+    Formula components:
+      1. Tech Stack Alignment (max 30.0)
+      2. Domain & Topic Relevance (max 35.0)
+      3. Verified Quality Score (max 20.0)
+      4. Experience Suitability (max 15.0)
+      5. AST Grounding Confidence (max 10.0)
+      6. Maintainer Signals (max 5.0)
+      7. Freshness (max 5.0)
+    """
+    score = 0.0
+    iss_lang = (iss.repo_language or "").lower()
+
+    # 1. Tech Stack Match (max 30.0)
+    if target_langs:
+        if iss_lang in target_langs:
+            score += 30.0
+        else:
+            score += 0.0
+    else:
+        score += 15.0
+
+    # 2. Domain & Topic Match (max 35.0)
+    if target_domains:
+        domain_points = 0.0
+        corpus = f"{iss.repo_full_name} {iss.title} {iss.ai_summary_preview or ''} {' '.join(iss.domain_topics)}".lower()
+        topic_set = {t.lower() for t in iss.domain_topics}
+
+        for dom_key in target_domains:
+            kw_set = DOMAIN_TAXONOMY.get(dom_key, set())
+            # Primary Topic match (+20.0)
+            if any(t in kw_set for t in topic_set) or any(any(kw in t for kw in kw_set) for t in topic_set):
+                domain_points += 20.0
+            # Text Corpus keyword match (+15.0)
+            hits = sum(1 for kw in kw_set if re.search(r'\b' + re.escape(kw) + r'\b', corpus))
+            if hits > 0:
+                domain_points += min(15.0, hits * 5.0)
+        score += min(35.0, domain_points)
+    else:
+        score += 20.0
+
+    # 3. Verified Quality Score (max 20.0)
+    q_score = float(iss.quality_score or 75)
+    score += (q_score / 100.0) * 20.0
+
+    # 4. Difficulty / Suitability Score (max 15.0)
+    suit_dict = iss.beginner_suitability.model_dump() if iss.beginner_suitability else {}
+    suit_score = float(suit_dict.get("score", 75))
+    score += (suit_score / 100.0) * 15.0
+
+    # 5. AST Grounding Confidence (max 10.0)
+    if iss.verification_status == "VERIFIED":
+        score += 10.0
+    elif iss.verification_status == "NEEDS_REVIEW":
+        score += 5.0
+
+    # 6. Maintainer Signals Bonus (max 5.0)
+    if iss.opportunity_signals and iss.opportunity_signals.get("has_positive_labels"):
+        score += 5.0
+
+    # 7. Freshness Bonus (max 5.0)
+    freshness = (iss.freshness_label or "").lower()
+    if "hour" in freshness or "today" in freshness or "1 day" in freshness:
+        score += 5.0
+    elif "day" in freshness:
+        score += 3.0
+    else:
+        score += 1.0
+
+    return score
+
+
+def apply_repository_diversity(
+    ranked_candidates: List[IssueOut],
+    max_per_repo: int = 2,
+    total_limit: int = 20
+) -> List[IssueOut]:
+    """
+    Applies repository diversity enforcement.
+    Default: Max 2 issues per repository.
+    Interleaves top candidates across distinct repositories (Round-robin selection)
+    to prevent any single repository from dominating the feed.
+    Gracefully allows up to 3 issues/repo if total distinct repos in pool <= 2.
+    """
+    if not ranked_candidates:
+        return []
+
+    # Group by repository preserving ranked order within each repo
+    repo_buckets: Dict[str, List[IssueOut]] = defaultdict(list)
+    for iss in ranked_candidates:
+        r_name = iss.repo_full_name or "unknown"
+        repo_buckets[r_name].append(iss)
+
+    num_distinct_repos = len(repo_buckets)
+    # If pool has very few distinct repos, allow up to 3 per repo
+    effective_cap = 3 if num_distinct_repos <= 2 else max_per_repo
+
+    # Round-robin interleaved selection across repository buckets
+    diverse_selection: List[IssueOut] = []
+    repo_names_ordered = list(repo_buckets.keys())  # Ordered by top-ranked issue in each repo
+
+    for round_idx in range(effective_cap):
+        for r_name in repo_names_ordered:
+            bucket = repo_buckets[r_name]
+            if round_idx < len(bucket):
+                diverse_selection.append(bucket[round_idx])
+                if len(diverse_selection) >= total_limit:
+                    break
+        if len(diverse_selection) >= total_limit:
+            break
+
+    return diverse_selection
+
+
 @app.get("/recommendations", response_model=RecommendationsOut, tags=["Issues"])
 async def get_recommendations(
     languages: Optional[str] = Query(None, description="Comma-separated preferred languages (e.g. Python,TypeScript)"),
@@ -625,11 +844,11 @@ async def get_recommendations(
 ):
     """
     Personalized recommendation endpoint matching user's tech stack, domains, and difficulty preference.
-    Enforces strict Beginner Hard Gates and filters out incompatible issues.
-    Ranks precomputed issues deterministically. Sub-50ms response.
+    Enforces strict publication gates, deterministic domain & quality scoring, and repository diversity (max 2/repo).
+    Sub-50ms response without live LLM calls.
     """
-    lang_list = [l.strip().lower() for l in languages.split(",") if l.strip()] if languages else []
-    dom_list = [d.strip().lower() for d in domains.split(",") if d.strip()] if domains else []
+    target_langs = resolve_target_languages(languages)
+    target_domains = resolve_target_domains(domains)
     type_list = [t.strip().upper().replace(" ", "_") for t in contribution_types.split(",") if t.strip()] if contribution_types else []
     target_diff = (difficulty or "BEGINNER").upper()
 
@@ -674,13 +893,14 @@ async def get_recommendations(
         iss_lang = (iss.repo_language or "").lower()
 
         # 3. Strict Language Filter (if user specified preferred languages)
-        if lang_list and iss_lang not in lang_list:
+        if target_langs and iss_lang not in target_langs:
             continue
 
         # 4. Contribution Type Filter (if user specified preferred contribution types)
         if type_list and iss_contrib_type not in type_list:
             continue
 
+        # 5. Experience / Difficulty Filtering
         if target_diff == "BEGINNER":
             # Beginner feed MUST ONLY contain pure BEGINNER or BEGINNER_PLUS complexity
             if iss_contrib_complexity not in ["BEGINNER", "BEGINNER_PLUS"]:
@@ -704,43 +924,23 @@ async def get_recommendations(
 
         eligible_candidates.append(iss)
 
-    def compute_match_score(iss: IssueOut) -> float:
-        score = 0.0
-        iss_lang = (iss.repo_language or "").lower()
-        suit_dict = iss.beginner_suitability.model_dump() if iss.beginner_suitability else {}
-        suit_score = float(suit_dict.get("score", 75))
-
-        # 1. Tech Stack Match (+40 points)
-        if lang_list and iss_lang in lang_list:
-            score += 40.0
-        else:
-            score += 20.0
-
-        # 2. Domain & Topic Match (+20 points)
-        if dom_list:
-            iss_text = f"{iss.title} {iss.repo_full_name} {iss.ai_summary_preview or ''} {' '.join(iss.domain_topics)}".lower()
-            matched_doms = sum(1 for d in dom_list if d in iss_text or any(d in t.lower() for t in iss.domain_topics))
-            score += min(20.0, matched_doms * 10.0)
-
-        # 3. Beginner Suitability Score (+30 points max)
-        score += (suit_score / 100.0) * 30.0
-
-        # 4. Maintainer Signals Bonus (+10 points)
-        if iss.opportunity_signals and iss.opportunity_signals.get("has_positive_labels"):
-            score += 10.0
-
-        return score
-
     # Sort eligible candidates by personalized match score descending
-    ranked_issues = sorted(eligible_candidates, key=compute_match_score, reverse=True)
-    paginated = ranked_issues[offset : offset + limit]
+    ranked_issues = sorted(
+        eligible_candidates,
+        key=lambda iss: compute_personalized_score(iss, target_langs, target_domains, target_diff),
+        reverse=True
+    )
+
+    # Apply Repository Diversity (Max 2 issues per repo, interleaved round-robin)
+    diverse_issues = apply_repository_diversity(ranked_issues, max_per_repo=2, total_limit=limit + offset)
+    paginated = diverse_issues[offset : offset + limit]
 
     return RecommendationsOut(
         issues=paginated,
-        total_count=len(ranked_issues),
+        total_count=len(diverse_issues),
         filters_applied={
-            "languages": lang_list,
-            "domains": dom_list,
+            "languages": list(target_langs) if target_langs else [],
+            "domains": list(target_domains) if target_domains else [],
             "difficulty": target_diff,
             "contribution_types": type_list
         }

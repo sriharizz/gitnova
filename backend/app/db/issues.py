@@ -164,7 +164,7 @@ async def fetch_issues_db(
     # Supabase Client Path
     if supabase_client and (conn is None or not settings.has_database):
         try:
-            query = supabase_client.table("issues").select("*, repos!inner(full_name, tier, score, stars, language)").eq("is_published", True)
+            query = supabase_client.table("issues").select("*, repos!inner(full_name, tier, score, stars, language, topics, description)").eq("is_published", True)
             if repo_id:
                 query = query.eq("repo_id", str(repo_id))
             if tier:
@@ -190,7 +190,7 @@ async def fetch_issues_db(
             raw_rows = resp.data or []
         except Exception as err:
             logger.warning(f"Supabase REST query fallback retry: {err}")
-            query = supabase_client.table("issues").select("*, repos!inner(full_name, tier, score, stars, language)").eq("is_published", True)
+            query = supabase_client.table("issues").select("*, repos!inner(full_name, tier, score, stars, language, topics, description)").eq("is_published", True)
             if repo_id:
                 query = query.eq("repo_id", str(repo_id))
             resp = query.order("quality_score", desc=True).range(offset, offset + limit - 1).execute()
@@ -204,6 +204,27 @@ async def fetch_issues_db(
             r["repo_score"] = repo_info.get("score")
             r["repo_stars"] = repo_info.get("stars")
             r["repo_language"] = repo_info.get("language")
+            
+            # Inherit topics from repo if not set on issue
+            r_topics = repo_info.get("topics") or []
+            if isinstance(r_topics, str):
+                try:
+                    r_topics = json.loads(r_topics)
+                except Exception:
+                    r_topics = []
+            iss_topics = r.get("domain_topics") or []
+            if isinstance(iss_topics, str):
+                try:
+                    iss_topics = json.loads(iss_topics)
+                except Exception:
+                    iss_topics = []
+            combined_topics = list(iss_topics)
+            for top in r_topics:
+                if top not in combined_topics:
+                    combined_topics.append(top)
+            r["domain_topics"] = combined_topics
+            r["repo_description"] = repo_info.get("description") or ""
+
             results.append(row_to_issue_dict(r))
         return results
 
