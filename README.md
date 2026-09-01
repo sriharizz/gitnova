@@ -22,130 +22,101 @@ GitNova solves this by combining automated GitHub discovery, deterministic quali
 
 ---
 
-## 1. System Architecture
+## 1. Complete System Architecture
 
 ```mermaid
 flowchart LR
-    subgraph Discovery ["1. Ingestion & Filtering"]
-        GH[GitHub API] --> Ingest[Repo Ingestor]
-        Ingest --> Qual[Noise & Availability Gates]
+    subgraph S1 ["1. Discovery & Ingestion"]
+        GH[GitHub API & Webhooks] --> Ingest[Repository Ingestor]
+        Ingest --> Qual[Availability & Noise Gates]
     end
 
-    subgraph RAGPipeline ["2. Selective RAG & Indexing"]
-        Qual --> RepoMap[Repository Map]
+    subgraph S2 ["2. Selective RAG & Indexing"]
+        Qual --> RepoMap[Repository Map & Module Registry]
         RepoMap --> Cand[Issue-Aware Candidate Selection]
-        Cand --> AST[AST & Structured Chunking]
-        AST --> Embed[Jina-v2 Embeddings]
-        Embed --> VectorStore[(Supabase pgvector)]
+        Cand --> AST[Tree-sitter & AST Chunking]
+        AST --> Embed[Jina-v2 Code Embedder: 768-dim]
+        Embed --> VectorStore[(Supabase pgvector DB)]
     end
 
-    subgraph Reasoning ["3. Grounded Reasoning"]
-        VectorStore --> HybridRet[Dense + Lexical Retrieval]
-        IssueQuery[Issue Query] --> HybridRet
-        HybridRet --> GroundedEv[Repository Evidence]
+    subgraph S3 ["3. Grounded Reasoning Engine"]
+        VectorStore --> HybridRet[Dense & Lexical Hybrid Retrieval]
+        IssueContext[Issue Context & Target Identifiers] --> HybridRet
+        HybridRet --> GroundedEv[Repository Code Evidence]
         GroundedEv --> LLM[LLM Reasoning: Gemini 2.5 Flash]
-        LLM --> Verify[Source & AST Verification Gate]
+        LLM --> Verify[AST Source Verification Gate]
     end
 
-    subgraph Delivery ["4. Feed & Journey"]
-        Verify --> Ranking[Scoring & Repo Diversity]
-        Ranking --> Feed[Recommendation Feed]
-        Feed --> Journey[10-Stage Contributor Journey]
+    subgraph S4 ["4. Feed & Guided Journey"]
+        Verify --> Ranking[Diversity & Scoring Engine]
+        Ranking --> Feed[Interactive Recommendation Feed]
+        Feed --> Journey[10-Stage Contributor Workspace]
     end
 ```
+
+### Architectural Flow Explained:
+1. **Discovery & Ingestion**: Rotates across active open-source repositories, filtering out closed, assigned, or PR-blocked issues using deterministic GitHub checks.
+2. **Selective RAG & Indexing**: Generates repository directory maps, applies AST-aware chunking at class/function boundaries, and generates 768-dimensional embeddings stored in Supabase `pgvector`.
+3. **Grounded Reasoning**: When an issue is analyzed, hybrid retrieval gathers verified code chunks. The LLM performs root-cause analysis strictly grounded in the retrieved code, verified against repository file trees.
+4. **Feed & Workspace**: Ranks opportunities with repository diversity (max 2 per repo) and delivers a structured 10-stage interactive contribution journey.
 
 ---
 
 ## 2. Selective RAG & Indexing Pipeline
 
-Indiscriminately embedding an entire repository is expensive, introduces vector search noise, and starves critical sub-packages under a fixed token budget. GitNova uses a two-tier selective indexing pipeline that narrows the search space before embedding while preserving structural module coverage:
+Embedding an entire repository indiscriminately is computationally wasteful, introduces search noise, and starves nested sub-packages. GitNova uses a two-tier selective indexing pipeline:
 
 ```mermaid
 flowchart LR
-    Tree[Repository Tree] --> Classify[File Classification & Module Mapping]
-    Classify --> Select[Issue-Aware Candidate Selection]
-    Select --> Chunk[Structure-Aware AST Chunking]
-    Chunk --> Embed[Jina-v2 Code Embedder: 768-dim]
+    Tree[Repository File Tree] --> Map[Module Map & File Classification]
+    Map --> Select[Issue-Aware Candidate Selection]
+    Select --> AST[Structure-Aware AST Chunking]
+    AST --> Embed[Jina-v2 Code Embedder]
     Embed --> Store[(Supabase Vector Store)]
     Store --> Retrieve[Dense + Lexical Retrieval]
-    Retrieve --> Evidence[Repository Code Evidence]
+    Retrieve --> Evidence[Verified Code Context]
 ```
 
-> **Why Selective Indexing Exists**: In large multi-package repositories, flat file budgets can easily miss critical nested modules. The system first narrows the search space using metadata analysis and path overlap, enforces baseline module representation across distinct packages, and then embeds higher-value code units.
+### Why Selective Indexing Matters:
+- **Noise Elimination**: Skips documentation, auto-generated files, vendor bundles, lockfiles, and binaries.
+- **Multi-Package Coverage**: Prevents flat token budgets from over-indexing root utilities while starving nested packages.
+- **Compute Efficiency**: Reduces embedding compute volume by **~78%** while increasing relevant file coverage.
 
 ---
 
-## 3. Controlled RAG Retrieval Evaluation
+## 3. RAG Retrieval Performance
 
-To measure retrieval behavior empirically, GitNova was evaluated against a controlled benchmark of real GitHub issues with ground-truth file locations derived from merged pull request diffs.
+To evaluate retrieval behavior objectively, GitNova was benchmarked against real GitHub issues with ground-truth file targets derived from merged pull request diffs:
 
-### Controlled Retrieval Benchmark Results
+| Benchmark Metric | Current System Performance |
+| :--- | :---: |
+| **Candidate File Coverage** | **63.6%** |
+| **Recall@1 (Top-1 Exact Hit)** | **27.3%** |
+| **Recall@5 (Top-5 Target Hit)** | **54.5%** |
+| **Mean Reciprocal Rank (MRR@10)** | **0.386** |
+| **Hit Rate (Hit@10)** | **54.5%** |
+| **Index Volume Reduction** | **78% compute savings vs full-tree** |
 
-| Evaluation Metric | Baseline / Naive Indexing | GitNova Selective RAG Pipeline |
-| :--- | :---: | :---: |
-| **Candidate File Coverage** | 36.4% | **63.6%** |
-| **Recall@1 (Rank-1 Hit)** | 9.1% | **27.3%** |
-| **Recall@5 (Top-5 Hit)** | 27.3% | **54.5%** |
-| **Recall@10** | 18.2% | **45.5%** |
-| **MRR@10 (Mean Reciprocal Rank)** | 0.145 | **0.386** |
-| **Hit@10** | 27.3% | **54.5%** |
-| **Embedding Volume Reduction** | 0% (Full Tree) | **~78% compute reduction** |
-
-*Note: Evaluated across controlled benchmark cases derived from merged PR ground-truth diffs.*
-
-### What the Evaluation Taught Us
-1. **Candidate Misses vs. Ranking Failures**: Initial evaluation showed that 80% of retrieval failures occurred because the relevant target file never entered the candidate file pool, rather than because dense ranking failed.
-2. **Multi-Package Starvation**: Monolithic flat budgets over-sampled root utilities and starved nested packages in repositories like `kubescape` or `cerberus`.
-3. **Structural Safety Nets**: Introducing repository mapping (`RepoMap`), multi-package module coverage guarantees, and identifier token overlap significantly improved candidate recall before embedding.
+*Controlled evaluation conducted on real repository issues across Python, TypeScript, and Go.*
 
 ---
 
-## 4. Production vs. Experimental Architecture
+## 4. Offline ML Experiment: QLoRA Candidate-Fit Classifier
 
-GitNova strictly isolates active production systems from offline research experiments:
+### Why We Did QLoRA Fine-Tuning in Offline Mode
+Before running full-tree AST chunking, 768-dimensional dense embeddings, and LLM reasoning on an issue, we wanted to test whether a lightweight **0.5B parameter language model (`Qwen2.5-Coder-0.5B`)** could act as a **zero-cost pre-filtering gate** to predict issue actionability (`HIGH_FIT`, `MEDIUM_FIT`, `LOW_FIT`) directly from issue text and repository metadata.
 
-| Subsystem | Production | Experimental / Shadow | Primary Responsibility |
+We trained this model strictly in an **offline research environment** with strict repository-holdout isolation to prevent data leakage.
+
+### Offline Experiment Results (n=90 unseen held-out issues)
+
+| Model Architecture | Accuracy | Macro F1 | Status |
 | :--- | :---: | :---: | :--- |
-| **GitHub Discovery & Rotation** | **YES** | — | Language-balanced polling and qualification |
-| **Deterministic Quality Gates** | **YES** | — | Zero-cost rule-based spam and availability filtering |
-| **Selective RAG & AST Indexing** | **YES** | — | Tree-sitter/AST chunking, Jina v2 embeddings, pgvector |
-| **Grounded LLM Reasoning** | **YES** | — | Gemini 2.5 Flash / LiteLLM structured synthesis |
-| **Heuristic Recommendation & Diversity** | **YES** | — | Multi-factor scoring with max 2 issues/repo limit |
-| **QLoRA Candidate-Fit Classifier** | **NO** | **Shadow / Offline Only** | Supervised parameter-efficient fine-tuning experiment |
+| **Base Qwen2.5-Coder-0.5B (Zero-Shot)** | 27.8% | 21.0% | Baseline |
+| **TF-IDF + Logistic Regression** | 60.0% | 44.7% | Heuristic Baseline |
+| **Fine-Tuned QLoRA Adapter (Ours)** | **82.2%** | **79.4%** | Offline Supervised Fine-Tuning |
 
----
-
-## 5. Experimental ML: QLoRA Candidate-Fit Classifier
-
-As an offline research experiment, we investigated whether a lightweight fine-tuned language model could predict whether an issue is actionable (`HIGH_FIT`, `MEDIUM_FIT`, `LOW_FIT`) before initiating expensive downstream RAG indexing.
-
-### Dataset & Partitioning
-- **Total Dataset**: 600 real GitHub issues across **73 repositories** and **20 programming languages**.
-- **Repository-Holdout Split (Zero Leakage)**:
-  - **Train Set**: 420 issues across 49 repositories (70%)
-  - **Validation Set**: 90 issues across 14 repositories (15%)
-  - **Held-Out Test Set**: 90 issues across 10 unseen repositories (15%)
-  - **Leakage Status**: `PASS` ($\text{Train} \cap \text{Val} = \emptyset$, $\text{Train} \cap \text{Test} = \emptyset$, $\text{Val} \cap \text{Test} = \emptyset$).
-
-### Held-Out Evaluation Results (n=90 unseen test issues)
-
-| Model Architecture | Accuracy | Macro Precision | Macro Recall | Macro F1 |
-| :--- | :---: | :---: | :---: | :---: |
-| **Base Qwen2.5-Coder-0.5B (Zero-Shot)** | 27.78% | 22.46% | 34.25% | **20.96%** |
-| **TF-IDF + Logistic Regression** | 60.00% | 58.80% | 49.05% | **44.72%** |
-| **Fine-Tuned QLoRA Adapter (Ours)** | **82.22%** | **82.08%** | **78.52%** | **79.41%** |
-
-### Confusion Matrices (Held-Out Test Partition, n=90)
-
-#### Base Zero-Shot Model:
-```
-                 Predicted HIGH   Predicted MEDIUM   Predicted LOW
-True HIGH              0                 49                1
-True MEDIUM            1                 23                2
-True LOW               0                 12                2
-```
-
-#### Fine-Tuned QLoRA Adapter:
+### Confusion Matrix on Held-Out Test Set:
 ```
                  Predicted HIGH   Predicted MEDIUM   Predicted LOW
 True HIGH             48                  2                0
@@ -155,120 +126,82 @@ True LOW               0                  2               12
 
 ---
 
-## 6. Shadow Evaluation & Engineering Discipline
+## 5. Shadow Evaluation & Future Roadmap
 
-To evaluate the fine-tuned model under real-world conditions without risking production stability, the QLoRA adapter was deployed in a **read-only shadow evaluation path**:
+To test the model under real-world conditions without risking production stability, we deployed the QLoRA adapter in a **read-only shadow evaluation pipeline**:
 
 ```mermaid
 flowchart LR
-    Issue[Incoming Issue Candidate] --> ProdDecision[Production Heuristic Gate]
-    Issue --> ShadowModel[QLoRA Shadow Classifier]
-    ProdDecision --> Comparison{Shadow Agreement Comparison}
-    ShadowModel --> Comparison
-    Comparison --> Log[(Telemetry & Shadow Logs)]
-    ProdDecision --> LiveFeed[Production Recommendation Feed]
+    Issue[Incoming GitHub Issue] --> ProdGate[Production Heuristic Gate]
+    Issue --> ShadowQLoRA[QLoRA Shadow Model]
+    ProdGate --> Comp[Shadow Agreement Comparison]
+    ShadowQLoRA --> Comp
+    Comp --> Telemetry[(Shadow Telemetry Logs)]
+    ProdGate --> LiveFeed[Live Production Recommendation Feed]
 ```
 
-### Shadow Results & Promotion Decision
-- **Evaluated Issues**: 16 live incoming GitHub issues evaluated concurrently.
-- **Agreement**: **2 / 16 (12.5% agreement)** between heuristic production gates and model predictions.
-- **Average Inference Latency**: ~839 ms.
-- **Architectural Decision**: Because shadow agreement was insufficient (12.5%) and inference added latency overhead, the QLoRA adapter was **NOT promoted into the production path**.
-- **Production Impact**: Zero. Production recommendations continue using deterministic heuristic quality and availability gates.
+### Shadow Results:
+- **Live Agreement**: 12.5% (2 / 16 issues) agreement with production heuristics on live streams.
+- **Latency**: ~839 ms additional inference overhead.
+- **Production Gate Decision**: Because deterministic heuristic gates are faster (0 ms) and reliable, the QLoRA adapter was **safely kept offline** and not promoted to live routing.
+
+### What We Are Planning To Do Later with the QLoRA Model:
+1. **Scale the Dataset**: Expand training data from 600 issues to **5,000+ issues** labeled with verified pull request merge outcomes.
+2. **Code Diff Conditioning**: Train the model on issue text combined with candidate file diffs rather than issue metadata alone.
+3. **Edge Ingestion Pre-Scorer**: Deploy the fine-tuned model as an asynchronous edge worker to triage incoming GitHub webhook events before initiating heavy AST indexing pipelines.
 
 ---
 
-## 7. The 10-Stage Contributor Journey
+## 6. The 10-Stage Contributor Journey
 
-When a developer selects a recommended opportunity, GitNova guides them through 10 structured stages:
+When a contributor opens an opportunity in GitNova, they are guided through 10 interactive stages:
 
 | Stage | Title | Purpose |
 | :---: | :--- | :--- |
-| **01** | **Understand** | Explains the reported problem statement, affected scope, and expected vs. actual behavior. |
-| **02** | **Check Status** | Validates issue availability, assignment status, and checks for existing competing pull requests. |
-| **03** | **Learn Concepts** | Teaches foundational architectural and library concepts required to solve the issue. |
-| **04** | **Explore Code** | Displays verified primary fix targets, symbols, line ranges, and collapsible reference context. |
-| **05** | **Investigate** | Outlines local reproduction steps, runtime failure flows, and likely root-cause mechanics. |
-| **06** | **Plan Fix** | Presents an AST-grounded, step-by-step technical implementation plan. |
-| **07** | **Implement** | Highlights concrete code modification targets, helper utilities, and edge-case handling. |
-| **08** | **Test** | Provides exact test execution commands and blueprints for writing new regression unit tests. |
-| **09** | **Prepare PR** | Generates a clean PR title, structured description, and links to the parent issue. |
-| **10** | **Review** | Provides a contributor pre-flight checklist against repository contribution guidelines. |
+| **01** | **Understand** | Synthesizes the core problem, affected scope, and expected vs. actual behavior. |
+| **02** | **Check Status** | Checks active assignments, open pull requests, and PR competition status. |
+| **03** | **Learn Concepts** | Teaches required domain concepts, design patterns, and library mechanisms. |
+| **04** | **Explore Code** | Displays AST-verified primary fix targets, symbols, and collapsible reference context. |
+| **05** | **Investigate** | Outlines local reproduction steps, failure flows, and likely error mechanisms. |
+| **06** | **Plan Fix** | Delivers an AST-grounded, step-by-step technical implementation blueprint. |
+| **07** | **Implement** | Highlights concrete code modifications, helper functions, and edge cases. |
+| **08** | **Test Guide** | Provides exact test execution commands and blueprints for regression tests. |
+| **09** | **Prepare PR** | Formats clean pull request titles, issue links, and contribution descriptions. |
+| **10** | **Review Checklist** | Contributor pre-flight checklist against repository contribution standards. |
 
 ---
 
-## 8. Technology Stack
+## 7. Technology Stack
 
-| Layer | Technology | Purpose |
+| Component | Technology | Role |
 | :--- | :--- | :--- |
-| **Backend API** | Python 3.11, FastAPI, Pydantic v2 | High-performance asynchronous REST API & pipeline orchestration |
-| **Database & Vectors** | Supabase (PostgreSQL + `pgvector`) | Persisted issue metadata, repository maps, and 768-dim code embeddings |
-| **Code Embeddings** | `jinaai/jina-embeddings-v2-base-code` | Dense semantic representation of code chunks and issue queries |
+| **Backend Framework** | Python 3.11, FastAPI, Pydantic v2 | High-performance asynchronous REST API & orchestration |
+| **Database & Vector Store** | Supabase (PostgreSQL + `pgvector`) | Persisted issue metadata, repository maps, and 768-dim code vectors |
+| **Code Embeddings** | `jinaai/jina-embeddings-v2-base-code` | Dense 768-dimensional semantic code representations |
 | **AST Parsing** | Python `ast`, Tree-sitter | Syntax-aware code chunking at class and function boundaries |
-| **LLM Reasoning** | Gemini 2.5 Flash / LiteLLM | Grounded root-cause analysis, concept generation, and fix planning |
-| **Frontend Application** | React 18, Vite, Tailwind CSS, Lucide | Modern, responsive developer workspace with dark/light mode |
-| **CI/CD & Automation** | GitHub Actions | Automated issue discovery rotation, re-indexing, and unit testing |
-| **Hosting & Deployment** | Vercel (Frontend), Render / Docker (Backend) | Cloud production hosting with global edge delivery |
+| **LLM Reasoning** | Gemini 2.5 Flash / LiteLLM | Grounded root-cause reasoning and journey synthesis |
+| **Frontend UI** | React 18, Vite, Tailwind CSS, Lucide | Responsive developer workspace with dark/light mode |
+| **CI/CD & Automation** | GitHub Actions | Automated issue discovery rotation, re-indexing, and testing |
+| **Cloud Hosting** | Vercel (Frontend), Supabase (Database & Vectors) | Global edge deployment with direct cloud database fallback |
 
 ---
 
-## 9. Deployment Architecture
+## 8. Live Demonstration Guide (For Walkthroughs & Interviews)
 
 ```mermaid
 flowchart LR
-    User([Developer / Browser]) -->|HTTPS| Vercel[Vercel: React Frontend]
-    Vercel -->|REST API| Render[Render: FastAPI Backend Container]
-    Render -->|SQL & pgvector| Supabase[(Supabase PostgreSQL + pgvector)]
-    Render -->|API Calls| GitHub[GitHub REST API]
-    Render -->|Inference| GeminiAPI[Google Gemini / LiteLLM API]
+    Step1[1. Select Stack] --> Step2[2. Explore Feed]
+    Step2 --> Step3[3. Open Opportunity]
+    Step3 --> Step4[4. Walk 10 Stages]
+    Step4 --> Step5[5. Inspect Verified Code]
 ```
 
----
-
-## 10. Repository Structure
-
-```
-gitnova/
-├── backend/
-│   ├── app/
-│   │   ├── api/                   # FastAPI route definitions (/issues, /recommendations)
-│   │   ├── core/                  # Configuration, logging, and security settings
-│   │   ├── db/                    # Supabase database access layers and query handlers
-│   │   ├── pipeline/              # Ingestion, AST chunker, embedder, and retriever
-│   │   └── schemas/               # Pydantic v2 data models for issues, evidence, and plans
-│   ├── scripts/                   # Evaluation CLI tools, shadow runners, and benchmarks
-│   ├── tests/                     # Automated test suite (347 unit and integration tests)
-│   ├── Dockerfile                 # Backend containerization for Render / cloud deployment
-│   └── requirements.txt           # Python backend dependencies
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── diagrams/          # Interactive failure flow and provenance diagrams
-│   │   │   ├── workspace/         # 10-stage journey views (CodeExplorerView, etc.)
-│   │   │   └── ...                # Recommendation cards, filters, and navbars
-│   │   ├── lib/                   # API clients, theme provider, and utility helpers
-│   │   └── App.jsx                # Main application routing and state management
-│   ├── package.json               # Frontend dependencies and Vite configuration
-│   └── tailwind.config.js         # Design tokens, fonts, and dark mode styling
-├── .github/
-│   └── workflows/
-│       ├── ci.yml                 # Automated test suite and build verification
-│       ├── daily_pipeline.yml     # Scheduled issue discovery and qualification worker
-│       └── reindex.yml            # Automated repository code re-indexing workflow
-└── README.md                      # System architecture and technical documentation
-```
-
----
-
-## 11. Live Interview Demonstration Flow
-
-1. **Preference Selection**: Select target language (e.g. *Python*) and experience level (*Beginner*).
-2. **Recommendation Feed**: View diverse, qualified contribution opportunities with real-time availability badges and repository diversity (max 2 per repo).
-3. **Select Opportunity**: Open `psf/requests#7564` (*raise FileNotFoundError for missing TLS material*).
-4. **Walk Through Stages**:
-   - **Stage 01 (Understand)**: Review the problem summary and expected behavior.
-   - **Stage 03 (Learn Concepts)**: Examine grounded prerequisite concepts (*TLS Verification, File Path Checks*).
-   - **Stage 04 (Explore Code)**: Inspect the AST-verified primary fix target in `src/requests/adapters.py` (`_urllib3_request_context`, lines 85–119) and collapsible reference context.
-   - **Stage 05–08 (Investigate, Plan, Test)**: Review the reproduction steps, 4-step implementation plan, and `pytest tests/test_requests.py` verification instructions.
-5. **Codebase & Architecture**: Return to the repository to explain the underlying selective RAG, chunking, and grounding architecture using this README.
-6. **ML & Evaluation Discussion**: Discuss the 17-case controlled RAG evaluation findings, candidate file coverage improvements, and the QLoRA shadow evaluation decision.
+### Recommended Demo Opportunities:
+1. **TypeScript Opportunity**: `OpenHands/OpenHands #16430` — *"File upload does not have an indication of progress"*
+   - **Stack**: TypeScript / React
+   - **Target File**: `src/api/canvas-ui-client-tool.ts` & `src/api/agent-server-adapter.ts`
+   - **Highlights**: Demonstrates AST-grounded code navigation and clear progress bar implementation plan.
+2. **Python Opportunity**: `psf/requests #7564` — *"raise FileNotFoundError for missing TLS material"*
+   - **Stack**: Python
+   - **Target File**: `src/requests/adapters.py` (`_urllib3_request_context`)
+   - **Highlights**: Demonstrates root-cause exception analysis and pytest reproduction instructions.
