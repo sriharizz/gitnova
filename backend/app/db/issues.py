@@ -392,201 +392,52 @@ async def fetch_issue_code_db(
                 "github_file_url": f"https://github.com/{repo_name}/blob/{commit_sha}/{chunk['file_path']}#L{chunk['start_line']}-L{chunk['end_line']}"
             })
 
-    # Derive file chunks from issue explanation target locations if code_chunks table not populated
-    if not files_list:
-        explanation = issue.get("explanation")
-        commit_sha = issue.get("repo_commit_sha") or "main"
-        
+    # 2. Secondary: If retrieved_ids is empty, look up real code_chunks for target files in explanation
+    if not files_list and supabase_client:
+        explanation = issue.get("explanation") or {}
         relevant_locs = []
-        if explanation:
-            if hasattr(explanation, "relevant_locations") and explanation.relevant_locations:
-                relevant_locs = explanation.relevant_locations
-            elif isinstance(explanation, dict) and explanation.get("relevant_locations"):
-                relevant_locs = explanation.get("relevant_locations")
-            elif hasattr(explanation, "step_by_step_plan") and explanation.step_by_step_plan:
-                relevant_locs = explanation.step_by_step_plan
+        if isinstance(explanation, dict):
+            relevant_locs = explanation.get("relevant_locations") or explanation.get("step_by_step_plan") or []
+        elif hasattr(explanation, "relevant_locations") and explanation.relevant_locations:
+            relevant_locs = explanation.relevant_locations
 
-        target_snippets = {
-            "src/flask/testing.py": (
-                "    @contextmanager\n"
-                "    def session_transaction(\n"
-                "        self, *args: t.Any, **kwargs: t.Any\n"
-                "    ) -> t.Iterator[SessionMixin]:\n"
-                "        \"\"\"When used in combination with a :class:`with` statement, this\n"
-                "        opens a session transaction. This can be used to modify the\n"
-                "        session that the test client uses. Once the ``with`` block is\n"
-                "        left the session is stored back.\n"
-                "        \"\"\"\n"
-                "        if self._cookies is None:\n"
-                "            raise TypeError(\n"
-                "                \"Cookies are not enabled for this test client. Make sure\"\n"
-                "                \" that the client is not using a CookieJar without support\"\n"
-                "                \" for setting cookies, or that cookies were not disabled.\"\n"
-                "            )\n\n"
-                "        server_name = self.application.config[\"SERVER_NAME\"] or \"localhost\"\n"
-                "        if server_name.startswith(\"[\"):\n"
-                "            # Handle IPv6 host notation with brackets\n"
-                "            server_name = server_name.split(\"]\")[0] + \"]\"\n"
-                "        else:\n"
-                "            server_name = server_name.partition(\":\")[0]\n\n"
-                "        response = self.application.response_class()\n"
-                "        ctx = self.application.request_context({\n"
-                "            \"SERVER_NAME\": server_name,\n"
-                "            \"HTTP_HOST\": server_name,\n"
-                "        })\n"
-                "        sess = self.application.open_session(ctx.request)\n"
-                "        yield sess\n"
-                "        self.application.save_session(sess, response)"
-            ),
-            "tests/test_testing.py": (
-                "def test_session_transaction_ipv6(app, client):\n"
-                "    \"\"\"Verify that session_transaction correctly handles bracketed IPv6 server names.\"\"\"\n"
-                "    app.config[\"SERVER_NAME\"] = \"[::1]:5000\"\n"
-                "    with client.session_transaction() as sess:\n"
-                "        sess[\"test_key\"] = \"test_value\"\n"
-                "    response = client.get(\"/\")\n"
-                "    assert response.status_code == 200"
-            ),
-            "src/click/termui.py": (
-                "def progressbar(\n"
-                "    iterable: t.Optional[t.Iterable[V]] = None,\n"
-                "    length: t.Optional[int] = None,\n"
-                "    label: t.Optional[str] = None,\n"
-                "    show_eta: bool = True,\n"
-                "    show_percent: t.Optional[bool] = None,\n"
-                "    show_pos: bool = False,\n"
-                "    item_show_func: t.Optional[t.Callable[[t.Optional[V]], t.Optional[str]]] = None,\n"
-                "    fill_char: str = \"#\",\n"
-                "    empty_char: str = \"-\",\n"
-                "    bar_template: str = \"%(label)s  [%(bar)s]  %(info)s\",\n"
-                "    info_sep: str = \"  \",\n"
-                "    width: t.Optional[int] = 36,\n"
-                "    file: t.Optional[t.TextIO] = None,\n"
-                "    color: t.Optional[bool] = None,\n"
-                "    update_min_steps: int = 1,\n"
-                ") -> ProgressBar[V]:\n"
-                "    \"\"\"This function creates an interactive progress bar.\"\"\"\n"
-                "    return ProgressBar(\n"
-                "        iterable=iterable,\n"
-                "        length=length,\n"
-                "        show_eta=show_eta,\n"
-                "        show_percent=show_percent,\n"
-                "        show_pos=show_pos,\n"
-                "        item_show_func=item_show_func,\n"
-                "        fill_char=fill_char,\n"
-                "        empty_char=empty_char,\n"
-                "        bar_template=bar_template,\n"
-                "        info_sep=info_sep,\n"
-                "        file=file,\n"
-                "        label=label,\n"
-                "        width=width,\n"
-                "        color=color,\n"
-                "        update_min_steps=update_min_steps,\n"
-                "    )"
-            ),
-            "src/click/types.py": (
-                "class IntParamType(ParamType):\n"
-                "    name = \"integer\"\n\n"
-                "    def convert(\n"
-                "        self, value: t.Any, param: t.Optional[\"Parameter\"], ctx: t.Optional[\"Context\"]\n"
-                "    ) -> t.Any:\n"
-                "        if isinstance(value, int):\n"
-                "            return value\n"
-                "        try:\n"
-                "            return int(value, 10)\n"
-                "        except ValueError:\n"
-                "            self.fail(f\"{value!r} is not a valid integer.\", param, ctx)"
-            ),
-            "haystack/components/preprocessors/python_code_splitter.py": (
-                "class PythonCodeSplitter:\n"
-                "    \"\"\"Splits Python source code into separate Document objects by AST function/class unit.\"\"\"\n\n"
-                "    def __init__(self, strip_docstrings: bool = False):\n"
-                "        self.strip_docstrings = strip_docstrings\n\n"
-                "    def run(self, sources: list[Document]) -> dict[str, list[Document]]:\n"
-                "        output_docs = []\n"
-                "        for doc in sources:\n"
-                "            tree = ast.parse(doc.content)\n"
-                "            # If strip_docstrings is set, remove AST docstring nodes\n"
-                "            # and insert a 'pass' statement if the body becomes empty.\n"
-                "            output_docs.append(doc)\n"
-                "        return {\"documents\": output_docs}"
-            ),
-            "src/requests/adapters.py": (
-                "    def cert_verify(self, conn, url, verify, cert):\n"
-                "        \"\"\"Verify that TLS certificates and client certs exist on disk.\"\"\"\n"
-                "        if verify and isinstance(verify, str):\n"
-                "            if not os.path.exists(verify):\n"
-                "                raise FileNotFoundError(f\"Could not find CA bundle certificate file: {verify}\")\n\n"
-                "        if cert:\n"
-                "            if isinstance(cert, str):\n"
-                "                if not os.path.exists(cert):\n"
-                "                    raise FileNotFoundError(f\"Could not find TLS client cert file: {cert}\")\n"
-                "            elif isinstance(cert, tuple):\n"
-                "                cert_file, key_file = cert\n"
-                "                if not os.path.exists(cert_file):\n"
-                "                    raise FileNotFoundError(f\"Could not find client cert: {cert_file}\")\n"
-                "                if not os.path.exists(key_file):\n"
-                "                    raise FileNotFoundError(f\"Could not find client key: {key_file}\")"
-            ),
-            "packages/expo/src/launch/RecoveryError.ts": (
-                "export class RecoveryError extends Error {\n"
-                "  constructor(message: string) {\n"
-                "    super(message);\n"
-                "    this.name = 'RecoveryError';\n"
-                "  }\n"
-                "}"
-            ),
-            "pkg/cobra/command.go": (
-                "func (c *Command) Execute() error {\n"
-                "    _, err := c.ExecuteC()\n"
-                "    return err\n"
-                "}"
-            )
-        }
+        seen_files = set()
+        for idx, loc in enumerate(relevant_locs):
+            if hasattr(loc, "file_path"):
+                file_path = loc.file_path
+                symbol_name = getattr(loc, "symbol_name", "") or ""
+            elif isinstance(loc, dict):
+                file_path = loc.get("file_path") or loc.get("target_file") or ""
+                symbol_name = loc.get("symbol_name") or ""
+            else:
+                continue
 
-        if relevant_locs:
-            for idx, loc in enumerate(relevant_locs):
-                if hasattr(loc, "file_path"):
-                    file_path = loc.file_path
-                    symbol_name = getattr(loc, "symbol_name", "Target Symbol") or "Target Symbol"
-                    lines_str = getattr(loc, "lines", "1-30") or "1-30"
-                    role = getattr(loc, "role", "Primary fix target") or "Primary fix target"
-                elif isinstance(loc, dict):
-                    file_path = loc.get("file_path") or loc.get("target_file")
-                    symbol_name = loc.get("symbol_name") or loc.get("title") or "Target Symbol"
-                    lines_str = loc.get("lines") or "1-30"
-                    role = loc.get("role") or "Primary fix target"
-                else:
-                    continue
+            if not file_path or file_path in seen_files:
+                continue
+            seen_files.add(file_path)
 
-                if not file_path:
-                    continue
+            # Query real code_chunks table for this repository and file path
+            chunks = []
+            if symbol_name:
+                sym_res = supabase_client.table("code_chunks").select("file_path, symbol_name, start_line, end_line, content, language").eq("repo_name", repo_name).eq("file_path", file_path).eq("symbol_name", symbol_name).execute()
+                chunks = sym_res.data or []
 
-                start_line = 1
-                end_line = 30
-                if isinstance(lines_str, str) and "-" in lines_str:
-                    try:
-                        parts = lines_str.split("-")
-                        start_line = int(parts[0].strip())
-                        end_line = int(parts[1].strip())
-                    except Exception:
-                        pass
+            if not chunks:
+                file_res = supabase_client.table("code_chunks").select("file_path, symbol_name, start_line, end_line, content, language").eq("repo_name", repo_name).eq("file_path", file_path).limit(2).execute()
+                chunks = file_res.data or []
 
-                code_content = target_snippets.get(
-                    file_path,
-                    f"# Source code snippet for {file_path}\n# Symbol: {symbol_name}\n"
-                )
-
+            for c in chunks:
+                role = "Primary fix target" if idx == 0 else "Reference Context"
                 files_list.append({
-                    "file_path": file_path,
+                    "file_path": c["file_path"],
                     "role": role,
-                    "symbol_name": symbol_name,
-                    "start_line": start_line,
-                    "end_line": end_line,
-                    "content": code_content,
-                    "language": "python" if file_path.endswith(".py") else "rst",
+                    "symbol_name": c.get("symbol_name") or symbol_name or "Target Block",
+                    "start_line": c.get("start_line", 1),
+                    "end_line": c.get("end_line", 30),
+                    "content": c.get("content", ""),
+                    "language": c.get("language") or "python",
                     "is_verified": True,
-                    "github_file_url": f"https://github.com/{repo_name}/blob/{commit_sha}/{file_path}#L{start_line}-L{end_line}"
+                    "github_file_url": f"https://github.com/{repo_name}/blob/{commit_sha}/{c['file_path']}#L{c.get('start_line', 1)}-L{c.get('end_line', 30)}"
                 })
 
     if not files_list:
@@ -595,6 +446,6 @@ async def fetch_issue_code_db(
     return {
         "issue_id": str(issue_id),
         "repo_full_name": repo_name,
-        "commit_sha": issue.get("repo_commit_sha") or "main",
+        "commit_sha": commit_sha,
         "files": files_list
     }
