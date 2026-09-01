@@ -220,7 +220,9 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
             <p className={`text-xs leading-relaxed p-3 rounded-xl border font-medium ${
               isDark ? 'bg-[#0D212E] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-600'
             }`}>
-              Inspect how parameters and typing annotations are defined on lines {selectedFile.start_line}–{selectedFile.end_line}. Notice any missing return types or error edge cases.
+              {selectedFile.role === 'Primary fix target'
+                ? `Inspect lines ${selectedFile.start_line}–${selectedFile.end_line} in ${selectedFile.symbol_name || 'this module'}. Pay close attention to parameter validation, path verification, and exception handling.`
+                : `Reference context from lines ${selectedFile.start_line}–${selectedFile.end_line} illustrating the surrounding class structure and calling conventions.`}
             </p>
           </div>
 
