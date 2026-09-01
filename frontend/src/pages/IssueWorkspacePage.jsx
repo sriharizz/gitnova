@@ -12,6 +12,7 @@ import ImplementGuideView from '../components/workspace/ImplementGuideView';
 import TestGuideView from '../components/workspace/TestGuideView';
 import PreparePRView from '../components/workspace/PreparePRView';
 import ReviewChecklistView from '../components/workspace/ReviewChecklistView';
+import GitNovaLoader from '../components/common/GitNovaLoader';
 import { fetchIssueById, fetchIssueCode, fetchIssueJourney } from '../lib/api';
 import { useTheme } from '../lib/ThemeContext';
 
@@ -110,10 +111,11 @@ export const IssueWorkspacePage = () => {
       <div className={`flex items-center justify-center h-screen transition-colors ${
         isDark ? 'bg-[#050B0E] text-white' : 'bg-[#FAFAFA] text-slate-900'
       }`}>
-        <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-8 h-8 text-[#34D399] animate-spin" />
-          <p className="text-xs font-mono font-bold text-slate-400">Loading verified workspace context...</p>
-        </div>
+        <GitNovaLoader 
+          text="Loading verified workspace..." 
+          subtext="Retrieving code chunks, AST symbols & 10-stage plan" 
+          size="lg" 
+        />
       </div>
     );
   }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, RefreshCw, SlidersHorizontal, Sparkles, Compass, Sun, Moon, Menu } from 'lucide-react';
 import AppSidebar from '../components/layout/AppSidebar';
 import IssueCard from '../components/common/IssueCard';
+import GitNovaLoader from '../components/common/GitNovaLoader';
 import { fetchRecommendations } from '../lib/api';
 import { useTheme } from '../lib/ThemeContext';
 
@@ -268,12 +269,11 @@ export const IssueFeedPage = () => {
         {/* Issues Grid */}
         <div className="px-4 sm:px-8 py-3 pb-12">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <RefreshCw className="w-8 h-8 text-[#34D399] animate-spin mb-3" />
-              <p className={`text-xs font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Fetching AST-verified issues...
-              </p>
-            </div>
+            <GitNovaLoader 
+              text="Discovering verified opportunities..." 
+              subtext="Filtering repository ASTs and contribution suitability" 
+              size="lg" 
+            />
           ) : error ? (
             <div className={`p-6 rounded-2xl border text-center my-6 ${
               isDark ? 'bg-[#180D0D] border-red-900/50 text-red-300' : 'bg-red-50 border-red-200 text-red-800'
