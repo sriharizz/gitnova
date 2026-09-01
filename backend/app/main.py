@@ -673,7 +673,7 @@ LANGUAGE_NORMALIZATION: Dict[str, Set[str]] = {
 
 
 def resolve_target_languages(raw_languages: Optional[str]) -> Set[str]:
-    if not raw_languages:
+    if not raw_languages or not isinstance(raw_languages, str):
         return set()
     target_langs = set()
     for raw in raw_languages.split(","):
@@ -694,7 +694,7 @@ def resolve_target_languages(raw_languages: Optional[str]) -> Set[str]:
 
 
 def resolve_target_domains(raw_domains: Optional[str]) -> Set[str]:
-    if not raw_domains:
+    if not raw_domains or not isinstance(raw_domains, str):
         return set()
     target_domains = set()
     for raw in raw_domains.split(","):
@@ -848,8 +848,8 @@ async def get_recommendations(
     """
     target_langs = resolve_target_languages(languages)
     target_domains = resolve_target_domains(domains)
-    type_list = [t.strip().upper().replace(" ", "_") for t in contribution_types.split(",") if t.strip()] if contribution_types else []
-    target_diff = (difficulty or "BEGINNER").upper()
+    type_list = [t.strip().upper().replace(" ", "_") for t in contribution_types.split(",") if t.strip()] if (contribution_types and isinstance(contribution_types, str)) else []
+    target_diff = (difficulty.upper() if isinstance(difficulty, str) else "BEGINNER")
 
     all_verified_issues = await list_issues(
         repo_id=None,
@@ -934,8 +934,10 @@ async def get_recommendations(
     )
 
     # Apply Repository Diversity (Max 2 issues per repo, interleaved round-robin)
-    diverse_issues = apply_repository_diversity(ranked_issues, max_per_repo=2, total_limit=limit + offset)
-    paginated = diverse_issues[offset : offset + limit]
+    req_limit = limit if isinstance(limit, int) else 20
+    req_offset = offset if isinstance(offset, int) else 0
+    diverse_issues = apply_repository_diversity(ranked_issues, max_per_repo=2, total_limit=req_limit + req_offset)
+    paginated = diverse_issues[req_offset : req_offset + req_limit]
 
     return RecommendationsOut(
         issues=paginated,
