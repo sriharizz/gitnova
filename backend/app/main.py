@@ -866,21 +866,24 @@ async def get_recommendations(
 
     eligible_candidates = []
     for iss in all_verified_issues:
-        # 1. Base Publishability & Evidence Gate
+        # 1. Base Publishability & Quality Floor Gate
         if iss.verification_status != "VERIFIED":
             continue
         if iss.availability_status == "NOT_RECOMMENDED":
             continue
-        if iss.explanation and iss.explanation.status == "INSUFFICIENT_EVIDENCE":
+        if (iss.quality_score or 0) < 60:
+            continue
+        if iss.quality_grade == "low":
+            continue
+        if not iss.explanation or iss.explanation.status == "INSUFFICIENT_EVIDENCE":
             continue
 
         # 2. Quality Floor: ensure issue has actionable plan and target locations
-        if iss.explanation:
-            plan = getattr(iss.explanation, "step_by_step_plan", []) or []
-            locs = getattr(iss.explanation, "relevant_locations", []) or []
-            verified_locs = [l for l in locs if getattr(l, "is_verified", False) or getattr(l, "file_path", None)]
-            if len(plan) == 0 or len(verified_locs) == 0:
-                continue
+        plan = getattr(iss.explanation, "step_by_step_plan", []) or []
+        locs = getattr(iss.explanation, "relevant_locations", []) or []
+        verified_locs = [l for l in locs if getattr(l, "is_verified", False) or getattr(l, "file_path", None)]
+        if len(plan) == 0 or len(verified_locs) == 0:
+            continue
 
         suit_dict = iss.beginner_suitability.model_dump() if iss.beginner_suitability else {}
         iss_contrib_complexity = (
