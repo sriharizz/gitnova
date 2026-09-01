@@ -9,7 +9,22 @@ export const LearnConceptsView = ({ issue, onNextStage }) => {
   if (!issue) return null;
 
   const explanation = issue.explanation || {};
-  const structuredConcepts = explanation.structured_concepts || [];
+  
+  // Normalize concepts from structured_concepts, prerequisite_concepts, or concepts
+  const rawConcepts = explanation.structured_concepts || explanation.prerequisite_concepts || explanation.concepts || [];
+  const structuredConcepts = Array.isArray(rawConcepts)
+    ? rawConcepts.map((item, idx) => {
+        if (typeof item === 'string') {
+          return {
+            concept_name: item,
+            short_explanation: `Understanding the architectural conventions and standard library behaviors associated with ${item.toLowerCase()}.`,
+            why_it_matters: `Ensures the proposed change adheres to existing repository conventions without introducing unexpected edge-case regressions.`,
+            connection_to_issue: `Directly relevant to analyzing and fixing the issue reported in #${issue.github_issue_number}.`
+          };
+        }
+        return item;
+      })
+    : [];
 
   const [expandedIndex, setExpandedIndex] = useState(0);
 
@@ -32,7 +47,7 @@ export const LearnConceptsView = ({ issue, onNextStage }) => {
           Prerequisite Technical Concepts
         </h1>
         <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-          Master these core technical concepts before inspecting code or writing unit tests for issue #{issue.github_issue_number}.
+          Review these foundational technical concepts before inspecting code or writing unit tests for issue #{issue.github_issue_number}.
         </p>
       </div>
 
@@ -130,7 +145,7 @@ export const LearnConceptsView = ({ issue, onNextStage }) => {
           <div className={`p-6 border rounded-2xl text-center ${
             isDark ? 'bg-[#08131A] border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-500'
           }`}>
-            <p className="text-xs">General software architecture concepts apply to this issue.</p>
+            <p className="text-xs">Prerequisite concept guidance is not explicitly specified for this issue. You can proceed directly to exploring the code context.</p>
           </div>
         )}
       </div>

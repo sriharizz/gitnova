@@ -36,10 +36,10 @@ export const ContributionPlanView = ({ issue, onProceedToCheckpoints }) => {
             Stage 06 — Plan Fix Roadmap
           </div>
           <h2 className={`text-lg sm:text-2xl font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            Step-by-Step Contribution Plan
+            Suggested Implementation Plan
           </h2>
           <p className={`text-xs font-medium mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Follow this grounded roadmap to complete your first contribution.
+            Possible implementation roadmap following the repository's existing code patterns and parsing conventions.
           </p>
         </div>
 

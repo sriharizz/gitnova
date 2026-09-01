@@ -230,10 +230,10 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
           }`}>
             <div className="flex items-center gap-2 text-xs font-bold">
               <Sparkles className="w-4 h-4 text-[#34D399]" />
-              <span>Grounding Guarantee</span>
+              <span>Repository-Grounded Evidence</span>
             </div>
             <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-300' : 'text-teal-900'}`}>
-              Every code snippet displayed here is retrieved directly from the repository AST. GitNova never hallucinates file paths or source code.
+              Target files, line ranges, and symbols are verified directly against the repository source code and AST hierarchy.
             </p>
           </div>
         </div>

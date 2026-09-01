@@ -21,7 +21,15 @@ export const PreparePRView = ({ issue, onNextStage }) => {
   const claRequired = repository_contribution_guide.cla_required;
   const commitMsg = `fix: resolve issue #${github_issue_number} in ${targetSymbol}`;
 
-  const prTemplateText = `## Description\nFixes #${github_issue_number}\n\nResolved issue in ${primaryLocation.file_path || 'target file'} by ensuring proper parameter handling.\n\n## Testing\n- Executed existing test suite\n- Added regression unit test covering issue #${github_issue_number}`;
+  const prTemplateText = `## Proposed Changes
+Fixes #${github_issue_number}
+
+- Proposed fix for ${primaryLocation.file_path || 'target file'}: ensure proper parameter handling and edge-case validation.
+- Target symbol / component: ${targetSymbol}
+
+## Proposed Verification
+- Run existing test suite (${issue.test_command || 'pytest'})
+- Propose regression unit test covering issue #${github_issue_number}`;
 
   const handleCopyCommit = () => {
     navigator.clipboard.writeText(commitMsg);
@@ -44,10 +52,10 @@ export const PreparePRView = ({ issue, onNextStage }) => {
             Stage 09 — Prepare Pull Request
           </div>
           <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
-            Format Commit & Open Pull Request
+            Suggested PR Description & Commit Format
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Format conventional commit messages and prepare clear maintainer-friendly PR descriptions.
+            Suggested conventional commit messages and maintainer-friendly PR description templates for your proposal.
           </p>
         </div>
 
@@ -70,7 +78,7 @@ export const PreparePRView = ({ issue, onNextStage }) => {
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-nova-sm space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <GitCommit className="w-4 h-4 text-teal-600" /> 1. Conventional Commit Message
+                <GitCommit className="w-4 h-4 text-teal-600" /> 1. Suggested Commit Message
               </h2>
               <span className="text-[10px] font-mono text-slate-400">git commit</span>
             </div>
@@ -94,7 +102,7 @@ export const PreparePRView = ({ issue, onNextStage }) => {
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-nova-sm space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <GitPullRequest className="w-4 h-4 text-teal-600" /> 2. PR Body Description Template
+                <GitPullRequest className="w-4 h-4 text-teal-600" /> 2. Suggested PR Description Template
               </h2>
               <button
                 onClick={handleCopyTemplate}
