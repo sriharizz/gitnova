@@ -812,9 +812,8 @@ def apply_repository_diversity(
         r_name = iss.repo_full_name or "unknown"
         repo_buckets[r_name].append(iss)
 
-    num_distinct_repos = len(repo_buckets)
-    # If pool has very few distinct repos, allow up to 3 per repo
-    effective_cap = 3 if num_distinct_repos <= 2 else max_per_repo
+    # Strictly enforce max_per_repo across all repository buckets
+    effective_cap = max_per_repo
 
     # Round-robin interleaved selection across repository buckets
     diverse_selection: List[IssueOut] = []

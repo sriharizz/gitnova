@@ -267,8 +267,8 @@ class TestPhase5RecommendationRankingAndDiversity:
                 count = sum(1 for iss in data["issues"] if iss["repo_full_name"] == r_name)
                 assert count <= 2
 
-    # 10. If only 1–2 repositories exist, fallback to 3 is allowed
-    def test_fallback_to_3_issues_when_few_repositories(self):
+    # 10. Max per repo cap is strictly enforced to 2 even with few repositories
+    def test_strict_cap_of_2_issues_when_few_repositories(self):
         issues = [
             _make_mock_issue(f"r1_{i}", "org/only-repo", f"Issue {i}", "Python", ["web"])
             for i in range(5)
@@ -278,7 +278,7 @@ class TestPhase5RecommendationRankingAndDiversity:
             resp = client.get("/recommendations?languages=Python&limit=5")
             assert resp.status_code == 200
             data = resp.json()
-            assert len(data["issues"]) == 3
+            assert len(data["issues"]) == 2
 
     # 11. Unvalidated issues never reach the response
     def test_unvalidated_issues_never_reach_response(self):
