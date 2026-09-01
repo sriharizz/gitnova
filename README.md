@@ -25,15 +25,13 @@ GitNova solves this by combining automated GitHub discovery, deterministic quali
 ## 1. System Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph S1 ["1. Ingestion & Discovery"]
-        direction TB
         GH["GitHub API & Webhooks"] --> Ingest["Repository Ingestor"]
         Ingest --> Qual["Noise & Availability Gates"]
     end
 
     subgraph S2 ["2. Selective RAG & Indexing"]
-        direction TB
         RepoMap["Repository Directory Map"] --> Cand["Candidate File Selection"]
         Cand --> AST["Tree-sitter / AST Chunking"]
         AST --> Embed["Jina-v2 Embedder (768-dim)"]
@@ -41,14 +39,12 @@ flowchart LR
     end
 
     subgraph S3 ["3. Grounded Reasoning Engine"]
-        direction TB
         HybridRet["Dense + Lexical Retrieval"] --> GroundedEv["Repository Code Evidence"]
         GroundedEv --> LLM["LLM Reasoning (Gemini 2.5)"]
         LLM --> Verify["AST Verification Gate"]
     end
 
     subgraph S4 ["4. Feed & Guided Journey"]
-        direction TB
         Ranking["Scoring & Diversity Engine"] --> Feed["Recommendation Feed"]
         Feed --> Journey["10-Stage Contributor Journey"]
     end
@@ -69,7 +65,7 @@ flowchart LR
 ## 2. Selective RAG & Indexing Pipeline
 
 ```mermaid
-flowchart LR
+flowchart TD
     Tree["Repository Tree"] --> Classify["File Classification"]
     Classify --> Select["Issue-Aware Selection"]
     Select --> AST["AST Chunking"]
@@ -133,7 +129,7 @@ True LOW               0                  2               12
 To test the model under real-world conditions without risking production stability, we deployed the QLoRA adapter in a **read-only shadow evaluation pipeline**:
 
 ```mermaid
-flowchart LR
+flowchart TD
     Issue["Incoming GitHub Issue"] --> ProdGate["Production Heuristic Gate"]
     Issue --> ShadowQLoRA["QLoRA Shadow Model"]
     ProdGate --> Comp["Shadow Agreement Check"]
