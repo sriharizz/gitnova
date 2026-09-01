@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Folder, FileCode, CheckCircle2, ArrowRight, ArrowLeft, Search, Sparkles, Copy, Check, Code2, Terminal } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Folder, FileCode, CheckCircle2, ArrowRight, ArrowLeft, Search, Sparkles, Copy, Check, Code2, Terminal, ChevronDown, ChevronRight, Layers, Target } from 'lucide-react';
 import ProvenanceBadge from '../diagrams/ProvenanceBadge';
 import { useTheme } from '../../lib/ThemeContext';
 
@@ -7,11 +7,34 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const files = codeData?.files || [];
+  const rawFiles = codeData?.files || [];
+
+  // Sort files: Primary fix target first, followed by reference context
+  const { primaryFiles, referenceFiles, orderedFiles } = useMemo(() => {
+    const primary = rawFiles.filter(f => f.role === 'Primary fix target');
+    const reference = rawFiles.filter(f => f.role !== 'Primary fix target');
+    
+    // If no explicit role is marked as primary, treat the first file as primary
+    if (primary.length === 0 && rawFiles.length > 0) {
+      return {
+        primaryFiles: [rawFiles[0]],
+        referenceFiles: rawFiles.slice(1),
+        orderedFiles: rawFiles
+      };
+    }
+    
+    return {
+      primaryFiles: primary,
+      referenceFiles: reference,
+      orderedFiles: [...primary, ...reference]
+    };
+  }, [rawFiles]);
+
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+  const [showReferenceContext, setShowReferenceContext] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  if (!files || files.length === 0) {
+  if (!orderedFiles || orderedFiles.length === 0) {
     return (
       <div className={`flex flex-col h-full animate-in fade-in duration-200 p-4 sm:p-8 ${
         isDark ? 'bg-[#050B0E] text-white' : 'bg-slate-50 text-slate-900'
@@ -29,7 +52,7 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
     );
   }
 
-  const selectedFile = files[selectedFileIndex] || files[0];
+  const selectedFile = orderedFiles[selectedFileIndex] || orderedFiles[0];
   const lines = selectedFile.content ? selectedFile.content.split('\n') : [];
 
   const handleCopyCode = () => {
@@ -74,8 +97,9 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
         isDark ? 'bg-[#08131A] border-slate-800' : 'bg-slate-50 border-slate-200'
       }`}>
         <span className="text-[10px] font-mono font-bold text-slate-400 uppercase shrink-0 px-1">Files:</span>
-        {files.map((file, idx) => {
+        {orderedFiles.map((file, idx) => {
           const isSelected = idx === selectedFileIndex;
+          const isPrimary = file.role === 'Primary fix target';
           const fileName = file.file_path.split('/').pop();
           return (
             <button
@@ -91,8 +115,8 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100')
               }`}
             >
-              <FileCode className="w-3.5 h-3.5 shrink-0 text-[#34D399]" />
-              <span className="truncate max-w-[140px]">{fileName}</span>
+              {isPrimary ? <Target className="w-3.5 h-3.5 shrink-0 text-[#34D399]" /> : <FileCode className="w-3.5 h-3.5 shrink-0 text-slate-400" />}
+              <span className="truncate max-w-[140px]">{file.symbol_name || fileName}</span>
             </button>
           );
         })}
@@ -101,41 +125,104 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
       {/* Main Content Layout: Stacked on Mobile/Tablet, 3-Column on Desktop (lg+) */}
       <div className="flex-1 flex flex-col lg:grid lg:grid-cols-12 min-h-0">
         
-        {/* COLUMN 1: File Tree (Desktop only, 3 cols) */}
+        {/* COLUMN 1: File Tree & Chunk Groups (Desktop only, 3 cols) */}
         <div className={`hidden lg:flex col-span-3 border-r p-4 flex-col justify-between overflow-y-auto custom-scrollbar transition-colors ${
           isDark ? 'bg-[#08131A] border-slate-800' : 'bg-white border-slate-200'
         }`}>
-          <div>
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
-              Target Files ({files.length})
+          <div className="space-y-4">
+            {/* Primary Target Section */}
+            <div>
+              <div className="flex items-center justify-between text-[11px] font-bold text-[#34D399] uppercase tracking-wider mb-2">
+                <span className="flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5" />
+                  Primary Fix Target
+                </span>
+                <span className="text-[10px] font-mono bg-emerald-950/40 border border-emerald-500/30 px-1.5 py-0.5 rounded text-emerald-400">
+                  {primaryFiles.length}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {primaryFiles.map((file, idx) => {
+                  const globalIdx = idx;
+                  const isSelected = globalIdx === selectedFileIndex;
+                  return (
+                    <button
+                      key={globalIdx}
+                      onClick={() => setSelectedFileIndex(globalIdx)}
+                      className={`w-full text-left p-2.5 rounded-xl text-xs font-mono transition-all border ${
+                        isSelected
+                          ? (isDark 
+                              ? 'bg-[#071F1B] text-[#34D399] font-bold border-emerald-500/40 shadow-sm' 
+                              : 'bg-teal-50 text-teal-900 font-bold border-teal-300 shadow-nova-sm')
+                          : (isDark 
+                              ? 'bg-[#0D212E]/60 text-slate-300 border-slate-800/80 hover:bg-slate-800/60 hover:text-white' 
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100')
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <span className="font-bold truncate text-xs">{file.symbol_name || 'Target Scope'}</span>
+                        <span className="text-[10px] text-slate-400 font-mono shrink-0">L{file.start_line}–L{file.end_line}</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 truncate flex items-center gap-1">
+                        <FileCode className="w-3 h-3 shrink-0 text-[#34D399]" />
+                        <span className="truncate">{file.file_path}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="space-y-1">
-              {files.map((file, idx) => (
+
+            {/* Reference Context Section (Collapsible) */}
+            {referenceFiles.length > 0 && (
+              <div>
                 <button
-                  key={idx}
-                  onClick={() => setSelectedFileIndex(idx)}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-mono transition-all flex items-center justify-between border ${
-                    idx === selectedFileIndex
-                      ? (isDark 
-                          ? 'bg-[#071F1B] text-[#34D399] font-bold border-emerald-500/30 shadow-sm' 
-                          : 'bg-teal-50 text-teal-900 font-bold border-teal-200 shadow-nova-sm')
-                      : (isDark 
-                          ? 'text-slate-400 border-transparent hover:bg-slate-800/60 hover:text-slate-200' 
-                          : 'text-slate-600 border-transparent hover:bg-slate-50 hover:text-slate-900')
-                  }`}
+                  onClick={() => setShowReferenceContext(!showReferenceContext)}
+                  className="w-full flex items-center justify-between text-[11px] font-bold text-slate-400 hover:text-slate-200 uppercase tracking-wider mb-2 transition-colors py-1"
                 >
-                  <div className="flex items-center gap-2 truncate">
-                    <FileCode className="w-3.5 h-3.5 shrink-0 text-[#34D399]" />
-                    <span className="truncate">{file.file_path.split('/').pop()}</span>
-                  </div>
-                  {file.is_verified && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] shrink-0" />
-                  )}
+                  <span className="flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-slate-400" />
+                    Reference Context ({referenceFiles.length})
+                  </span>
+                  {showReferenceContext ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                 </button>
-              ))}
-            </div>
+
+                {showReferenceContext && (
+                  <div className="space-y-1.5 animate-in fade-in duration-150">
+                    {referenceFiles.map((file, idx) => {
+                      const globalIdx = primaryFiles.length + idx;
+                      const isSelected = globalIdx === selectedFileIndex;
+                      return (
+                        <button
+                          key={globalIdx}
+                          onClick={() => setSelectedFileIndex(globalIdx)}
+                          className={`w-full text-left p-2 rounded-xl text-xs font-mono transition-all border ${
+                            isSelected
+                              ? (isDark 
+                                  ? 'bg-[#071F1B] text-[#34D399] font-bold border-emerald-500/30 shadow-sm' 
+                                  : 'bg-teal-50 text-teal-900 font-bold border-teal-200 shadow-nova-sm')
+                              : (isDark 
+                                  ? 'text-slate-400 border-transparent hover:bg-slate-800/60 hover:text-slate-200' 
+                                  : 'text-slate-600 border-transparent hover:bg-slate-50 hover:text-slate-900')
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="truncate text-[11px]">{file.symbol_name || file.file_path.split('/').pop()}</span>
+                            <span className="text-[10px] text-slate-500 shrink-0">L{file.start_line}–{file.end_line}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                            {file.file_path}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
+          {/* Active Path Box */}
           <div className={`p-3 rounded-xl border mt-4 transition-colors ${
             isDark ? 'bg-[#0D212E] border-slate-800' : 'bg-slate-50 border-slate-200'
           }`}>
@@ -152,6 +239,9 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
             <span className="font-mono text-xs font-bold text-slate-200 flex items-center gap-2 truncate min-w-0">
               <FileCode className="w-4 h-4 text-[#34D399] shrink-0" />
               <span className="truncate">{selectedFile.file_path}</span>
+              <span className="text-[10px] font-normal text-slate-400 hidden sm:inline">
+                ({selectedFile.symbol_name || 'Module'})
+              </span>
             </span>
             <div className="flex items-center gap-2 shrink-0">
               <button
@@ -207,10 +297,26 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
             }`}>
               <span className="truncate">{selectedFile.symbol_name || 'Module Scope'}</span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded border uppercase shrink-0 ${
-                isDark ? 'text-[#34D399] bg-[#071F1B] border-emerald-500/30' : 'text-teal-700 bg-teal-50 border-teal-200'
+                selectedFile.role === 'Primary fix target'
+                  ? (isDark ? 'text-[#34D399] bg-[#071F1B] border-emerald-500/30' : 'text-teal-700 bg-teal-50 border-teal-200')
+                  : (isDark ? 'text-slate-400 bg-slate-800/60 border-slate-700' : 'text-slate-600 bg-slate-100 border-slate-200')
               }`}>
-                Target
+                {selectedFile.role === 'Primary fix target' ? 'Target' : 'Reference'}
               </span>
+            </div>
+          </div>
+
+          {/* Full Path & Line Range Card */}
+          <div>
+            <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Repository Location</h3>
+            <div className={`p-3 rounded-xl border text-xs space-y-1 ${
+              isDark ? 'bg-[#0D212E] border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+            }`}>
+              <div className="font-mono text-[11px] truncate text-slate-200">{selectedFile.file_path}</div>
+              <div className="text-[11px] text-slate-400 flex items-center justify-between">
+                <span>Range: Lines {selectedFile.start_line}–{selectedFile.end_line}</span>
+                <span className="text-[10px] text-emerald-400">{selectedFile.role || 'Code Context'}</span>
+              </div>
             </div>
           </div>
 
