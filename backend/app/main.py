@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 from contextlib import asynccontextmanager
 import logging
+import re
 
 from app.core.config import settings
 from app.core.logging import get_logger
@@ -871,6 +872,10 @@ async def get_recommendations(
         if iss.availability_status == "NOT_RECOMMENDED":
             continue
         if not iss.explanation or iss.explanation.status == "INSUFFICIENT_EVIDENCE":
+            continue
+
+        # Filter out non-English / Chinese issues
+        if re.search(r'[\u4e00-\u9fff]', iss.title or ''):
             continue
 
         # 2. Quality & Plan Validation: ensure issue has an explanation summary or plan

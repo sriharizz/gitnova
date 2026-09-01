@@ -149,12 +149,19 @@ export const fetchRecommendations = async (params = {}) => {
       .select('*, repos!inner(full_name, language, tier, stars, score)')
       .eq('is_published', true)
       .eq('verification_status', 'VERIFIED')
-      .limit(300);
+      .order('updated_at', { ascending: false })
+      .limit(600);
 
     const { data, error } = await query;
     if (error) throw error;
 
     let issues = (data || []).map(formatSupabaseIssue);
+
+    // Filter out non-English / Chinese titles and bodies
+    issues = issues.filter(iss => {
+      const text = `${iss.title || ''} ${iss.body || ''}`;
+      return !(/[\u4e00-\u9fff]/.test(text));
+    });
 
     // Filter languages
     if (params.languages) {
