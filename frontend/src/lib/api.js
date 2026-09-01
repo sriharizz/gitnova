@@ -149,7 +149,6 @@ export const fetchRecommendations = async (params = {}) => {
       .select('*, repos!inner(full_name, language, tier, stars, score)')
       .eq('is_published', true)
       .eq('verification_status', 'VERIFIED')
-      .neq('availability_status', 'NOT_RECOMMENDED')
       .limit(300);
 
     const { data, error } = await query;
