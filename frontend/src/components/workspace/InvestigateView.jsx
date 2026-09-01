@@ -72,7 +72,7 @@ export const InvestigateView = ({ issue, onNextStage }) => {
           </p>
         </div>
 
-        <ProvenanceBadge type="VERIFIED_FACT" source="AST Analysis & Issue Grounding" />
+        <ProvenanceBadge type="AI_INFERENCE" source="Codebase AST & Context" />
       </div>
 
       {/* Centerpiece: Failure Flow Diagram */}
@@ -85,9 +85,9 @@ export const InvestigateView = ({ issue, onNextStage }) => {
           <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-nova-sm space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
               <Search className="w-4 h-4 text-teal-600" />
-              <span>Technical Root Cause Analysis</span>
+              <span>Likely Cause & Technical Mechanism</span>
             </div>
-            <p className="text-xs md:text-sm font-semibold text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200/70 font-mono">
+            <p className="text-xs md:text-sm font-medium text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200/70 font-sans">
               {whyItHappens}
             </p>
           </div>

@@ -3,28 +3,28 @@ import { ShieldCheck, UserCheck, Sparkles, Lightbulb } from 'lucide-react';
 
 const PROVENANCE_CONFIGS = {
   VERIFIED_FACT: {
-    label: 'Verified Fact',
+    label: 'Verified in Repo',
     bg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     icon: ShieldCheck,
     description: 'Directly verified from GitHub API, repository files, or CI configuration.'
   },
   MAINTAINER_INTENT: {
-    label: 'Maintainer Intent',
+    label: 'Maintainer Guidance',
     bg: 'bg-blue-50 text-blue-700 border-blue-200',
     icon: UserCheck,
     description: 'Direct instruction or constraint posted by a repository maintainer.'
   },
   AI_INFERENCE: {
-    label: 'AI Inference',
+    label: 'AI Explanation',
     bg: 'bg-teal-50 text-teal-700 border-teal-200',
     icon: Sparkles,
-    description: 'Synthesized by GitNova neural analysis grounded in retrieved code context.'
+    description: 'Grounded explanation synthesized from retrieved codebase context.'
   },
   IMPLEMENTATION_HYPOTHESIS: {
-    label: 'Implementation Hypothesis',
+    label: 'Suggested Plan',
     bg: 'bg-amber-50 text-amber-700 border-amber-200',
     icon: Lightbulb,
-    description: 'Proposed resolution hypothesis. Verify against maintainer feedback.'
+    description: 'Suggested implementation plan grounded in repository code.'
   }
 };
 

@@ -57,7 +57,7 @@ export const IssueOverviewView = ({ issue, onExploreCode }) => {
                 ? 'bg-[#071F1B] border-emerald-500/30 text-[#34D399]' 
                 : 'bg-teal-50 border-teal-200 text-teal-700'
             }`}>
-              <ShieldCheck className="w-3.5 h-3.5" /> Verified
+              <ShieldCheck className="w-3.5 h-3.5" /> Code Target Grounded
             </span>
           </div>
 
@@ -85,7 +85,7 @@ export const IssueOverviewView = ({ issue, onExploreCode }) => {
                   : 'bg-slate-50 border-slate-200 text-slate-600'
               }`}>
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
-                {estimated_time}
+                Effort: {estimated_time}
               </span>
             )}
           </div>
@@ -129,9 +129,9 @@ export const IssueOverviewView = ({ issue, onExploreCode }) => {
           }`}>
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
               <Target className="w-4 h-4 text-blue-400" />
-              <span>Technical Context & Root Cause</span>
+              <span>Likely Cause & Technical Context</span>
             </div>
-            <p className={`text-xs md:text-sm leading-relaxed p-3.5 rounded-xl border font-mono ${
+            <p className={`text-xs md:text-sm leading-relaxed p-3.5 rounded-xl border font-sans font-medium ${
               isDark 
                 ? 'bg-[#050C10] border-slate-800 text-slate-300' 
                 : 'bg-slate-50 border-slate-200 text-slate-800'

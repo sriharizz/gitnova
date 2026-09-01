@@ -39,7 +39,7 @@ export const ContributionPlanView = ({ issue, onProceedToCheckpoints }) => {
             Step-by-Step Contribution Plan
           </h2>
           <p className={`text-xs font-medium mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-            Follow this verified roadmap to complete your first contribution.
+            Follow this grounded roadmap to complete your first contribution.
           </p>
         </div>
 

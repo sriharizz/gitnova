@@ -189,12 +189,12 @@ export const IssueCard = ({ issue, onSelect }) => {
           <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${
             isDark ? 'bg-[#0D1E28] border-slate-700/80 text-slate-300' : 'bg-slate-50 border-slate-200/70 text-slate-600'
           }`}>
-            AST Verified
+            Target Grounded
           </span>
           <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${
             isDark ? 'bg-[#0D1E28] border-slate-700/80 text-slate-300' : 'bg-slate-50 border-slate-200/70 text-slate-600'
           }`}>
-            Isolated Scope
+            Scoped Task
           </span>
           <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${
             isDark ? 'bg-[#0D1E28] border-slate-700/80 text-slate-300' : 'bg-slate-50 border-slate-200/70 text-slate-600'

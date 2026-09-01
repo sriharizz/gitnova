@@ -4,10 +4,10 @@ import ProvenanceBadge from './ProvenanceBadge';
 import { useTheme } from '../../lib/ThemeContext';
 
 const TIER_CONFIG = {
-  BEGINNER: { label: 'Beginner Golden Ticket', color: 'text-emerald-700 bg-emerald-50/90 border-emerald-300 ring-1 ring-emerald-500/20' },
+  BEGINNER: { label: 'Beginner Friendly', color: 'text-emerald-700 bg-emerald-50/90 border-emerald-300 ring-1 ring-emerald-500/20' },
   BEGINNER_PLUS: { label: 'Beginner Plus', color: 'text-teal-700 bg-teal-50/90 border-teal-300 ring-1 ring-teal-500/20' },
   INTERMEDIATE: { label: 'Intermediate', color: 'text-blue-700 bg-blue-50/90 border-blue-300 ring-1 ring-blue-500/20' },
-  ADVANCED: { label: 'Advanced Core', color: 'text-purple-700 bg-purple-50/90 border-purple-300 ring-1 ring-purple-500/20' }
+  ADVANCED: { label: 'Advanced', color: 'text-purple-700 bg-purple-50/90 border-purple-300 ring-1 ring-purple-500/20' }
 };
 
 function formatPillarValue(val) {
@@ -15,6 +15,7 @@ function formatPillarValue(val) {
   const str = String(val).toUpperCase();
   if (str === 'DOCUMENTATION' || str === 'DOC_FIX') return 'Docs / Text';
   if (str === 'BUG_FIX') return 'Bug Fix';
+  if (str === 'SMALL_FEATURE') return 'Small Feature';
   if (str === 'FEATURE') return 'Feature';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase().replace(/_/g, ' ');
 }
@@ -42,8 +43,8 @@ export default function SuitabilityCard({ suitability, className = '' }) {
   const getPillarPercent = (val) => {
     const s = String(val).toUpperCase();
     if (s === 'EASY' || s === 'BEGINNER' || s === 'LOW' || s === 'DOC_FIX' || s === 'DOCUMENTATION') return 95;
-    if (s === 'MEDIUM' || s === 'BUG_FIX' || s === 'MODERATE') return 75;
-    if (s === 'HARD' || s === 'HIGH' || s === 'FEATURE') return 45;
+    if (s === 'MEDIUM' || s === 'BUG_FIX' || s === 'MODERATE' || s === 'SMALL_FEATURE') return 75;
+    if (s === 'HARD' || s === 'HIGH' || s === 'FEATURE' || s === 'ADVANCED') return 45;
     return 80;
   };
 
@@ -70,7 +71,7 @@ export default function SuitabilityCard({ suitability, className = '' }) {
               <h4 className={`text-xs font-bold uppercase tracking-wider ${
                 isDark ? 'text-white' : 'text-slate-900'
               }`}>
-                Suitability Intelligence
+                Beginner Suitability
               </h4>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                 isDark 
@@ -83,12 +84,12 @@ export default function SuitabilityCard({ suitability, className = '' }) {
             <p className={`text-[11px] font-medium mt-0.5 ${
               isDark ? 'text-slate-400' : 'text-slate-500'
             }`}>
-              Verified surface area, blast radius & setup friction
+              Code scope, repository size & setup complexity
             </p>
           </div>
         </div>
 
-        <ProvenanceBadge type="VERIFIED_FACT" source="Multi-Pillar AST Metric" className="self-start sm:self-center" />
+        <ProvenanceBadge type="AI_INFERENCE" source="Suitability Analysis" className="self-start sm:self-center" />
       </div>
 
       {/* 4 Clean Decoupled Complexity Pillars */}
@@ -100,7 +101,7 @@ export default function SuitabilityCard({ suitability, className = '' }) {
           <div>
             <div className="flex items-center gap-1.5 text-slate-400 mb-1">
               <Layers className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-              <span className="text-[10px] font-bold uppercase tracking-wider truncate">Repo Scope</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider truncate">Repo Size</span>
             </div>
             <div className={`text-xs font-bold truncate ${
               isDark ? 'text-slate-200' : 'text-slate-800'

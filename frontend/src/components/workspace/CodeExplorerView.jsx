@@ -53,12 +53,12 @@ export const CodeExplorerView = ({ codeData, onBack, onCreatePlan }) => {
             Stage 04 — Explore Codebase Context
           </div>
           <h2 className={`text-base sm:text-lg font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            Code Explorer & AST Regions
+            Target Source Files & Symbols
           </h2>
         </div>
 
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <ProvenanceBadge type="VERIFIED_FACT" source="RRF AST Slicer" />
+          <ProvenanceBadge type="VERIFIED_FACT" source="Retrieved Repository AST" />
           <button
             onClick={onCreatePlan}
             className="px-3.5 sm:px-4 py-2 text-xs font-bold text-slate-950 bg-[#9FE8C3] hover:bg-[#86EFAC] rounded-xl transition-all shadow-sm flex items-center gap-1.5 shrink-0"
