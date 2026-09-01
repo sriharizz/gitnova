@@ -2,8 +2,8 @@ import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:8000' : '');
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://kgbdixloinhtupulerhl.supabase.co';
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY || 'sb_publishable_FikbGkKUM1AFDo_seHTy1g_PGVwM_RT';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://gnwrctkkocgsralwrejv.supabase.co';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdud3JjdGtrb2Nnc3JhbHdyZWp2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjM4NjQxOCwiZXhwIjoyMDk3OTYyNDE4fQ.kVwfLA1RWF_OGwy5OMasCogLBTYHPp1RvV3iBxSTSZU';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
