@@ -1,326 +1,269 @@
-# GitNova 🚀
+# GitNova
 
-> **Production-Grade Open Source Contribution Discovery, Code Intelligence, and Machine Learning Evaluation Engine**
+> **AI-Powered Open-Source Contribution Discovery and Repository-Aware Guidance Engine**
 
-GitNova is an autonomous intelligence platform that helps software engineers discover, evaluate, and resolve high-signal GitHub issues across the open-source software ecosystem.
-
-Rather than acting as a naive "good first issue" search tool or scraping uncurated issue lists, GitNova solves a fundamental information retrieval and decision-making challenge:
+GitNova is a developer intelligence platform that helps software engineers find actionable open-source contribution opportunities and guides them through the entire contribution lifecycle—from issue selection to code exploration, local reproduction, implementation planning, and pull request preparation.
 
 ```
-      Millions of Open GitHub Issues
-                   ↓
-   [ Discovery & Language Rotation ]
-                   ↓
-      [ Deterministic Filtering ]
-                   ↓
- [ AST-Aware Hybrid Code Retrieval (RAG) ]
-                   ↓
-   [ Repository-Grounded LLM Mentor ]
-                   ↓
-  [ Multi-Tier Quality & Safety Gates ]
-                   ↓
-  Curated Actionable Contribution Feed
+Developer Preferences
+       ↓
+Contribution Opportunities
+       ↓
+Issue Understanding
+       ↓
+Repository-Grounded Code Context
+       ↓
+Investigation & Reproduction
+       ↓
+Structured Contribution Plan
+       ↓
+Testing & Verification Guidance
+       ↓
+Pull Request Preparation
 ```
 
 ---
 
-## ⚡ Key Capabilities
+## The Problem
 
-- **Automated Issue Discovery & Rotation**: Cycles deterministically through active open-source repositories across 20+ programming ecosystems (Python, TypeScript, Go, Rust, Java, C++, Ruby, etc.) with zero repository starvation.
-- **Deterministic Quality Gates**: Pre-filters noise, bots, locking issues, spam, and non-actionable questions before invoking downstream models.
-- **AST & Tree-Sitter Hybrid Code Retrieval (RAG)**: Chunks codebases via syntax-aware AST parsing and retrieves relevant source and test files using dense vector embeddings + BM25 keyword search.
-- **Grounded LLM Investigation**: Employs Gemini / LiteLLM with file-level grounding, generating reproduction steps, root cause analyses, and test blueprints.
-- **Publication & Contract Validation**: Enforces structured JSON schemas and strict safety filters before storing opportunities in Supabase PostgreSQL + pgvector.
-- **Offline QLoRA Candidate-Fit Classifier (ML Experiment)**: A fine-tuned `Qwen2.5-Coder-0.5B-Instruct` model trained with LoRA on a 600-issue leakage-safe dataset to classify candidate investigation viability.
-- **Rolling RAG Benchmark**: Evaluates retrieval accuracy against ground-truth changed files from historical merged pull requests.
+Finding a suitable open-source issue on GitHub is notoriously difficult for contributors:
 
----
+1. **Information Overload**: GitHub hosts millions of open issues, but most "good first issue" labels are stale, already solved, triaged as non-reproducible, or unmaintained.
+2. **Context Gap**: Understanding a large, unfamiliar codebase requires hours of manual exploration before a developer can even locate where a bug originates or which functions need modification.
+3. **Hallucination & Generic Advice**: Naive LLM assistants often propose fictional file paths, hallucinated function signatures, or generic architectural advice disconnected from the actual repository tree.
 
-## 🏗️ Production vs. Experimental Architecture
-
-GitNova strictly isolates active production pipelines from offline machine learning research.
-
-| Component / Subsystem | Production Status | Experimental / Research Status | Primary Responsibility |
-| :--- | :--- | :--- | :--- |
-| **Repository Discovery** | ✅ **Active** | — | Language-balanced repository round-robin polling |
-| **Deterministic Gates** | ✅ **Active** | — | Zero-cost rule-based spam/lock filtering |
-| **Hybrid Code Retrieval (RAG)** | ✅ **Active** | ✅ **Evaluated** | Tree-sitter chunking + Jina v2 embeddings + dense retrieval |
-| **Gemini LLM Investigation** | ✅ **Active** | — | Structured blueprint & difficulty tier classification |
-| **Safety & Validation Gates** | ✅ **Active** | — | Enforces schema validation before DB publication |
-| **QLoRA Candidate Classifier** | ❌ *Offline Only* | ✅ **Completed** | Parameter-efficient fine-tuning for candidate filtering |
-| **Rolling RAG Evaluation** | ✅ **Active** (Scheduled) | — | Evaluates retrieval Recall@K against merged PR changes |
+GitNova bridges this gap by combining automated GitHub discovery, deterministic quality gates, selective structural repository indexing, dense code retrieval (RAG), and AST-grounded LLM investigation into a guided 10-stage contributor workflow.
 
 ---
 
-## 🔄 Production Intelligence Pipeline
-
-The live production system executes autonomously via background workers and serves pre-computed intelligence via a FastAPI backend and interactive frontend.
+## End-to-End System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph Discovery ["1. Discovery & Rotation"]
-        GH[GitHub REST API] --> Sync[Repository Ingestion Worker]
-        Sync --> RR[Language-Balanced Round-Robin Scanner]
+    subgraph Ingestion ["1. Discovery & Qualification"]
+        A[GitHub Issues & Repositories] --> B[Repository Ingestor & Polling]
+        B --> C[Language & Experience Pre-Filtering]
+        C --> D[Deterministic Availability & Noise Gates]
     end
 
-    subgraph Deterministic ["2. Quality Filtering"]
-        RR --> Gate1{Deterministic Gates}
-        Gate1 -- "Bot / Closed / Locked / Spam" --> Reject[Discard Issue]
-        Gate1 -- "Valid Candidate" --> CodeIndex[Code Indexer Engine]
+    subgraph RAG ["2. Selective Code Indexing & Retrieval"]
+        B --> E[Repository Map & File Classification]
+        E --> F[Issue-Aware Candidate Selection & Structural Coverage]
+        F --> G[Structure-Aware & AST Code Chunker]
+        G --> H[Code Embeddings Engine: Jina-v2 768-dim]
+        H --> I[(Supabase pgvector & Code Store)]
+        J[Issue Context Query] --> K[Dense & Lexical Hybrid Retriever]
+        I --> K
     end
 
-    subgraph Retrieval ["3. Hybrid Code Retrieval (RAG)"]
-        CodeIndex --> AST[Tree-sitter AST Chunker]
-        AST --> Emb[Jina v2 Dense Embeddings]
-        Emb --> VecStore[(Supabase pgvector)]
-        VecStore --> HybridRet[Dense + BM25 Hybrid Retriever]
+    subgraph Reasoning ["3. Grounded LLM Reasoning & Verification"]
+        K --> L[Repository-Grounded Evidence Context]
+        L --> M[LLM Reasoning: Gemini 2.5 Flash / LiteLLM]
+        M --> N[AST & Source Verification Gate]
     end
 
-    subgraph Investigation ["4. Grounded LLM Investigation"]
-        HybridRet --> Context[Grounded Code Context Assembly]
-        Context --> Gemini[Gemini 2.5 Flash / LiteLLM]
-        Gemini --> Schema[Structured Output Schema: Blueprint + Difficulty]
-    end
-
-    subgraph Validation ["5. Publication & Serving"]
-        Schema --> Gate2{Validation & Safety Gates}
-        Gate2 -- "Malformed / Unsafe" --> Drop[Quarantine]
-        Gate2 -- "Validated" --> DB[(Supabase PostgreSQL)]
-        DB --> API[FastAPI Async REST API]
-        API --> UI[Interactive Frontend Web App]
+    subgraph Delivery ["4. Recommendation & Contributor Journey"]
+        N --> O[Personalization & Repository Diversity Scoring]
+        O --> P[Live Recommendation Feed]
+        P --> Q[10-Stage Guided Contributor Journey]
     end
 ```
 
 ---
 
-## 🔬 Offline ML Experiment: QLoRA Candidate-Fit Classification
+## Selective Indexing Pipeline (RAG Architecture)
 
-During candidate discovery, deciding whether an issue justifies expensive repository-grounded RAG retrieval and LLM investigation is critical for cost and latency optimization. We built a complete, leakage-safe supervised fine-tuning pipeline.
+Indiscriminately chunking and embedding every file in a large multi-package repository is cost-prohibitive, introduces vector noise, and can starve critical sub-packages under a fixed token budget. 
+
+GitNova uses a two-tier selective indexing pipeline that narrows the search space while guaranteeing module coverage before embedding:
 
 ```mermaid
 flowchart TD
-    subgraph DataEngine ["Data Engineering & Partitioning"]
-        Raw[600 Real GitHub Issues] --> Anno[GPT-Annotated Fit Labels]
-        Anno --> Val[Validation & 100% ID Alignment]
-        Val --> Split{Repository-Holdout Split}
-        Split --> TrainSet[Train Set: 420 Issues / 49 Repos]
-        Split --> ValSet[Val Set: 90 Issues / 14 Repos]
-        Split --> TestSet[Held-Out Test: 90 Issues / 10 Repos]
+    subgraph RepoTree ["Full Repository Tree"]
+        T[Repository Files & Directories]
     end
 
-    subgraph Baselines ["Baseline Benchmarking"]
-        TestSet --> TFIDF[TF-IDF + Logistic Regression]
-        TestSet --> ZeroShot[Qwen2.5-Coder-0.5B Zero-Shot Base Model]
+    subgraph MapPhase ["1. Repository Mapping"]
+        T --> M1[File Classification: Source, Test, Doc, Config]
+        M1 --> M2[Module Affinity & Directory Grouping]
+        M2 --> M3[Structural Breadth: Multi-Package Coverage]
     end
 
-    subgraph FineTuning ["QLoRA Supervised Fine-Tuning"]
-        TrainSet --> LoRAConfig[LoRA Adapter: r=16, alpha=32, target=all-linear]
-        LoRAConfig --> PyTorch[PyTorch GPU Training: 3 Epochs]
-        PyTorch --> Adapter[Saved LoRA Weights: models/gitnova-qwen-qlora-v1]
+    subgraph CandidatePhase ["2. Issue-Aware Candidate Selection"]
+        M3 --> C1[Identifier & Keyword Token Overlap]
+        C1 --> C2[Path Relevance Scoring]
+        C2 --> C3[Candidate Source & Test File Subsets]
     end
 
-    subgraph Eval ["Held-Out Evaluation"]
-        Adapter --> TestEval[Evaluate on 90 Held-Out Issues]
-        ZeroShot --> Compare[Baseline vs. QLoRA Comparison]
-        TFIDF --> Compare
-        TestEval --> Compare
-        Compare --> Report[Metrics JSON + Error Analysis + Report]
+    subgraph ChunkingPhase ["3. Structure-Aware Chunking"]
+        C3 --> CK1[Python AST / Declaration Parsing]
+        CK1 --> CK2[Function, Class & Method Boundaries]
+        CK2 --> CK3[Bounded Context Blocks: 800–1200 chars]
+    end
+
+    subgraph EmbedPhase ["4. Targeted Embedding & Storage"]
+        CK3 --> EM1[Jina-v2 Code Embedder: 768-dim Vectors]
+        EM1 --> EM2[(Supabase Code Chunks & Vector Store)]
+    end
+
+    subgraph QueryPhase ["5. Issue-Time Retrieval"]
+        Q[Issue Title & Description] --> RT[Dense Vector + Identifier Retrieval]
+        EM2 --> RT
+        RT --> EV[Targeted Code Evidence]
     end
 ```
 
-### 1. Dataset Construction & Leakage Prevention
-
-- **Total Dataset Size**: 600 real GitHub issues (`is_pull_request: false`) across **73 repositories** and **20 programming languages**.
-- **Fit Classes**: `HIGH_FIT` ($45.3\%$), `MEDIUM_FIT` ($41.5\%$), `LOW_FIT` ($13.2\%$).
-- **Repository-Holdout Splitting**:
-  - **Train Set**: 420 issues across 49 repositories ($70.0\%$).
-  - **Validation Set**: 90 issues across 14 repositories ($15.0\%$).
-  - **Held-Out Test Set**: 90 issues across 10 unseen repositories ($15.0\%$).
-- **Leakage Status**: **`PASS`** (Zero repository intersection: $\text{Train} \cap \text{Val} = \emptyset$, $\text{Train} \cap \text{Test} = \emptyset$, $\text{Val} \cap \text{Test} = \emptyset$).
-
-> **Why Repository-Holdout Matters**: Issues originating from the same repository share common maintainers, issue templates, coding styles, and vocabulary. A naive random row split causes high repository leakage, giving artificially inflated evaluation scores. Isolating entire repositories into the held-out test partition evaluates true generalization to unseen software projects.
+> **Engineering Rationale**: We do not embed an entire repository indiscriminately. The system first narrows the search space using cheap metadata analysis and structural scoring, guarantees representation across distinct submodules, and then embeds only higher-value code units.
 
 ---
 
-### 2. Fine-Tuning Configuration
+## Technical Deep-Dives
 
-- **Base Model**: `Qwen/Qwen2.5-Coder-0.5B-Instruct` (0.5B parameters, instruction-tuned coder).
-- **Adaptation Method**: Low-Rank Adaptation (LoRA / QLoRA) via `peft`.
-- **Rank ($r$) & Alpha ($\alpha$)**: $r = 16$, $\alpha = 32$, Dropout = $0.05$.
-- **Target Modules**: All linear attention and MLP projections (`q_proj`, `v_proj`, `k_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`).
-- **Trainable Parameters**: 8,798,208 ($1.75\%$ of total model parameters).
-- **Loss Masking**: Token-level label masking (`-100` on prompt tokens), computing cross-entropy loss exclusively on the single-token classification target.
-- **Optimization**: AdamW (`lr = 2e-4`, linear warmup schedule, weight decay $0.01$, gradient clipping $1.0$).
+### 1. Structure-Aware Code Chunking
+Rather than splitting repository text by fixed byte or token counts (which arbitrary breaks control flow and signatures), GitNova's chunker is syntax-aware:
+- **Python AST Parsing**: Splits source code strictly at `FunctionDef`, `AsyncFunctionDef`, and `ClassDef` boundaries using Python's standard `ast` module.
+- **Tree-sitter & Regex Fallbacks**: Handles non-Python languages by extracting top-level block and function declarations.
+- **Markdown & Config Blocks**: Preserves header boundaries in documentation and key-value sections in configuration files (`pyproject.toml`, `setup.cfg`).
+- **Bounded Sizing**: Ensures each chunk retains full symbol name, file path, line numbers (`start_line`, `end_line`), and character length constraints.
 
----
+### 2. Dense Code Embeddings
+- **Model**: `jinaai/jina-embeddings-v2-base-code` (pretrained transformer specialized for source code and technical vocabulary).
+- **Vector Dimensions**: 768 dimensions.
+- **Normalization**: Unit $L_2$ vector normalization enabled for exact cosine similarity search.
+- **Hardware Acceleration**: Automatic GPU batching with automatic CPU fallback.
+- **Storage**: Persisted to Supabase PostgreSQL utilizing the `pgvector` extension.
 
-### 3. Empirical Results & Benchmark Comparison
+### 3. LLM Reasoning & Contributor Synthesis
+- **Model Provider**: Gemini 2.5 Flash / LiteLLM with structured Pydantic schema enforcement.
+- **Role**: The LLM is **not** the repository search engine. Dense retrieval localizes the actual source chunks; the LLM reasons over the retrieved evidence to synthesize:
+  - Technical summary and root-cause analysis
+  - Prerequisite architectural concepts
+  - Step-by-step contribution plan
+  - Verification & testing instructions
+  - Pull request submission checklist
 
-Evaluated on the exact same **90 held-out test issues across 10 unseen repositories**:
+### 4. Repository-Grounded Verification
+- Target files, line ranges, and symbols generated in contributor plans are verified directly against persisted AST nodes and repository source code.
+- Grounding significantly reduces unsupported file or symbol claims and guarantees that advice presented in the UI references real repository files.
 
-| Model Architecture | Accuracy | Macro Precision | Macro Recall | Macro F1 | HIGH_FIT F1 | MEDIUM_FIT F1 | LOW_FIT F1 |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Base Qwen2.5-Coder-0.5B (Zero-Shot)** | 0.2778 | 0.2246 | 0.3425 | **0.2096** | 0.0000 | 0.4182 | 0.2105 |
-| **TF-IDF + Logistic Regression** | 0.6000 | 0.5880 | 0.4905 | **0.4472** | 0.7387 | 0.4324 | 0.1705 |
-| **Fine-Tuned QLoRA Adapter (Ours)** | **0.8222** | **0.8208** | **0.7852** | **0.7941** | **0.8889** | **0.6364** | **0.8571** |
-| **Delta ($\Delta$ vs Base Model)** | **+0.5444** | **+0.5962** | **+0.4427** | **+0.5845** | **+0.8889** | **+0.2182** | **+0.6466** |
-
-```
-Confusion Matrix (Held-Out Test Set, n=90):
-                Predicted HIGH_FIT   Predicted MEDIUM_FIT   Predicted LOW_FIT
-True HIGH_FIT            48                     2                    0
-True MEDIUM_FIT          10                    14                    2
-True LOW_FIT              0                     2                   12
-```
-
----
-
-### 4. Error Analysis & Failure Modes
-
-Analysis of the 16 misclassifications ($17.8\%$ error rate) on the held-out test partition:
-1. **`MEDIUM_FIT → HIGH_FIT` (10 cases, $62.5\%$ of errors)**: Moderate-scope issues with slight ambiguity in reproduction steps that the model prioritized aggressively.
-2. **`HIGH_FIT → MEDIUM_FIT` (2 cases)**: Complex architectural bug reports classified conservatively.
-3. **`LOW_FIT → MEDIUM_FIT` (2 cases)**: Sparse issues where the model gave benefit of the doubt.
-4. **`MEDIUM_FIT → LOW_FIT` (2 cases)**.
-5. **`LOW_FIT → HIGH_FIT` (0 cases on this test partition)**: The model successfully prevented non-actionable or conversational rants from falsely triggering expensive downstream stages.
+### 5. Recommendation Engine & Repository Diversity
+- **Quality Gate**: Issues must satisfy strict eligibility criteria:
+  - `verification_status == "VERIFIED"`
+  - `quality_score >= 60` and `quality_grade != "low"`
+  - `availability_status != "NOT_RECOMMENDED"` (open and unassigned)
+  - Non-empty step-by-step contribution plan and verified relevant locations
+- **Repository Diversity (Max 2 per Repo)**: To prevent popular repositories from monopolizing the feed, recommendations apply round-robin bucket interleaving, capping recommendations at a strict maximum of **2 issues per repository** per user query.
 
 ---
 
-## 🎯 Code Retrieval Evaluation (RAG Ground-Truth Benchmark)
+## The 10-Stage Contributor Journey
 
-Separate from candidate-fit classification, GitNova independently evaluates its **hybrid repository code retriever**.
+When a developer selects a contribution opportunity, GitNova guides them through 10 progressive stages:
+
+| Stage | Title | Purpose |
+| :---: | :--- | :--- |
+| **01** | **Understand** | Breaks down the problem statement, affected scope, and expected vs. actual behavior. |
+| **02** | **Check Status** | Validates issue availability, assignment status, and checks for existing competing pull requests. |
+| **03** | **Learn Concepts** | Teaches foundational architectural and library concepts required to solve the issue. |
+| **04** | **Explore Code** | Displays verified target source chunks, symbols, line ranges, and contextual reference code. |
+| **05** | **Investigate** | Details reproduction steps, failure flows, and likely root-cause mechanics. |
+| **06** | **Plan Fix** | Presents an AST-verified, step-by-step technical implementation plan. |
+| **07** | **Implement** | Highlights concrete code modification targets, helper utilities, and edge-case handling. |
+| **08** | **Test** | Provides exact test execution commands and blueprints for writing new regression unit tests. |
+| **09** | **Prepare PR** | Generates a clean PR title, structured description, and links to the parent issue. |
+| **10** | **Review** | Provides a final contributor pre-flight checklist against project contribution guidelines. |
+
+---
+
+## Technology Stack
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Backend Framework** | Python 3.11, FastAPI, Pydantic v2 | High-performance asynchronous REST API & pipeline orchestration |
+| **Database & Vectors** | Supabase (PostgreSQL + `pgvector`) | Persisted issue metadata, repository maps, and 768-dim code embeddings |
+| **Code Embeddings** | `jinaai/jina-embeddings-v2-base-code` | Dense semantic representation of code chunks and issue queries |
+| **AST & Syntax Analysis** | Python `ast`, Tree-sitter | Syntax-aware code chunking at class and function boundaries |
+| **LLM Reasoning** | Gemini 2.5 Flash / LiteLLM | Grounded root-cause analysis, concept generation, and fix planning |
+| **Frontend Application** | React 18, Vite, Tailwind CSS, Lucide | Modern, responsive developer workspace with dark/light mode |
+| **CI/CD & Automation** | GitHub Actions | Automated issue discovery rotation, re-indexing, and unit testing |
+| **Hosting & Deployment** | Vercel (Frontend), Render / Docker (Backend) | Cloud production hosting with global edge delivery |
+
+---
+
+## System Deployment
 
 ```mermaid
-flowchart TD
-    subgraph GroundTruthEval ["RAG Ground-Truth Evaluation Pipeline"]
-        PR[Merged Historical GitHub Pull Request] --> Extract[Extract Changed Source & Test Files]
-        Extract --> GT[Ground-Truth Relevant Files]
-        PR --> IssueText[Extract Original Issue Description & Title]
-        IssueText --> Retriever[GitNova Hybrid Code Retriever]
-        Retriever --> TopK[Top-K Retrieved Code Chunks]
-        TopK --> MetricComp{Compare Retrieved Files vs Ground Truth}
-        GT -. "Masked during retrieval" .-> MetricComp
-        MetricComp --> FinalMetrics["RAG Recall@10: 96.7% | RAG MRR@10: 0.792"]
-    end
+flowchart LR
+    User([Developer / Browser]) -->|HTTPS| Vercel[Vercel: React Frontend]
+    Vercel -->|REST API| Render[Render: FastAPI Backend Container]
+    Render -->|SQL & pgvector| Supabase[(Supabase PostgreSQL + pgvector)]
+    Render -->|API Calls| GitHub[GitHub REST API]
+    Render -->|Inference| GeminiAPI[Google Gemini / LiteLLM API]
 ```
 
-### Retrieval Benchmark Methodology
-- **Ground Truth**: Extracted from merged GitHub pull requests across multi-language repositories.
-- **Evaluation Independence**: The merged PR file diff is strictly masked from the retrieval query; the retriever only receives the raw issue title and description.
-- **Verified Benchmark Metrics**:
-  - **RAG Recall@10**: **`96.7%`** (Proportion of actual PR fix files retrieved in top 10 chunks).
-  - **RAG MRR@10**: **`0.792`** (Mean Reciprocal Rank of first relevant source file).
-
-> **Methodology Distinction**:
-> - **QLoRA Evaluates**: Candidate issue investigation viability (`HIGH`, `MEDIUM`, `LOW`).
-> - **RAG Evaluates**: Grounded source-code file localization accuracy.
-> - These are independent metrics measuring separate stages of the pipeline.
-
 ---
 
-## 🧠 Engineering Decisions & Interview Defensibility
-
-### 1. Why QLoRA instead of Full Fine-Tuning?
-Training LoRA rank-16 adapters updates only $1.75\%$ of weights ($8.79\text{M}$ parameters), preventing catastrophic forgetting of base coding knowledge while running efficiently on consumer hardware (e.g., 4GB VRAM GPU) and producing a lightweight $33.6\text{MB}$ adapter artifact.
-
-### 2. Why Repository-Holdout Splits instead of Random K-Fold?
-Random row splitting causes data leakage because models memorize repository-specific terminology and file structures. Grouping by repository guarantees that validation and test scores reflect genuine generalization to new open-source projects.
-
-### 3. Why Hybrid Code Retrieval (Dense + BM25)?
-Pure vector search excels at high-level semantic intent but struggles with exact programming tokens (e.g., function names like `get_rotated_repositories` or error strings like `ECONNREFUSED`). BM25 handles exact keyword matching while dense embeddings capture conceptual relevance.
-
-### 4. Why AST & Tree-Sitter Chunking?
-Fixed-size token chunking splits functions, classes, and control flow arbitrarily across boundaries. Tree-sitter parses the abstract syntax tree to chunk code at logical function/class boundaries with contextual path metadata.
-
-### 5. Why use Merged Pull Request Diff as RAG Ground Truth?
-The actual files changed in a merged fix PR represent the objective empirical ground truth of what code needed to be modified to resolve the issue.
-
-### 6. Why use Macro F1 as the Primary Metric?
-With class imbalance ($45.3\%$ High, $41.5\%$ Medium, $13.2\%$ Low), raw accuracy can be inflated by predicting majority classes. Macro F1 weights all three classes equally, ensuring low-fit rejection is penalized equally with high-fit detection.
-
-### 7. Why Keep Fine-Tuning Isolated from Production?
-Production systems require deterministic safety, zero-cost rollback, and predictable SLAs. The fine-tuned model is evaluated offline and maintained as an optional shadow-mode pre-filter.
-
----
-
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 gitnova/
 ├── backend/
-│   ├── app/                                 # Production Intelligence Engine
-│   │   ├── api/                             # FastAPI REST API endpoints
-│   │   ├── core/                            # Config, logging, and database clients
-│   │   ├── discovery/                       # Ingestion & repo diversity rotation
-│   │   ├── gates/                           # Deterministic pre-filters
-│   │   ├── gemini/                          # LLM investigation & schema enforcement
-│   │   ├── pipeline/                        # End-to-end sync & rolling evaluation
-│   │   ├── rag/                             # Tree-sitter chunking & hybrid retrieval
-│   │   └── schemas/                         # Pydantic v2 data models
-│   ├── data/
-│   │   └── dataset_collection/final_v1/     # Supervised ML Experiment Artifacts
-│   │       ├── train.jsonl                  # 420 Training issues (49 repos)
-│   │       ├── validation.jsonl             # 90 Validation issues (14 repos)
-│   │       ├── test.jsonl                   # 90 Held-out test issues (10 repos)
-│   │       ├── joined_supervised_dataset.jsonl
-│   │       ├── validation_report.json       # 100% ID alignment validation report
-│   │       ├── experiment_results.json      # Full metrics & confusion matrices
-│   │       ├── experiment_report.md         # Detailed markdown ML report
-│   │       ├── error_analysis.jsonl         # Prediction breakdown & error modes
-│   │       └── models/gitnova-qwen-qlora-v1/# LoRA Adapter Config & Metadata
-│   ├── scripts/                             # Reproducible Pipeline & Evaluation CLIs
-│   │   ├── run_gitnova_qlora_experiment.py  # Master end-to-end ML pipeline
-│   │   └── evaluate_gitnova_model.py        # Standalone evaluation CLI
-│   └── tests/                               # 290+ Unit & Integration Test Suite
-├── frontend/                                # Production UI Web Application
-├── docker-compose.yml                       # Containerized orchestration
-└── README.md                                # Platform documentation
+│   ├── app/
+│   │   ├── api/                   # FastAPI route definitions (/issues, /recommendations)
+│   │   ├── core/                  # Configuration, logging, and security settings
+│   │   ├── db/                    # Supabase database access layers and query handlers
+│   │   ├── pipeline/              # Ingestion, AST chunker, embedder, and retriever
+│   │   └── schemas/               # Pydantic v2 data models for issues, evidence, and plans
+│   ├── scripts/                   # Evaluation CLI tools, shadow runners, and benchmarks
+│   ├── tests/                     # Automated test suite (347 unit and integration tests)
+│   ├── Dockerfile                 # Backend containerization for Render / cloud deployment
+│   └── requirements.txt           # Python backend dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── diagrams/          # Interactive failure flow and provenance diagrams
+│   │   │   ├── workspace/         # 10-stage journey views (CodeExplorerView, etc.)
+│   │   │   └── ...                # Recommendation cards, filters, and navbars
+│   │   ├── lib/                   # API clients, theme provider, and utility helpers
+│   │   └── App.jsx                # Main application routing and state management
+│   ├── package.json               # Frontend dependencies and Vite configuration
+│   └── tailwind.config.js         # Design tokens, fonts, and dark mode styling
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                 # Automated test suite and build verification
+│       ├── daily_pipeline.yml     # Scheduled issue discovery and qualification worker
+│       └── reindex.yml            # Automated repository code re-indexing workflow
+└── README.md                      # System architecture and technical documentation
 ```
 
 ---
 
-## 🚀 Reproducing the Experiments
+## Testing & Evaluation
 
-### 1. Environment Setup
-```bash
-# Clone repository
-git clone https://github.com/sriharizz/gitnova.git
-cd gitnova
-
-# Install dependencies with CUDA PyTorch
-pip install -r backend/requirements.txt
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-pip install peft transformers datasets scikit-learn accelerate
-```
-
-### 2. Run the Full QLoRA Fine-Tuning & Evaluation Pipeline
-```bash
-python backend/scripts/run_gitnova_qlora_experiment.py \
-    --base-model Qwen/Qwen2.5-Coder-0.5B-Instruct \
-    --epochs 3 \
-    --batch-size 1
-```
-
-### 3. Evaluate the Fine-Tuned Adapter on Held-Out Test Set
-```bash
-python backend/scripts/evaluate_gitnova_model.py \
-    --base-model Qwen/Qwen2.5-Coder-0.5B-Instruct \
-    --model-path backend/data/dataset_collection/final_v1/models/gitnova-qwen-qlora-v1 \
-    --test-file backend/data/dataset_collection/final_v1/test.jsonl \
-    --is-adapter
-```
+- **Backend Pytest Suite**: **347 passed unit and integration tests** covering API contracts, AST chunker edge cases, vector indexing, repository diversity, and LLM retry resilience.
+- **Frontend Production Build**: Clean Vite production bundle compilation with zero lint or build errors.
+- **Retrieval Evaluation**: Evaluates retrieval accuracy by comparing retrieved code chunks against ground-truth file diffs from known merged pull requests. This empirical feedback loop directly informed our multi-package module coverage and identifier-scoring improvements.
 
 ---
 
-## ⚠️ Limitations & Boundary Conditions
+## Live Interview Demonstration Flow
 
-1. **Dataset Scope**: The current supervised experiment is evaluated on 600 issues across 73 repositories and 20 languages. While diverse, specialized domain-specific repositories (e.g., embedded systems or hardware drivers) may require additional domain adaptation.
-2. **Annotation Labels**: Ground-truth fit labels were generated via structured GPT annotations; human expert verification on larger enterprise datasets is planned for future iterations.
-3. **Hardware Constraints**: The QLoRA experiment was tuned on consumer GPU hardware (4GB VRAM). Larger base models (e.g., 7B or 14B) could yield higher precision on subtle multi-file bugs.
-4. **Offline Isolation**: The QLoRA candidate classifier is currently maintained strictly as an offline research artifact and does not alter production traffic.
+1. **Preference Selection**: Select target language (e.g. *Python*) and experience level (*Beginner*).
+2. **Recommendation Feed**: View diverse, qualified contribution opportunities with real-time availability badges and repository diversity (max 2 per repo).
+3. **Select Opportunity**: Open `psf/requests#7564` (*raise FileNotFoundError for missing TLS material*).
+4. **Walk Through Stages**:
+   - **Stage 01 (Understand)**: Review the problem summary and expected behavior.
+   - **Stage 03 (Learn Concepts)**: Examine grounded prerequisite concepts (*TLS Verification, File Path Checks*).
+   - **Stage 04 (Explore Code)**: Inspect the AST-verified primary fix target in `src/requests/adapters.py` (`_urllib3_request_context`, lines 85–119) and collapsible reference context.
+   - **Stage 05–08 (Investigate, Plan, Test)**: Review the reproduction steps, 4-step implementation plan, and `pytest tests/test_requests.py` verification instructions.
+5. **Codebase & Architecture**: Return to the repository to explain the underlying RAG, chunking, and grounding architecture using this README.
 
 ---
 
-## 📄 License & Contact
+## Core Engineering Principles
 
-GitNova is released under the **MIT License**. Created by Srihari ([@sriharizz](https://github.com/sriharizz)).
+1. **Retrieve Before Generating**: Feed real, retrieved repository context into the LLM rather than asking it to invent file paths or code locations.
+2. **Selective Indexing over Indiscriminate Embedding**: Narrow the file space using structural scoring and module coverage before embedding to minimize noise and compute cost.
+3. **Structure-Aware Units**: Parse code at AST and declaration boundaries rather than slicing arbitrary token chunks.
+4. **Generic Logic over Demo Specialization**: Enforce generic database schemas, generic SQL queries, and universal diversity rules across all supported ecosystems.
+5. **Quality & Availability Gates**: Actively verify issue state and PR competition before recommending issues to contributors.
