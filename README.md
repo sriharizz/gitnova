@@ -22,65 +22,67 @@ GitNova solves this by combining automated GitHub discovery, deterministic quali
 
 ---
 
-## 1. Complete System Architecture
+## 1. System Architecture
 
 ```mermaid
 flowchart LR
-    subgraph S1 ["1. Discovery & Ingestion"]
-        GH[GitHub API & Webhooks] --> Ingest[Repository Ingestor]
-        Ingest --> Qual[Availability & Noise Gates]
+    subgraph S1 ["1. Ingestion & Discovery"]
+        direction TB
+        GH["GitHub API & Webhooks"] --> Ingest["Repository Ingestor"]
+        Ingest --> Qual["Noise & Availability Gates"]
     end
 
     subgraph S2 ["2. Selective RAG & Indexing"]
-        Qual --> RepoMap[Repository Map & Module Registry]
-        RepoMap --> Cand[Issue-Aware Candidate Selection]
-        Cand --> AST[Tree-sitter & AST Chunking]
-        AST --> Embed[Jina-v2 Code Embedder: 768-dim]
-        Embed --> VectorStore[(Supabase pgvector DB)]
+        direction TB
+        RepoMap["Repository Directory Map"] --> Cand["Candidate File Selection"]
+        Cand --> AST["Tree-sitter / AST Chunking"]
+        AST --> Embed["Jina-v2 Embedder (768-dim)"]
+        Embed --> VectorStore["Supabase pgvector"]
     end
 
     subgraph S3 ["3. Grounded Reasoning Engine"]
-        VectorStore --> HybridRet[Dense & Lexical Hybrid Retrieval]
-        IssueContext[Issue Context & Target Identifiers] --> HybridRet
-        HybridRet --> GroundedEv[Repository Code Evidence]
-        GroundedEv --> LLM[LLM Reasoning: Gemini 2.5 Flash]
-        LLM --> Verify[AST Source Verification Gate]
+        direction TB
+        HybridRet["Dense + Lexical Retrieval"] --> GroundedEv["Repository Code Evidence"]
+        GroundedEv --> LLM["LLM Reasoning (Gemini 2.5)"]
+        LLM --> Verify["AST Verification Gate"]
     end
 
     subgraph S4 ["4. Feed & Guided Journey"]
-        Verify --> Ranking[Diversity & Scoring Engine]
-        Ranking --> Feed[Interactive Recommendation Feed]
-        Feed --> Journey[10-Stage Contributor Workspace]
+        direction TB
+        Ranking["Scoring & Diversity Engine"] --> Feed["Recommendation Feed"]
+        Feed --> Journey["10-Stage Contributor Journey"]
     end
+
+    Qual --> RepoMap
+    VectorStore --> HybridRet
+    Verify --> Ranking
 ```
 
-### Architectural Flow Explained:
-1. **Discovery & Ingestion**: Rotates across active open-source repositories, filtering out closed, assigned, or PR-blocked issues using deterministic GitHub checks.
-2. **Selective RAG & Indexing**: Generates repository directory maps, applies AST-aware chunking at class/function boundaries, and generates 768-dimensional embeddings stored in Supabase `pgvector`.
-3. **Grounded Reasoning**: When an issue is analyzed, hybrid retrieval gathers verified code chunks. The LLM performs root-cause analysis strictly grounded in the retrieved code, verified against repository file trees.
-4. **Feed & Workspace**: Ranks opportunities with repository diversity (max 2 per repo) and delivers a structured 10-stage interactive contribution journey.
+### Pipeline Overview:
+- **Discovery & Ingestion**: Continuously queries GitHub across languages, running rule-based checks to eliminate unmaintained or assigned issues.
+- **Selective RAG & Indexing**: Employs syntax-aware AST parsing to chunk functions and classes, embedding relevant segments into Supabase `pgvector`.
+- **Grounded Reasoning**: Hybrid retrieval provides verified code snippets to the LLM, strictly verifying file paths and symbols against the repository tree.
+- **Feed & Guided Journey**: Applies repository diversity constraints (max 2 per repo) and serves a complete 10-stage contribution roadmap.
 
 ---
 
 ## 2. Selective RAG & Indexing Pipeline
 
-Embedding an entire repository indiscriminately is computationally wasteful, introduces search noise, and starves nested sub-packages. GitNova uses a two-tier selective indexing pipeline:
-
 ```mermaid
 flowchart LR
-    Tree[Repository File Tree] --> Map[Module Map & File Classification]
-    Map --> Select[Issue-Aware Candidate Selection]
-    Select --> AST[Structure-Aware AST Chunking]
-    AST --> Embed[Jina-v2 Code Embedder]
-    Embed --> Store[(Supabase Vector Store)]
-    Store --> Retrieve[Dense + Lexical Retrieval]
-    Retrieve --> Evidence[Verified Code Context]
+    Tree["Repository Tree"] --> Classify["File Classification"]
+    Classify --> Select["Issue-Aware Selection"]
+    Select --> AST["AST Chunking"]
+    AST --> Embed["Jina-v2 Embedder"]
+    Embed --> Store["Supabase Vector DB"]
+    Store --> Retrieve["Hybrid Retrieval"]
+    Retrieve --> Evidence["Verified Evidence"]
 ```
 
 ### Why Selective Indexing Matters:
-- **Noise Elimination**: Skips documentation, auto-generated files, vendor bundles, lockfiles, and binaries.
-- **Multi-Package Coverage**: Prevents flat token budgets from over-indexing root utilities while starving nested packages.
-- **Compute Efficiency**: Reduces embedding compute volume by **~78%** while increasing relevant file coverage.
+- **Noise Elimination**: Automatically excludes test fixtures, lockfiles, generated bindings, documentation, and minified bundles.
+- **Multi-Package Coverage**: Ensures nested packages and modules receive balanced representation rather than flat-budget starvation.
+- **Compute Efficiency**: Achieves **~78% compute reduction** compared to full-tree indexing while improving retrieval accuracy.
 
 ---
 
@@ -132,12 +134,12 @@ To test the model under real-world conditions without risking production stabili
 
 ```mermaid
 flowchart LR
-    Issue[Incoming GitHub Issue] --> ProdGate[Production Heuristic Gate]
-    Issue --> ShadowQLoRA[QLoRA Shadow Model]
-    ProdGate --> Comp[Shadow Agreement Comparison]
+    Issue["Incoming GitHub Issue"] --> ProdGate["Production Heuristic Gate"]
+    Issue --> ShadowQLoRA["QLoRA Shadow Model"]
+    ProdGate --> Comp["Shadow Agreement Check"]
     ShadowQLoRA --> Comp
-    Comp --> Telemetry[(Shadow Telemetry Logs)]
-    ProdGate --> LiveFeed[Live Production Recommendation Feed]
+    Comp --> Telemetry["Shadow Telemetry Logs"]
+    ProdGate --> LiveFeed["Production Recommendation Feed"]
 ```
 
 ### Shadow Results:
@@ -183,25 +185,3 @@ When a contributor opens an opportunity in GitNova, they are guided through 10 i
 | **Frontend UI** | React 18, Vite, Tailwind CSS, Lucide | Responsive developer workspace with dark/light mode |
 | **CI/CD & Automation** | GitHub Actions | Automated issue discovery rotation, re-indexing, and testing |
 | **Cloud Hosting** | Vercel (Frontend), Supabase (Database & Vectors) | Global edge deployment with direct cloud database fallback |
-
----
-
-## 8. Live Demonstration Guide (For Walkthroughs & Interviews)
-
-```mermaid
-flowchart LR
-    Step1[1. Select Stack] --> Step2[2. Explore Feed]
-    Step2 --> Step3[3. Open Opportunity]
-    Step3 --> Step4[4. Walk 10 Stages]
-    Step4 --> Step5[5. Inspect Verified Code]
-```
-
-### Recommended Demo Opportunities:
-1. **TypeScript Opportunity**: `OpenHands/OpenHands #16430` — *"File upload does not have an indication of progress"*
-   - **Stack**: TypeScript / React
-   - **Target File**: `src/api/canvas-ui-client-tool.ts` & `src/api/agent-server-adapter.ts`
-   - **Highlights**: Demonstrates AST-grounded code navigation and clear progress bar implementation plan.
-2. **Python Opportunity**: `psf/requests #7564` — *"raise FileNotFoundError for missing TLS material"*
-   - **Stack**: Python
-   - **Target File**: `src/requests/adapters.py` (`_urllib3_request_context`)
-   - **Highlights**: Demonstrates root-cause exception analysis and pytest reproduction instructions.
