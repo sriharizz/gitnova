@@ -26,39 +26,32 @@ GitNova solves this by combining automated GitHub discovery, deterministic quali
 
 ```mermaid
 flowchart TD
-    subgraph S1 ["1. Ingestion & Discovery"]
-        GH["GitHub API & Webhooks"] --> Ingest["Repository Ingestor"]
-        Ingest --> Qual["Noise & Availability Gates"]
+    subgraph S1 ["1. Ingestion Layer"]
+        A["GitHub Repositories & Issues"] --> B["Noise & Availability Filters"]
     end
 
-    subgraph S2 ["2. Selective RAG & Indexing"]
-        RepoMap["Repository Directory Map"] --> Cand["Candidate File Selection"]
-        Cand --> AST["Tree-sitter / AST Chunking"]
-        AST --> Embed["Jina-v2 Embedder (768-dim)"]
-        Embed --> VectorStore["Supabase pgvector"]
+    subgraph S2 ["2. Code Indexing & Storage"]
+        B --> C["AST-Aware Code Chunking"]
+        C --> D["Jina-v2 768-dim Embeddings"]
+        D --> E[("Supabase pgvector Database")]
     end
 
-    subgraph S3 ["3. Grounded Reasoning Engine"]
-        HybridRet["Dense + Lexical Retrieval"] --> GroundedEv["Repository Code Evidence"]
-        GroundedEv --> LLM["LLM Reasoning (Gemini 2.5)"]
-        LLM --> Verify["AST Verification Gate"]
+    subgraph S3 ["3. AI Reasoning Engine"]
+        E --> F["Dense + Lexical Code Retrieval"]
+        F --> G["Grounded LLM Analysis (Gemini 2.5)"]
     end
 
-    subgraph S4 ["4. Feed & Guided Journey"]
-        Ranking["Scoring & Diversity Engine"] --> Feed["Recommendation Feed"]
-        Feed --> Journey["10-Stage Contributor Journey"]
+    subgraph S4 ["4. Contributor Interface"]
+        G --> H["Personalized Recommendation Feed"]
+        H --> I["10-Stage Interactive Journey"]
     end
-
-    Qual --> RepoMap
-    VectorStore --> HybridRet
-    Verify --> Ranking
 ```
 
 ### Pipeline Overview:
-- **Discovery & Ingestion**: Continuously queries GitHub across languages, running rule-based checks to eliminate unmaintained or assigned issues.
-- **Selective RAG & Indexing**: Employs syntax-aware AST parsing to chunk functions and classes, embedding relevant segments into Supabase `pgvector`.
-- **Grounded Reasoning**: Hybrid retrieval provides verified code snippets to the LLM, strictly verifying file paths and symbols against the repository tree.
-- **Feed & Guided Journey**: Applies repository diversity constraints (max 2 per repo) and serves a complete 10-stage contribution roadmap.
+- **1. Ingestion Layer**: Scans GitHub repositories across languages and filters out stale, assigned, or unmaintained issues.
+- **2. Code Indexing & Storage**: Parses code at AST function/class boundaries, generates dense 768-dim vectors with Jina-v2, and persists them into Supabase `pgvector`.
+- **3. AI Reasoning Engine**: Uses hybrid retrieval to extract verified target code, allowing Gemini 2.5 Flash to generate grounded fix plans verified against the repository file tree.
+- **4. Contributor Interface**: Delivers diverse recommendations (max 2 per repo) and guides contributors through an interactive 10-stage workspace from reproduction to pull request.
 
 ---
 
