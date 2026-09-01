@@ -859,29 +859,24 @@ async def get_recommendations(
         difficulty_tier=None,
         domain=None,
         verification_status="VERIFIED",
-        limit=300,
+        limit=1000,
         offset=0,
     )
 
     eligible_candidates = []
     for iss in all_verified_issues:
-        # 1. Base Publishability & Quality Floor Gate
+        # 1. Base Publishability & Verification Gate
         if iss.verification_status != "VERIFIED":
             continue
         if iss.availability_status == "NOT_RECOMMENDED":
             continue
-        if (iss.quality_score or 0) < 60:
-            continue
-        if iss.quality_grade == "low":
-            continue
         if not iss.explanation or iss.explanation.status == "INSUFFICIENT_EVIDENCE":
             continue
 
-        # 2. Quality Floor: ensure issue has actionable plan and target locations
+        # 2. Quality & Plan Validation: ensure issue has an explanation summary or plan
         plan = getattr(iss.explanation, "step_by_step_plan", []) or []
         locs = getattr(iss.explanation, "relevant_locations", []) or []
-        verified_locs = [l for l in locs if getattr(l, "is_verified", False) or getattr(l, "file_path", None)]
-        if len(plan) == 0 or len(verified_locs) == 0:
+        if len(plan) == 0 and len(locs) == 0 and not getattr(iss.explanation, "summary", None):
             continue
 
         suit_dict = iss.beginner_suitability.model_dump() if iss.beginner_suitability else {}
@@ -904,24 +899,12 @@ async def get_recommendations(
 
         # 5. Experience / Difficulty Filtering
         if target_diff == "BEGINNER":
-            # Beginner feed MUST ONLY contain pure BEGINNER or BEGINNER_PLUS complexity
-            if iss_contrib_complexity not in ["BEGINNER", "BEGINNER_PLUS"]:
+            if iss_contrib_complexity not in ["BEGINNER", "BEGINNER_PLUS", "MEDIUM"]:
                 continue
-            # Hard setup complexity is forbidden for beginners
             if iss_setup_complexity == "HARD":
                 continue
-            # CHECK_DISCUSSION issues are NOT immediately actionable for beginners
-            if iss.availability_status != "LIKELY_AVAILABLE":
-                continue
         elif target_diff == "INTERMEDIATE":
-            # Intermediate users can see BEGINNER, BEGINNER_PLUS, and INTERMEDIATE
-            if iss_contrib_complexity not in ["BEGINNER", "BEGINNER_PLUS", "INTERMEDIATE"]:
-                continue
-            if iss.availability_status not in ["LIKELY_AVAILABLE", "CHECK_DISCUSSION"]:
-                continue
-        elif target_diff in ["ADVANCED", "ALL"]:
-            # Advanced or All tiers can see all publishable verified issues
-            if iss.availability_status not in ["LIKELY_AVAILABLE", "CHECK_DISCUSSION"]:
+            if iss_contrib_complexity not in ["BEGINNER", "BEGINNER_PLUS", "INTERMEDIATE", "MEDIUM"]:
                 continue
 
         eligible_candidates.append(iss)
