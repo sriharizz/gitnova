@@ -22,56 +22,98 @@ GitNova solves this by combining automated GitHub discovery, deterministic quali
 
 ---
 
-## 1. System Architecture
+## 1. System Infrastructure Architecture
 
 ```mermaid
 flowchart TD
-    subgraph S1 ["1. Ingestion Layer"]
-        A["GitHub Repositories & Issues"] --> B["Noise & Availability Filters"]
+    subgraph ClientLayer ["1. Client Layer"]
+        Browser["Developer Web Browser"]
     end
 
-    subgraph S2 ["2. Code Indexing & Storage"]
-        B --> C["AST-Aware Code Chunking"]
-        C --> D["Jina-v2 768-dim Embeddings"]
-        D --> E[("Supabase pgvector Database")]
+    subgraph FrontendLayer ["2. Frontend Application (Vercel Edge)"]
+        UI["React 18 + Vite Web Application"]
+        State["Theme & State Management Engine"]
+        DirectClient["Supabase Direct Cloud Client Fallback"]
+        UI --> State
+        UI --> DirectClient
     end
 
-    subgraph S3 ["3. AI Reasoning Engine"]
-        E --> F["Dense + Lexical Code Retrieval"]
-        F --> G["Grounded LLM Analysis (Gemini 2.5)"]
+    subgraph BackendLayer ["3. Backend Services (FastAPI Container)"]
+        API["FastAPI REST API (/issues, /journey, /stats)"]
+        PipelineOrch["Pipeline Orchestration Engine"]
+        API --> PipelineOrch
     end
 
-    subgraph S4 ["4. Contributor Interface"]
-        G --> H["Personalized Recommendation Feed"]
-        H --> I["10-Stage Interactive Journey"]
+    subgraph WorkerLayer ["4. Automation Workers (GitHub Actions)"]
+        DiscoveryWorker["Scheduled Discovery & Qualification Worker"]
+        IndexWorker["Repository Selective Re-Indexing Worker"]
     end
+
+    subgraph StorageLayer ["5. Database & Vector Store (Supabase)"]
+        Postgres[("PostgreSQL: Issues, Repos, Explanations")]
+        PgVector[("pgvector: 768-dim Code Vectors")]
+    end
+
+    subgraph ExternalAPIs ["6. External AI & Code Services"]
+        GitHubAPI["GitHub REST API & Webhooks"]
+        JinaAPI["Jina-v2 Code Embedder (768-dim)"]
+        GeminiAPI["Google Gemini 2.5 Flash LLM"]
+    end
+
+    Browser <--> UI
+    UI <--> API
+    DirectClient <--> Postgres
+
+    DiscoveryWorker --> GitHubAPI
+    DiscoveryWorker --> Postgres
+    IndexWorker --> JinaAPI
+    IndexWorker --> PgVector
+
+    PipelineOrch --> Postgres
+    PipelineOrch --> PgVector
+    PipelineOrch --> GeminiAPI
 ```
-
-### Pipeline Overview:
-- **1. Ingestion Layer**: Scans GitHub repositories across languages and filters out stale, assigned, or unmaintained issues.
-- **2. Code Indexing & Storage**: Parses code at AST function/class boundaries, generates dense 768-dim vectors with Jina-v2, and persists them into Supabase `pgvector`.
-- **3. AI Reasoning Engine**: Uses hybrid retrieval to extract verified target code, allowing Gemini 2.5 Flash to generate grounded fix plans verified against the repository file tree.
-- **4. Contributor Interface**: Delivers diverse recommendations (max 2 per repo) and guides contributors through an interactive 10-stage workspace from reproduction to pull request.
 
 ---
 
-## 2. Selective RAG & Indexing Pipeline
+## 2. End-to-End Data & Intelligence Pipeline
 
 ```mermaid
 flowchart TD
-    Tree["Repository Tree"] --> Classify["File Classification"]
-    Classify --> Select["Issue-Aware Selection"]
-    Select --> AST["AST Chunking"]
-    AST --> Embed["Jina-v2 Embedder"]
-    Embed --> Store["Supabase Vector DB"]
-    Store --> Retrieve["Hybrid Retrieval"]
-    Retrieve --> Evidence["Verified Evidence"]
+    subgraph Stage1 ["Stage 1: Discovery & Qualification"]
+        GH["GitHub Repository Stream"] --> Ingest["Repository Ingestor"]
+        Ingest --> Qual["Noise & Availability Filters"]
+        Qual --> CleanCandidates["Qualified Issue Candidates"]
+    end
+
+    subgraph Stage2 ["Stage 2: Selective Code Indexing"]
+        RepoTree["Repository File Tree"] --> RepoMap["Repository Map & Module Classifier"]
+        RepoMap --> CandSelection["Issue-Aware File Candidate Selection"]
+        CandSelection --> ASTChunker["AST Structure Chunker (Functions / Classes)"]
+        ASTChunker --> Embedder["Jina-v2 Code Embedder (768-dim)"]
+        Embedder --> VectorDB[("Supabase pgvector Database")]
+    end
+
+    subgraph Stage3 ["Stage 3: Hybrid Retrieval & Grounded Reasoning"]
+        CleanCandidates --> HybridRet["Hybrid Retrieval (Dense Vectors + Lexical Match)"]
+        VectorDB --> HybridRet
+        HybridRet --> CodeContext["AST-Grounded Code Evidence (Files, Lines, Symbols)"]
+        CodeContext --> LLM["LLM Reasoning Engine (Gemini 2.5 Flash)"]
+        LLM --> Verify["AST Verification & File Path Safety Gate"]
+    end
+
+    subgraph Stage4 ["Stage 4: Feed Delivery & Contribution Journey"]
+        Verify --> Ranking["Multi-Factor Scoring & Diversity Gate (Max 2/Repo)"]
+        Ranking --> Feed["Live Recommendation Feed"]
+        Feed --> Workspace["10-Stage Contributor Workspace (01 Understand -> 10 PR Review)"]
+    end
 ```
 
-### Why Selective Indexing Matters:
-- **Noise Elimination**: Automatically excludes test fixtures, lockfiles, generated bindings, documentation, and minified bundles.
-- **Multi-Package Coverage**: Ensures nested packages and modules receive balanced representation rather than flat-budget starvation.
-- **Compute Efficiency**: Achieves **~78% compute reduction** compared to full-tree indexing while improving retrieval accuracy.
+### Pipeline Details:
+1. **Discovery & Qualification**: Pulls issue candidates across languages and filters out stale, assigned, closed, or PR-competing issues.
+2. **Selective Code Indexing**: Builds directory module maps, chunks source code at AST syntax boundaries, generates 768-dim code embeddings, and persists them into Supabase `pgvector`.
+3. **Hybrid Retrieval & Grounded Reasoning**: Combines dense semantic vector search with lexical identifier matching to supply Gemini 2.5 Flash with verified code context, verifying paths against the repository tree.
+4. **Feed Delivery & Contribution Journey**: Ranks opportunities with strict repository diversity (max 2 per repo) and guides developers through an interactive 10-stage journey from local reproduction to PR submission.
 
 ---
 
